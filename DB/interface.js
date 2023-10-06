@@ -28,6 +28,13 @@ const updateShipmentLog = (args) => {
   });
 }
 
+const deleteShipmentLog = (args) => {
+  db.execute(queries.shipment_log.delete, args.to_arr(), (err)=>{
+    if(err){
+      console.log(err);
+    }
+  });
+}
 
 
 class db_interface{
@@ -39,6 +46,9 @@ class db_interface{
   }
   update_shipment_log = (args) => {
     updateShipmentLog(args);
+  }
+  delete_shipment_log = (args) => {
+    deleteShipmentLog(args);
   }
 
 }

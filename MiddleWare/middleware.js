@@ -18,6 +18,12 @@ req_model.update_shipment((req.body), (data) => {
   next();
 });
 
+router.use("/shipment_delete", (req, res, next) => {
+  req_model.delete_shipment((req.body), (data) => {
+    req.req_data = data;
+  })
+  next();
+})
 
 
 module.exports = router;

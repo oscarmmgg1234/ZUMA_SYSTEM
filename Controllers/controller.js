@@ -16,6 +16,10 @@ const update_shipment_log = (args) => {
     db_api.update_shipment_log(args);
 }
 
+const delete_shipment_log = (args) => {
+    db_api.delete_shipment_log(args);
+}
+
 class controller {
     select_all_shipment = (callback) => {
         select_all_shipment_log((data)=>{return callback(data)});
@@ -26,7 +30,9 @@ class controller {
     update_shipment = (args) => {
         update_shipment_log(args);
     }
-    
+    delete_shipment_log = (args) => {
+        delete_shipment_log(args);
+    }
 }
 
 exports.controller_interface = () => {

@@ -1,0 +1,4 @@
+
+class inv_consumption {
+    
+}

@@ -19,5 +19,9 @@ router.post("/shipment_update", (req, res) => {
     res.send(res.status(200).send("shipment updated"));
 })
 
+router.post("/shipment_delete", (req, res) => {
+    controller.delete_shipment_log(req.req_data);
+    res.send(res.status(200).send("shipment deleted"));
+})
 
 module.exports = router;

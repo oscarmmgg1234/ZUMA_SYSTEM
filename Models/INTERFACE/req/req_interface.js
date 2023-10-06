@@ -1,5 +1,6 @@
 const shipment = require("../../req/shipment/insert");
 const update_shipment = require("../../req/shipment/update");
+const delete_shipment = require("../../req/shipment/delete");
 
 class req_interface {
     insert_shipment = (args,callback) => {
@@ -7,6 +8,9 @@ class req_interface {
     }
     update_shipment = (args,callback) => {
         update_shipment.shipment_update_model(args, (data)=>{return callback(data)});
+    }
+    delete_shipment = (args,callback) => {
+        delete_shipment.delete_shipment_model(args, (data)=>{return callback(data)});
     }
 }
 
