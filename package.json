@@ -1,0 +1,16 @@
+{
+  "name": "inventory_service",
+  "version": "1.0.0",
+  "description": "work with inventory db to keep stock of inventory",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "oscar maldonado",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.1"
+  }
+}
