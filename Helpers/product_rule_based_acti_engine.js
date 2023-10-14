@@ -3632,7 +3632,7 @@ const activation_engine = (args) => {
   //l-lysine
   if (args.PRODUCT_ID == "c2343944") {
     // label => 37438f5d
-    //component => lg container + lg lid + 200 capusles base
+    //component => lg container + lg lid + 200 capusles base + shrink wrap
   }
   //l-proline
   if (args.PRODUCT_ID == "31be679b") {
@@ -3685,31 +3685,444 @@ const activation_engine = (args) => {
   }
   //shampoo
   if (args.PRODUCT_ID == "5f21a6fe") {
+    //add product to activation log for p
+    db.query(
+      queries.activation_product.product_activation_liquid,
+      args.to_arr()
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_active,
+      ["5f21a6fe"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation, [
+            result[0].ACTIVE_STOCK + args.QUANTITY,
+            "5f21a6fe",
+          ]);
+        }
+      }
+    );
+
+    //reduce stored quantity
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["5f21a6fe"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "5f21a6fe",
+          ]);
+        }
+      }
+    );
+
+    //insert log for product release
+    db.query(
+      queries.product_release.insert_product_release,
+      ["5f21a6fe", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+    );
+
+    //label
+    db.query(
+      queries.product_release.insert_product_release,
+      ["adae450c", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {}
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["adae450c"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_consumption_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "adae450c",
+          ]);
+        }
+      }
+    );
+
     //label => adae450c
   }
   //conditioner
   if (args.PRODUCT_ID == "24cc76f3") {
+    db.query(
+      queries.activation_product.product_activation_liquid,
+      args.to_arr()
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_active,
+      ["24cc76f3"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation, [
+            result[0].ACTIVE_STOCK + args.QUANTITY,
+            "24cc76f3",
+          ]);
+        }
+      }
+    );
+
+    //reduce stored quantity
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["24cc76f3"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "24cc76f3",
+          ]);
+        }
+      }
+    );
+
+    //insert log for product release
+    db.query(
+      queries.product_release.insert_product_release,
+      ["5f21a6fe", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+    );
+
+    //label
+    db.query(
+      queries.product_release.insert_product_release,
+      ["34563cc9", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {}
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["34563cc9"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_consumption_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "34563cc9",
+          ]);
+        }
+      }
+    );
+
     //label => 34563cc9
   }
   //laundry detergent
   if (args.PRODUCT_ID == "78c8da4d") {
+    db.query(
+      queries.activation_product.product_activation_liquid,
+      args.to_arr()
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_active,
+      ["78c8da4d"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation, [
+            result[0].ACTIVE_STOCK + args.QUANTITY,
+            "78c8da4d",
+          ]);
+        }
+      }
+    );
+    //reduce stored quantity
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["e65b9756"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "e65b9756",
+          ]);
+        }
+      }
+    );
+
+    //insert log for product release body wash
+    db.query(
+      queries.product_release.insert_product_release,
+      ["e65b9756", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+    );
+    //label
+    db.query(
+      queries.product_release.insert_product_release,
+      ["4f6d1af3", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {}
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["4f6d1af3"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_consumption_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "4f6d1af3",
+          ]);
+        }
+      }
+    );
     //label => 4f6d1af3
     //component => liquid_bd/ld
   }
   //body wash
   if (args.PRODUCT_ID == "e65b9756") {
+    db.query(
+      queries.activation_product.product_activation_liquid,
+      args.to_arr()
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_active,
+      ["e65b9756"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation, [
+            result[0].ACTIVE_STOCK + args.QUANTITY,
+            "e65b9756",
+          ]);
+        }
+      }
+    );
+    //reduce stored quantity
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["e65b9756"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "e65b9756",
+          ]);
+        }
+      }
+    );
+
+    //insert log for product release
+    db.query(
+      queries.product_release.insert_product_release,
+      ["e65b9756", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+    );
+    //label
+    db.query(
+      queries.product_release.insert_product_release,
+      ["f71b260a", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {}
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["f71b260a"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_consumption_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "f71b260a",
+          ]);
+        }
+      }
+    );
     //label => f71b260a
     //component => liquid_bd/ld
   }
   //Pet balm
   if (args.PRODUCT_ID == "66e2f256") {
+    db.query(
+      queries.activation_product.product_activation_liquid,
+      args.to_arr()
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_active,
+      ["66e2f256"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation, [
+            result[0].ACTIVE_STOCK + args.QUANTITY,
+            "66e2f256",
+          ]);
+        }
+      }
+    );
+    //reduce stored quantity
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["66e2f256"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "66e2f256",
+          ]);
+        }
+      }
+    );
+
+    //insert log for product release
+    db.query(
+      queries.product_release.insert_product_release,
+      ["66e2f256", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+    );
+    //label
+    db.query(
+      queries.product_release.insert_product_release,
+      ["5ae713ef", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {}
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["5ae713ef"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_consumption_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "5ae713ef",
+          ]);
+        }
+      }
+    );
+
     //label => 5ae713ef
   }
   //Pet shampoo
   if (args.PRODUCT_ID == "4d1f188e") {
+    db.query(
+      queries.activation_product.product_activation_liquid,
+      args.to_arr()
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_active,
+      ["4d1f188e"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation, [
+            result[0].ACTIVE_STOCK + args.QUANTITY,
+            "4d1f188e",
+          ]);
+        }
+      }
+    );
+
+    //reduce stored quantity
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["5f21a6fe"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_activation_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "5f21a6fe",
+          ]);
+        }
+      }
+    );
+
+    //insert log for product release
+    db.query(
+      queries.product_release.insert_product_release,
+      ["5f21a6fe", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+    );
+
+    //label
+    db.query(
+      queries.product_release.insert_product_release,
+      ["62c42a38", args.QUANTITY, args.EMPLOYEE_ID],
+      (err) => {}
+    );
+    db.query(
+      queries.product_release.get_quantity_by_stored_id_storage,
+      ["62c42a38"],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          //update product inventory base
+          db.query(queries.product_inventory.update_consumption_stored, [
+            result[0].STORED_STOCK - args.QUANTITY,
+            "62c42a38",
+          ]);
+        }
+      }
+    );
     //label => 62c42a38
     //component => shampoo
   }
+  //wait
   //pet agaricus
   if (args.PRODUCT_ID == "1e0f78f0") {
     //label => e207d144
