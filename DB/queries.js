@@ -18,6 +18,7 @@ const activation_product = {
   product_consumption_product_base:
     "INSERT INTO inventory_comsumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
   // product_inv_update: "UPDATE PRODUCT SET QUANTITY = ? WHERE PRODUCT_ID = ?",
+  get_products: "SELECT * FROM product",
 };
 
 const product_release = {
@@ -40,9 +41,23 @@ const product_inventory = {
     "UPDATE product_inventory SET STORED_STOCK = ? WHERE PRODUCT_ID = ?",
 };
 
+const shipment = {
+  get_product_by_company: "SELECT * FROM product WHERE COMPANY = ?",
+  get_company_info: "SELECT * FROM company",
+  get_employee_info: "SELECT * FROM employee",
+}
+
+const label_print = {
+  get_products_info: "SELECT * FROM product order by TYPE DESC",
+  
+};
+
+
 exports.queries = {
   shipment_log: shipment_log,
   activation_product: activation_product,
   product_release: product_release,
   product_inventory: product_inventory,
+  label_print: label_print,
+  shipment: shipment,
 };

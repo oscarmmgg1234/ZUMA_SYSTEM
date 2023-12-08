@@ -10,7 +10,9 @@
   "author": "oscar maldonado",
   "license": "ISC",
   "dependencies": {
+    "bwip-js": "^4.1.1",
     "express": "^4.18.2",
-    "mysql2": "^3.6.1"
+    "mysql2": "^3.6.1",
+    "sharp": "^0.32.6"
   }
 }

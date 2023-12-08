@@ -3,6 +3,9 @@ const update_shipment = require("../../req/shipment/update");
 const delete_shipment = require("../../req/shipment/delete");
 const get_product_model = require("../../req/inv_activation/getProduct");
 const product_activation = require("../../req/inv_activation/activation");
+const getPByCompany = require("../../req/shipment/getProducts");
+const barcode_gen = require("../../req/Barcode/barcode_gen");
+const product_reduc = require("../../req/inv_consumption/insert");
 
 class req_interface {
   insert_shipment = (args, callback) => {
@@ -27,6 +30,21 @@ class req_interface {
   };
   activation = (args, callback) => {
     product_activation.product_activation_model(args, (data) => {
+      return callback(data);
+    });
+  };
+  getProductsByCompany = (args, callback) => {
+    getPByCompany.getProductsByCompany(args, (data) => {
+      return callback(data);
+    });
+  };
+  barcode_build = (args, callback) => {
+    barcode_gen.barcode_gen(args, (data) => {
+      return callback(data);
+    });
+  };
+  product_reduction = (args, callback) => {
+    product_reduc.product_reduc(args, (data) => {
       return callback(data);
     });
   };

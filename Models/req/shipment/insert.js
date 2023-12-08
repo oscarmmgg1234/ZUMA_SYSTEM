@@ -5,6 +5,7 @@ class insert_shipment {
     this.TYPE = args.TYPE;
     this.EMPLOYEE_ID = args.EMPLOYEE_ID;
     this.PRODUCT_ID = args.PRODUCT_ID;
+    this.SHIPMENT_TYPE = args.SHIPMENT_TYPE;
   }
   to_arr() {
     return [
@@ -18,8 +19,10 @@ class insert_shipment {
 }
 
 const insert_shipment_model = (args, callback) => {
-  const data = new insert_shipment(args);
-  return callback(data);
+  const shipmentObject = args.map((arg) => {
+    return new insert_shipment(arg);
+  });
+  return callback(shipmentObject);
 };
 
 exports.insert_shipment_model = insert_shipment_model;
