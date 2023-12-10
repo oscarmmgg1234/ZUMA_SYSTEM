@@ -6,4 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "4.0"
+actix-web = "4.0" # use the latest version
+actix-rt = "2.5" # use the latest version
+serde = { version = "1.0", features = ["derive"] }
+

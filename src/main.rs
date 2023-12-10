@@ -8,10 +8,9 @@ struct ApiResponse {
 
 async fn handle_request(req: HttpRequest) -> impl Responder {
     let connection_info = req.connection_info();
-    let remote_addr = connection_info.remote_addr().unwrap_or("unknown");
+    let remote_addr = connection_info.peer_addr().unwrap_or_else(|| "unknown");
 
     if is_ip_approved(remote_addr) {
-        // Code to retrieve and send the API key
         HttpResponse::Ok().json(ApiResponse { message: "59db9980-98dc-4851-b81c-9254ac494e92".to_string() })
     } else {
         HttpResponse::Forbidden().json(ApiResponse { message: "Access Denied".to_string() })
@@ -19,11 +18,15 @@ async fn handle_request(req: HttpRequest) -> impl Responder {
 }
 
 fn is_ip_approved(ip: &str) -> bool {
-    // Implement your logic to check if the IP is approved
-    true // Placeholder
+    println!("{}",ip);
+    if ip == "127.0.0.1" {
+        true // Placeholder for approved IP
+    } else { 
+        false // Or your logic for disapproved IP
+    }
 }
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
