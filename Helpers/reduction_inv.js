@@ -1,12 +1,24 @@
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
+const {controller_interface} = require("../Controllers/controller.js")
 
 // reduce stock for a given product active
 // reduce every other reduceble in company
 
+const controller = controller_interface();
+
+
+const reduction_type = (args) => {
+  controller.tools.get_product_by_id(args.PRODUCT_ID, (data) => {
+    return data[0].REDUCTION_TYPE;
+  })
+}
+
+
 const reduction_engine = (args) => {
+  
   reduction_protocol.forEach((protocol, index) => {
-    if (index + 1 == args.REDUCTION_TYPE) {
+    if (index + 1 == reduction_type(args)) {
       protocol({
         quantity: args.QUANTITY,
         product_id: args.PRODUCT_ID,

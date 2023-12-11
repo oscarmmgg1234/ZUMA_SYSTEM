@@ -6,6 +6,7 @@ const product_activation = require("../../req/inv_activation/activation");
 const getPByCompany = require("../../req/shipment/getProducts");
 const barcode_gen = require("../../req/Barcode/barcode_gen");
 const product_reduc = require("../../req/inv_consumption/insert");
+const parseBarcode = require("../../req/Barcode/barcode_gen.js");
 
 class req_interface {
   insert_shipment = (args, callback) => {
@@ -48,6 +49,11 @@ class req_interface {
       return callback(data);
     });
   };
+  barcodeParse = (args, callback) => {
+    parseBarcode.parseBCode(args, (data) => {
+      return callback(data);
+    });
+  }
 }
 
 //function that returns an instance of the class

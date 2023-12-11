@@ -40,6 +40,12 @@ const get_employee_info = (callback) => {
   });
 };
 
+const get_product_by_id = (args, callback) => {
+  db_api.get_product_by_id(args, (data) => {
+    return callback(data);
+  })
+}
+
 // class Barcode {
 //   constructor(args) {
 //     this.product_id = args.PRODUCT_ID;
@@ -177,6 +183,13 @@ class controller {
   services = {
     barcode_gen: (args, callback) => {
       generate_barcode(args, (data) => {
+        return callback(data);
+      });
+    },
+  };
+  tools = {
+    get_product_by_id: (args, callback) => {
+      get_product_by_id(args, (data) => {
         return callback(data);
       });
     },

@@ -52,6 +52,10 @@ const label_print = {
   
 };
 
+const tools = {
+  get_product_by_id: "SELECT * FROM product WHERE PRODUCT_ID = ?",
+}
+
 
 exports.queries = {
   shipment_log: shipment_log,
@@ -60,4 +64,5 @@ exports.queries = {
   product_inventory: product_inventory,
   label_print: label_print,
   shipment: shipment,
+  tools: tools,
 };

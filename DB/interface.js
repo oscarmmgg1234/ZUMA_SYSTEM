@@ -5,6 +5,12 @@ const { queries } = require("./queries.js");
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const getProductById = (args, callback) => {
+  db.execute(queries.tools.get_product_by_id, args.to_arr(), (err, result) => {
+    return callback(result);
+  });
+};
+
 const insertShipmentLog = (args) => {
   db.execute(queries.shipment_log.insert, args.to_arr(), (err) => {
     if (err) {
@@ -111,6 +117,11 @@ class db_interface {
   };
   get_company_info = (callback) => {
     get_company_info((data) => {
+      return callback(data);
+    });
+  };
+  get_product_by_id = (args, callback) => {
+    getProductById(args, (data) => {
       return callback(data);
     });
   };
