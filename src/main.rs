@@ -19,7 +19,7 @@ async fn handle_request(req: HttpRequest) -> impl Responder {
 
 fn is_ip_approved(ip: &str) -> bool {
     println!("{}",ip);
-    if ip == "127.0.0.1" {
+    if ip == "192.168.1.169" {
         true // Placeholder for approved IP
     } else { 
         false // Or your logic for disapproved IP
