@@ -3,8 +3,7 @@ const sharp = require("sharp");
 
 const barcode_builder = (args, callback) => {
   const promises = [];
-  const text =
-    args.employee.substr(0, 14) + ">" + args.product_id + ">" + args.quantity;
+  const text = args.employee_id + ">" + args.product_id + ">" + args.quantity;
 
   for (let i = 0; i < parseInt(args.multiplier); i++) {
     const promise = new Promise((resolve, reject) => {

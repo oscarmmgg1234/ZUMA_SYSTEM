@@ -73,6 +73,7 @@ const activate_product = (args) => {
     QUANTITY: args.QUANTITY,
     MULTIPLIER: args.MULTIPLIER,
     PRODUCT_NAME: args.PRODUCT_NAME,
+    EMPLOYEE_ID: args.EMPLOYEE_ID,
   });
 };
 
