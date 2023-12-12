@@ -43,8 +43,8 @@ const get_employee_info = (callback) => {
 const get_product_by_id = (args, callback) => {
   db_api.get_product_by_id(args, (data) => {
     return callback(data);
-  })
-}
+  });
+};
 
 // class Barcode {
 //   constructor(args) {
@@ -114,7 +114,8 @@ const shipment_add = (args, callback) => {
 
 const print_label = (args) => {
   services.http_print_label(args);
-}
+};
+
 class controller {
   shipment_controller = {
     select_all_shipment: (callback) => {
@@ -159,7 +160,7 @@ class controller {
     },
     labelPrint: (args) => {
       print_label(args);
-    }
+    },
   };
   shipment = {
     getProductsByCompany: (args, callback) => {
@@ -195,6 +196,7 @@ class controller {
     },
   };
 }
+
 
 exports.controller_interface = () => {
   return new controller();

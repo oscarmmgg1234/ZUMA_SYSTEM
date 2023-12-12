@@ -19,6 +19,7 @@ class Services {
         const return_buffer_arr = buffer_arr.map((buffer) => {
           return { png_buffer: buffer };
         });
+        try{
         fetch("http://192.168.1.25:5000/print_labels", {
           method: "POST",
           body: JSON.stringify(return_buffer_arr),
@@ -26,6 +27,10 @@ class Services {
             "Content-Type": "application/json",
           },
         });
+      }
+      catch(err){
+        console.log(err);
+      }
       });
     });
   };

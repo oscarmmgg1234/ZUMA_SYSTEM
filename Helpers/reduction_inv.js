@@ -1,10 +1,7 @@
+
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
-const {controller_interface} = require("../Controllers/controller.js")
-
-// reduce stock for a given product active
-// reduce every other reduceble in company
-
+const { controller_interface } = require("../Controllers/controller.js");
 const controller = controller_interface();
 
 

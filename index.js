@@ -4,10 +4,10 @@ const server = express();
 const middleware = require("./MiddleWare/middleware");
 const endpoints = require("./Routes/endpoints");
 
-
 server.use(express.json());
 server.use(middleware);
 server.use(endpoints);
+
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
