@@ -90,7 +90,7 @@ router.use("/gen_barcode", (req, res, next) => {
 });
 
 router.use("/product_reduction", (req, res, next) => {
-  req_model.product_reduction(req.body, (data) => {
+  req_model.barcodeParse(req.body, (data) => {
     const err = new ErrorRequest(data);
     if (err.isValid()) {
       res.send(err.getError());

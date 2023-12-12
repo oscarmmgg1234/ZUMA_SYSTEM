@@ -14,18 +14,15 @@ class Barcode {
 }
 
 class parseBarcode {
-  constructor(args) {
-    parseBarcode(args)
-  }
   
-  parseBarcode(args) {
-    const arg_arr = args.barcode.split(">");
-    this.EMPLOYEE_ID = arg_arr[0];
-    this.PRODUCT_ID = arg_arr[1];
-    this.QUANTITY = arg_arr[2];
+  constructor(args) {
+        const arg_arr = args.barcode.split(">");
+        this.EMPLOYEE_ID = arg_arr[0];
+        this.PRODUCT_ID = arg_arr[1];
+        this.QUANTITY = arg_arr[2];
   }
-  to_arr(){
-    return [this.PRODUCT_ID]
+  to_arr() {
+    return [this.PRODUCT_ID];
   }
 }
 
@@ -38,7 +35,8 @@ const barcode_gen = (args, callback) => {
 };
 
 const parse_barcode = (args, callback) => {
-  return new parseBarcode(args);
+  const data = new parseBarcode(args);
+  return callback(data);
 }
 
 exports.barcode_gen = barcode_gen;

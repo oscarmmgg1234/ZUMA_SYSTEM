@@ -1,27 +1,27 @@
-
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
-const { controller_interface } = require("../Controllers/controller.js");
-const controller = controller_interface();
+const { db_interface } = require("../DB/interface.js");
 
+const local_service = db_interface();
 
-const reduction_type = (args) => {
-  controller.tools.get_product_by_id(args.PRODUCT_ID, (data) => {
-    return data[0].REDUCTION_TYPE;
-  })
-}
-
+const reduction_type = (args, callback) => {
+  local_service.get_product_by_id(args, (data) => {
+    return callback(data[0].REDUCTION_TYPE);
+  });
+};
 
 const reduction_engine = (args) => {
-  
+
   reduction_protocol.forEach((protocol, index) => {
-    if (index + 1 == reduction_type(args)) {
-      protocol({
-        quantity: args.QUANTITY,
-        product_id: args.PRODUCT_ID,
-        employee_id: args.EMPLOYEE_ID,
-      });
-    }
+    reduction_type(args, (type) => {
+      if (index + 1 == type) {
+        protocol({
+          quantity: args.QUANTITY,
+          product_id: args.PRODUCT_ID,
+          employee_id: args.EMPLOYEE_ID,
+        });
+      }
+    });
   });
 };
 

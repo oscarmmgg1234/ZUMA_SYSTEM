@@ -197,7 +197,6 @@ class controller {
   };
 }
 
-
 exports.controller_interface = () => {
   return new controller();
 };
