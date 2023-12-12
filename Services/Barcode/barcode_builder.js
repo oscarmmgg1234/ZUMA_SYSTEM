@@ -4,7 +4,7 @@ const sharp = require("sharp");
 const barcode_builder = (args, callback) => {
   const promises = [];
   const text = args.employee_id + ">" + args.product_id + ">" + args.quantity;
-  
+  console.log(args.employee_id)
   for (let i = 0; i < parseInt(args.multiplier); i++) {
     const promise = new Promise((resolve, reject) => {
       bwipjs.toBuffer(
