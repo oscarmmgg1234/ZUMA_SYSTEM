@@ -12,16 +12,27 @@
 class sys_profiler{
     constructor(){
     this.init = true;
+    this.profiler_endpoints_counter = new Map();
+    this.profiler_processes_counter = new Map();
+    this.profiler_endpoints_timer = new Map();
+    this.profiler_processes_timer = new Map();
+    this.profiler_processes_timer_avg = new Map();
+    this.profiler_endpoints_counter_avg = new Map();
     }
 
-    funcTypeTimer(func){
+    funcTypeTimer(func, args){
         const start = performance.now();
         func();
         const end = performance.now();
-        
-
     }
 
+    endpointCallCounter(){
+
+    }
+    
+    addTrackerObject(type, name, profilerType){
+
+    }
 
 }
 

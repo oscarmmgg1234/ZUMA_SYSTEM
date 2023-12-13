@@ -1,5 +1,6 @@
 const express = require("express");
 const server = express();
+const reflect = require("reflect-metadata")
 
 const middleware = require("./MiddleWare/middleware");
 const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");
