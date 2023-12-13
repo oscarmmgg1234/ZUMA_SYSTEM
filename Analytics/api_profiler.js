@@ -8,3 +8,27 @@
 //update endpoints names to specify api and psudo process type // http://localhost:3000/api/shipment/insert_shipment
 
 //also use chat gpt to refactor code and add comments to cleary explain code as well as clean it up
+
+class sys_profiler{
+    constructor(){
+    this.init = true;
+    }
+
+    funcTypeTimer(func){
+        const start = performance.now();
+        func();
+        const end = performance.now();
+        
+
+    }
+
+
+}
+
+const sys_tracker = new sys_profiler();
+
+exports.profiler = () => {
+    return sys_tracker;
+}
+
+F
