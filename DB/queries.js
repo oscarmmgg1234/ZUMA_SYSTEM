@@ -45,17 +45,19 @@ const shipment = {
   get_product_by_company: "SELECT * FROM product WHERE COMPANY = ?",
   get_company_info: "SELECT * FROM company",
   get_employee_info: "SELECT * FROM employee",
-}
+};
 
 const label_print = {
   get_products_info: "SELECT * FROM product order by TYPE DESC",
-  
 };
 
 const tools = {
   get_product_by_id: "SELECT * FROM product WHERE PRODUCT_ID = ?",
-}
-
+  shipment_log: "SELECT * FROM shipment_log ORDER BY SHIPMENT_DATE DESC LIMIT 5",
+  activation_log:
+    "SELECT * FROM inv_activation_history_log ORDER BY DATE DESC LIMIT 5",
+  consumption_log: "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 5",
+};
 
 exports.queries = {
   shipment_log: shipment_log,

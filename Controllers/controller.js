@@ -113,6 +113,25 @@ const shipment_add = (args, callback) => {
   });
 };
 
+const get_shipment_log = (callback) => {
+  db_api.get_shipment_log((data) => {
+    return callback(data);
+  });
+};
+
+const get_activation_log = (callback) => {
+  db_api.get_activation_log((data) => {
+    return callback(data);
+  });
+};
+
+const get_consumption_log = (callback) => {
+  db_api.get_consumption_log((data) => {
+    return callback(data);
+  });
+};
+
+
 const print_label = (args) => {
   services.http_print_label(args);
 };
@@ -187,6 +206,21 @@ class controller {
       generate_barcode(args, (data) => {
         return callback(data);
       });
+    },
+    getHistoryLog: (callback) => {
+      get_shipment_log((data) => {
+        return callback(data);
+      })
+    },
+    getActivationLog: (callback) => {
+      get_activation_log((data) => {
+        return callback(data);
+      })
+    },
+    getConsumptionLog: (callback) => {
+      get_consumption_log((data) => {
+        return callback(data);
+      })
     },
   };
   tools = {

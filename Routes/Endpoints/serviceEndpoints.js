@@ -13,8 +13,18 @@ service_router.post("/printLabel", (req, res) => {
     endpoint_handler.services.print_label(req, res);
 });
 
-service_router.post("/getHistoryLog" , (req, res) => {
-    endpoint_handler.services.get_history_log(req, res);
+service_router.post("/getShipmentLog" , (req, res) => {
+    endpoint_handler.services.getHistoryLog(req, res);
+});
+
+service_router.post("/getActivationLog" , (req, res) => {
+    endpoint_handler.services.getActivationLog(req, res);
+
+})
+
+service_router.post("/getReductionLog" , (req, res) => {
+    endpoint_handler.services.getReductionLog(req, res);
+
 });
 
 service_router.post("/api_status", (req, res) => {
@@ -24,5 +34,6 @@ service_router.post("/api_status", (req, res) => {
 service_router.get("/get_products", (req, res) => {
     endpoint_handler.services.getProducts(req, res);
 });
+
 
 module.exports = service_router;

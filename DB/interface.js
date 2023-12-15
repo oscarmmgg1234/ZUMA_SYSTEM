@@ -78,7 +78,45 @@ const get_company_info = (callback) => {
     return callback(result);
   });
 };
+
+
+const get_shipment_log = (callback) => {
+  db.execute(queries.tools.shipment_log, (err, result) => {
+    return callback(result);
+  });
+};
+
+const get_activation_log = (callback) => {
+  db.execute(queries.tools.activation_log, (err, result) => {
+    return callback(result);
+  });
+};
+
+const get_consumption_log = (callback) => {
+  db.execute(queries.tools.consumption_log, (err, result) => {
+    return callback(result);
+  });
+};
+
+
+
+
 class db_interface {
+  get_shipment_log = (callback) => {
+    get_shipment_log((data) => {
+      return callback(data);
+    });
+  }
+  get_activation_log = (callback) => {
+    get_activation_log((data) => {
+      return callback(data);
+    });
+  }
+  get_consumption_log = (callback) => {
+    get_consumption_log((data) => {
+      return callback(data);
+    });
+  }
   insert_shipment_log = (args, callback) => {
     return insertShipmentLog(args, (data) => {
       return callback(data);

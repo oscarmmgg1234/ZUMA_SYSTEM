@@ -171,7 +171,46 @@ class http_handler {
         }
       });
     },
+    getHistoryLog: (req, res) => {
+      controller.services.getHistoryLog((data) => {
+        const err = new ErrorHandling(data, "Error getting history log");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved History Log").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      })
+
+    },
+    getActivationLog: (req, res) => {
+      controller.services.getActivationLog((data) => {
+        const err = new ErrorHandling(data, "Error getting activation log");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Activation Log").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },  
+    getReductionLog: (req, res) => {
+      controller.services.getConsumptionLog((data) => {
+        const err = new ErrorHandling(data, "Error getting consumption log");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Consumption Log").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
   };
+
+
 }
 
 exports.endpointHandler = () => {
