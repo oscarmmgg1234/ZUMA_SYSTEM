@@ -70,8 +70,19 @@ class http_handler {
         }
       });
     },
-
-    get_product_by_type: (req, res) => {
+    get_employee_info: (req, res) => {
+      controller.product_activation_controller.get_employee_info((data) => {
+        const err = new ErrorHandling(data, "Error getting employee info");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Employee Info").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    getProductByType: (req, res) => {
       controller.product_activation_controller.get_activation_product(
         req.req_data,
         (data) => {
@@ -92,18 +103,6 @@ class http_handler {
           }
         }
       );
-    },
-    get_employee_info: (req, res) => {
-      controller.product_activation_controller.get_employee_info((data) => {
-        const err = new ErrorHandling(data, "Error getting employee info");
-        if (err.isValid()) {
-          res.send(
-            new success_handling(data, "Retrieved Employee Info").getSuccess()
-          );
-        } else {
-          res.send(err.getError());
-        }
-      });
     },
   };
 

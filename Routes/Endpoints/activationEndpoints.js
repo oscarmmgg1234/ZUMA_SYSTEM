@@ -14,7 +14,7 @@ activation_router.post("/get_employee_info", (req, res) => {
 });
 
 activation_router.post("/get_activation_product_type", (req, res) => {
-    endpointHandler.activation.get_product_by_type(req, res);
+    endpoint_handler.activation.getProductByType(req, res);
 });
 
 activation_router.get("/get_employee_info", (req, res) => {
