@@ -9,4 +9,12 @@ shipment_router.post("/shipment_insert", (req, res) => {
   endpoint_handler.shipment.insert_shipment(req, res);
 });
 
+shipment_router.get("/company_info", (req, res) => {
+  endpoint_handler.shipment.get_company_info(req, res);
+});
+
+shipment_router.post("/get_products_by_company", (req, res) => {
+  endpoint_handler.shipment.get_products_by_company(req, res);
+});
+
 module.exports = shipment_router;

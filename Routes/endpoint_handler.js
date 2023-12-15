@@ -21,6 +21,36 @@ class http_handler {
         ).getSuccess()
       );
     },
+    get_company_info: (req, res) => {
+      controller.shipment.getCompanyInfo((data) => {
+        const err = new ErrorHandling(data, "Error getting company info");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Company Info").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    get_products_by_company: (req, res) => {
+      controller.shipment.getProductsByCompany(req.req_data, (data) => {
+        const err = new ErrorHandling(
+          data,
+          "Error getting products by company"
+        );
+        if (err.isValid()) {
+          res.send(
+            new success_handling(
+              data,
+              "Retrieved Products By Company"
+            ).getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
   };
 
   activation = {
@@ -128,9 +158,7 @@ class http_handler {
       });
     },
     api_status: (req, res) => {
-      res.send(
-        {status: true}
-      );
+      res.send({ status: true });
     },
   };
 }
