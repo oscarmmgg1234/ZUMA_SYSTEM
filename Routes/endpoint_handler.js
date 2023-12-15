@@ -159,6 +159,18 @@ class http_handler {
     api_status: (req, res) => {
       res.send({ status: true });
     },
+    getProducts: (req, res) => {
+      controller.label_print_controller.get_products_info((data) => {
+        const err = new ErrorHandling(data, "Error getting products");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Products").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
   };
 }
 

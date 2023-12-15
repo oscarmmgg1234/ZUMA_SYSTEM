@@ -20,4 +20,9 @@ service_router.post("/getHistoryLog" , (req, res) => {
 service_router.post("/api_status", (req, res) => {
     endpoint_handler.services.api_status(req, res);
 });
+
+service_router.get("/get_products", (req, res) => {
+    endpoint_handler.services.getProducts(req, res);
+});
+
 module.exports = service_router;
