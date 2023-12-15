@@ -4,7 +4,9 @@ const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
 
-reduction_router.post("/product_reduction", (req, res) => {
+const baseurl = "/inventory/api/reduction";
+
+reduction_router.post(`${baseurl}/product_reduction`, (req, res) => {
     endpoint_handler.reduction.release_product(req, res);
 });
 

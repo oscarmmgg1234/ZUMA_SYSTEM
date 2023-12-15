@@ -1,10 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
-export class User {
+export class System_Timer_All {
   @PrimaryGeneratedColumn()
   id = undefined;
-
-  @Column("text")
+  @Column("type")
   name = "";
 }

@@ -127,6 +127,11 @@ class http_handler {
         }
       });
     },
+    api_status: (req, res) => {
+      res.send(
+        {status: true}
+      );
+    },
   };
 }
 

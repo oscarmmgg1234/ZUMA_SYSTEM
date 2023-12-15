@@ -5,7 +5,9 @@ const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
 
-shipment_router.post("/shipment_insert", (req, res) => {
+const baseurl = "/inventory/api/shipment";
+
+shipment_router.post(`${baseurl}/shipment_insert`, (req, res) => {
   endpoint_handler.shipment.insert_shipment(req, res);
 });
 
