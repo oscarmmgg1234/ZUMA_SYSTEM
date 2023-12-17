@@ -26,6 +26,10 @@ export default function Main_Shipment(props: any) {
   }
 
   React.useEffect(() => {
+    if (props.refresh == true) init();
+  }, [props.refresh]);
+
+  React.useEffect(() => {
     if (error) {
       ErrorAlert(errorData.current.process_des);
       setError(false);
@@ -147,7 +151,7 @@ export default function Main_Shipment(props: any) {
     }).start();
   };
 
-  React.useEffect(() => {
+  const init = () => {
     http.getCompanyInfo((data: any) => {
       if (data.error) {
         setError(true);
@@ -160,6 +164,7 @@ export default function Main_Shipment(props: any) {
         set_companies(newRes);
       }
     });
+
     http.getEmployees((data: any) => {
       if (data.error) {
         setError(true);
@@ -172,6 +177,10 @@ export default function Main_Shipment(props: any) {
         set_employees(newRes);
       }
     });
+  }
+
+  React.useEffect(() => {
+    init();
   }, [modal_state]);
 
   React.useEffect(() => {

@@ -22,6 +22,9 @@ import ErrorAlert from '../alerts/Error_Alert';
 const http = http_req();
 
 export default function RELEASE_MODAL(props: any) {
+  React.useEffect(() => {
+    if (props.refresh == true) init();
+  }, [props.refresh]);
 
   const [error, setError] = React.useState(false);
   const errorData = React.useRef<any>({});
@@ -36,13 +39,13 @@ export default function RELEASE_MODAL(props: any) {
       setError(false);
     }
   }, [error]);
-  const [employee, setEmployee] = React.useState('');
+  const [employee, setEmployee] = React.useState<any>({});
 
   const [employee_list, set_employee_list] = React.useState<
     {EMPLOYEE_ID: string; NAME: string; focus: boolean}[]
   >([]);
 
-  React.useEffect(() => {
+  const init = () => {
     http.getEmployees((result: any) => {
       if (result.error) {
         setError(true);
@@ -55,6 +58,10 @@ export default function RELEASE_MODAL(props: any) {
         set_employee_list(newRes);
       }
     });
+  };
+
+  React.useEffect(() => {
+    init();
   }, []);
 
   const onFocus_Employee = (employee: any) => {
@@ -63,7 +70,7 @@ export default function RELEASE_MODAL(props: any) {
         if (item.focus === true) {
           return {...item, focus: false};
         } else {
-          setEmployee(employee.NAME);
+          setEmployee(employee);
           return {...item, focus: true};
         }
       } else {
@@ -127,9 +134,8 @@ export default function RELEASE_MODAL(props: any) {
   const [code, setCode] = React.useState('');
 
   const submitRelease = () => {
-    http.productRelease({barcode: code}, (result: any) => {});
-  }
-
+    http.productRelease({barcode: code, employee: employee.EMPLOYEE_ID}, (result: any) => {});
+  };
 
   const button_focused = (button: string) => {
     if (button === 'emp') {
@@ -306,7 +312,10 @@ export default function RELEASE_MODAL(props: any) {
           <TouchableOpacity
             onPressIn={onPressIn}
             onPressOut={onPressOut}
-            onPress={() => {submitRelease(); props.set_visible(false);}}
+            onPress={() => {
+              submitRelease();
+              props.set_visible(false);
+            }}
             style={{
               width: '100%',
               height: '100%',

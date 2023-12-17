@@ -16,9 +16,6 @@ import {
   TouchableOpacity,
   useColorScheme,
   View,
-  FlatList,
-  TextInput,
-  KeyboardAvoidingView,
   Animated,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -28,11 +25,8 @@ import RELEASE_MODAL from './src/modals/release_modal';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LABEL_MODAL from './src/modals/label_modal';
 import Main_Shipment from './src/modals/main_shipment_modal';
-import {
-  Camera,
-  useCodeScanner,
-  useCameraDevice,
-} from 'react-native-vision-camera';
+import Log from './src/modals/history_log';
+import OnlineStatusIndicator from './src/Components/status_indicator';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -69,8 +63,6 @@ function App(): JSX.Element {
   const pressAnim2 = React.useRef(new Animated.Value(1)).current;
   const pressAnim3 = React.useRef(new Animated.Value(1)).current;
   const pressAnim4 = React.useRef(new Animated.Value(1)).current;
-  
-
 
   const onPressIn = (button: number) => {
     const anim =
@@ -113,7 +105,24 @@ function App(): JSX.Element {
   const [shipment_modal_visible, set_shipment_modal_visible] =
     React.useState(false);
   const [label_modal_visible, set_label_modal_visible] = React.useState(false);
+  const [historyLog, setHistoryLog] = React.useState<boolean>(false);
+  const [refresh, setRefresh] = React.useState<boolean>(false);
+  const [refreshHistory, setRefreshHistory] = React.useState<boolean>(false);
 
+
+  React.useEffect(() => {
+    setRefreshHistory(true);
+    setTimeout(() => {
+      setRefreshHistory(false);
+    }, 100);
+  }, [historyLog]);
+
+  const hardRefresh = () => {
+    setRefresh(true);
+    setTimeout(() => {
+      setRefresh(false);
+    }, 100);
+  };
   //define http functions
 
   const backgroundStyle = {
@@ -145,6 +154,16 @@ function App(): JSX.Element {
           start={{x: 0, y: 0}}
           end={{x: 1, y: 1}}>
           <View style={styles.content_view}>
+            <TouchableOpacity
+              style={{alignSelf: 'flex-end', paddingRight: 40}}
+              onPress={() => hardRefresh()}>
+              <Text style={{color: 'gray', fontSize: 10}}>Refresh</Text>
+              <Ionicons
+                name="refresh-circle-outline"
+                size={35}
+                color={'gray'}
+              />
+            </TouchableOpacity>
             <Animated.View
               style={[
                 styles.content_button,
@@ -227,11 +246,38 @@ function App(): JSX.Element {
                 <Ionicons name="print" size={45} color={'#CFEDEE'} />
               </TouchableOpacity>
             </Animated.View>
+            <View
+              style={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-around',
+              }}>
+              <OnlineStatusIndicator />
+              <TouchableOpacity
+                onPress={() => setHistoryLog(true)}
+                style={{
+                  alignSelf: 'flex-end',
+                  paddingRight: 50,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Text style={{color: '#A5BE00', paddingRight: 10}}>Recent</Text>
+                <Ionicons
+                  name="file-tray-full-outline"
+                  size={30}
+                  color={'#A5BE00'}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </LinearGradient>
       </View>
       {/* //------------------------------- */}
       <ACTIVATION_MODAL
+        refresh={refresh}
         visible={activation_modal_visible}
         set_visible={set_activation_modal_visible}
         title="Product Activation"
@@ -239,22 +285,32 @@ function App(): JSX.Element {
       />
       {/* //------------------------------- */}
       <RELEASE_MODAL
+        refresh={refresh}
         visible={release_modal_visible}
         set_visible={set_release_modal_visible}
         title="Product Release"
       />
 
       <LABEL_MODAL
+        refresh={refresh}
         visible={label_modal_visible}
         set_visible={set_label_modal_visible}
         title="Print Label"
         modal_completion={set_label_modal_visible}
       />
       <Main_Shipment
+        refresh={refresh}
         visible={shipment_modal_visible}
         set_visible={set_shipment_modal_visible}
         title="Shipment"
         modal_completion={set_shipment_modal_visible}
+      />
+      <Log
+        refresh={refreshHistory}
+        visible={historyLog}
+        set_visible={setHistoryLog}
+        title="History Log"
+        modal_completion={setHistoryLog}
       />
     </>
   );

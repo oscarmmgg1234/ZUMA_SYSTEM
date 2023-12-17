@@ -1,4 +1,64 @@
-const base_url = 'http://192.168.1.176:3001';
+const base_url = 'http://localhost:3001';
+// 'http://192.168.1.176:3001';
+const getShipmentLog = (callback: any) => {
+  var myHeaders = new Headers();
+  myHeaders.append('Content-Type', 'application/json');
+  var raw = JSON.stringify({
+    TYPE: '122',
+  });
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow',
+  };
+  fetch(`${base_url}/getShipmentLog`, requestOptions)
+    .then(response => response.json())
+    .then(result => {
+      return callback(result);
+    })
+    .catch(error => console.log('error', error));
+};
+
+const get_activation_log = (callback: any) => {
+  var myHeaders = new Headers();
+  myHeaders.append('Content-Type', 'application/json');
+  var raw = JSON.stringify({
+    TYPE: '122',
+  });
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow',
+  };
+  fetch(`${base_url}/getActivationLog`, requestOptions)
+    .then(response => response.json())
+    .then(result => {
+      return callback(result);
+    })
+    .catch(error => console.log('error', error));
+};
+
+const get_reduction_log = (callback: any) => {
+  var myHeaders = new Headers();
+  myHeaders.append('Content-Type', 'application/json');
+  var raw = JSON.stringify({
+    TYPE: '122',
+  });
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow',
+  };
+  fetch(`${base_url}/getReductionLog`, requestOptions)
+    .then(response => response.json())
+    .then(result => {
+      return callback(result);
+    })
+    .catch(error => console.log('error', error));
+};
 
 const get_employees = (callback: any) => {
   var myHeaders = new Headers();
@@ -118,7 +178,7 @@ const gen_barcode = (data: any, callback: any) => {
   var raw = JSON.stringify({
     PRODUCT_ID: data.PRODUCT_ID,
     QUANTITY: data.QUANTITY,
-    NAME: "",
+    NAME: '',
     PRODUCT_NAME: data.PRODUCT_NAME,
     MULTIPLIER: data.MULTIPLIER,
     EMPLOYEE_ID: data.EMPLOYEE_ID,
@@ -138,7 +198,6 @@ const gen_barcode = (data: any, callback: any) => {
 };
 
 const submitShipment = (data: any, callback: any) => {
-
   var myHeaders = new Headers();
   myHeaders.append('Content-Type', 'application/json');
   var raw = JSON.stringify(data);
@@ -154,8 +213,7 @@ const submitShipment = (data: any, callback: any) => {
       return callback(result);
     })
     .catch(error => console.log('error', error));
-
-}
+};
 
 const product_reduction = (data: any, callback: any) => {
   const myHeaders = new Headers();
@@ -173,21 +231,78 @@ const product_reduction = (data: any, callback: any) => {
       return callback(result);
     })
     .catch(error => console.log('error', error));
+};
 
-}
+const get_api_status = (callback: (status: boolean) => void) => {
+  const myHeaders = new Headers();
+  myHeaders.append('Content-Type', 'application/json');
 
+  const requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    redirect: 'follow',
+  };
 
+  // Set a timeout duration (e.g., 5000 milliseconds)
+  const timeoutDuration = 1000;
 
+  // Create a promise that rejects after the timeout duration
+  const timeout = new Promise<Response>((resolve, reject) => {
+    setTimeout(() => {
+      reject(new Error('Request timed out'));
+    }, timeoutDuration);
+  });
 
-
-
+  // Use Promise.race to race the fetch against the timeout
+  Promise.race([fetch(`${base_url}/api_status`, requestOptions), timeout])
+    .then(response => {
+      if (response instanceof Response) {
+        return response.json(); // Cast the response to the Response type
+      } else {
+        throw new Error('Invalid response type');
+      }
+    })
+    .then(result => {
+      // Assuming that a successful response contains a specific field or structure
+      // You can modify the condition based on your API's successful response structure
+      if (result && result.status) {
+        callback(true);
+      } else {
+        callback(false);
+      }
+    })
+    .catch(error => {
+      console.log('error', error);
+      callback(false);
+    });
+};
 
 class http_request {
+  getShipmentLog = (callback: any) => {
+    getShipmentLog((result: any) => {
+      return callback(result);
+    });
+  };
+  getActivationLog = (callback: any) => {
+    get_activation_log((result: any) => {
+      return callback(result);
+    });
+  };
+  getReductionLog = (callback: any) => {
+    get_reduction_log((result: any) => {
+      return callback(result);
+    });
+  };
+  get_api_status = (callback: (status: boolean) => void) => {
+    get_api_status((status: boolean) => {
+      return callback(status);
+    });
+  };
   submit_shipment = (data: any, callback: any) => {
     submitShipment(data, (result: any) => {
       return callback(result);
     });
-  }
+  };
   getEmployees = (callback: any) => {
     get_employees((result: any) => {
       return callback(result);
@@ -217,17 +332,17 @@ class http_request {
     send_activation(data, (result: any) => {
       return callback(result);
     });
-  }
+  };
   genBarcode = (data: any, callback: any) => {
     gen_barcode(data, (result: any) => {
       return callback(result);
     });
-  }
+  };
   productRelease = (data: any, callback: any) => {
     product_reduction(data, (result: any) => {
       return callback(result);
     });
-  }
+  };
 }
 
 export const http_req = () => {

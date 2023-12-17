@@ -22,6 +22,10 @@ export default function LABEL_MODAL(props: any) {
    const [error, setError] = React.useState(false);
    const errorData = React.useRef<any>({});
 
+React.useEffect(() => {
+  if (props.refresh == true) init();
+}, [props.refresh]);
+
    function setErrorData(data: any) {
      errorData.current = data;
    }
@@ -76,21 +80,23 @@ export default function LABEL_MODAL(props: any) {
     })  
   }
 
+  const init = () => {
+ http.getProducts((data: any) => {
+   if (data.error) {
+     setError(true);
+     setErrorData(data);
+     return;
+   } else {
+     const newRes = data.data.map((item: any) => {
+       return {...item, focus: false};
+     });
+     set_products(newRes);
+   }
+ });
+  }
 
   React.useEffect(() => {
-    http.getProducts((data: any) => {
-      if (data.error) {
-        setError(true);
-        setErrorData(data);
-        return;
-      }
-      else{
-      const newRes = data.data.map((item: any) => {
-        return {...item, focus: false};
-      });
-      set_products(newRes);
-    }
-    });
+    init();
   }, []);
 
   React.useEffect(() => {

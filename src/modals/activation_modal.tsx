@@ -23,6 +23,12 @@ export default function ACTIVATION_MODAL(props: any) {
   const [error, setError] = React.useState(false);
   const errorData = React.useRef<any>({});
 
+  React.useEffect(() => {
+    if (props.refresh == true) {
+      init();
+    }
+  }, [props.refresh]);
+
   function setErrorData(data: any) {
     errorData.current = data;
   }
@@ -99,10 +105,9 @@ export default function ACTIVATION_MODAL(props: any) {
     {PRODUCT_ID: string; focus: boolean; NAME: string}[]
   >([]);
 
-  React.useEffect(() => {
+  const init = () => {
     http.getEmployees((result: any) => {
       if (result.error) {
-       
         setError(true);
         setErrorData(result);
         return;
@@ -115,7 +120,6 @@ export default function ACTIVATION_MODAL(props: any) {
     });
     http.getProduct(type, (result: any) => {
       if (result.error) {
-    
         setError(true);
         setErrorData(result);
         return;
@@ -126,6 +130,10 @@ export default function ACTIVATION_MODAL(props: any) {
         set_product_list(newRes);
       }
     });
+  };
+
+  React.useEffect(() => {
+    init();
   }, []);
 
   React.useEffect(() => {
@@ -181,7 +189,6 @@ export default function ACTIVATION_MODAL(props: any) {
   };
 
   const activate = () => {
-    
     const request = {
       EMPLOYEE_ID: employee_list.filter(
         (item: any) => item.NAME === employee,
@@ -191,13 +198,15 @@ export default function ACTIVATION_MODAL(props: any) {
       fixed: amount.fixed,
       QUANTITY: amount.amount,
       MULTIPLIER: multiplier,
-      EMPLOYEE_NAME: employee_list.filter((item: any)=>item.NAME === employee)[0].NAME,
-      PRODUCT_NAME: product_list.filter((item: any)=>item.focus === true)[0].NAME,
-
+      EMPLOYEE_NAME: employee_list.filter(
+        (item: any) => item.NAME === employee,
+      )[0].NAME,
+      PRODUCT_NAME: product_list.filter((item: any) => item.focus === true)[0]
+        .NAME,
     };
 
-    http.sendActivation(request, (result: any) => {
-    });
+    http.sendActivation(request, (result: any) => {});
+    Alert.alert('Success', 'Activation Sent');
   };
 
   type ItemProps = {NAME: string; PRODUCT_ID: string; focus: boolean};
