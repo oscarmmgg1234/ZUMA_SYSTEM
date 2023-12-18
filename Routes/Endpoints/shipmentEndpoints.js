@@ -6,7 +6,7 @@ const { endpointHandler } = require("../endpoint_handler");
 const endpoint_handler = endpointHandler();
 
 shipment_router.post("/shipment_insert", (req, res) => {
-  endpoint_handler.shipment.insert_shipment(req, res);
+  endpoint_handler.shipment.shimpent_insert(req, res);
 });
 
 shipment_router.get("/company_info", (req, res) => {

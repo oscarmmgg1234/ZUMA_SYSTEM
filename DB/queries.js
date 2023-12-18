@@ -53,10 +53,10 @@ const label_print = {
 
 const tools = {
   get_product_by_id: "SELECT * FROM product WHERE PRODUCT_ID = ?",
-  shipment_log: "SELECT * FROM shipment_log ORDER BY SHIPMENT_DATE DESC LIMIT 5",
+  shipment_log: "SELECT * FROM shipment_history_log ORDER BY DATE DESC LIMIT 5",
   activation_log:
-    "SELECT * FROM inv_activation_history_log ORDER BY DATE DESC LIMIT 5",
-  consumption_log: "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 5",
+    "SELECT * FROM inv_activation_history_log ORDER BY DATE DESC LIMIT 3",
+  consumption_log: "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 3",
 };
 
 exports.queries = {

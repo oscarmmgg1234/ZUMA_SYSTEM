@@ -18,7 +18,7 @@ const reduction_engine = (args) => {
         protocol({
           quantity: args.QUANTITY,
           product_id: args.PRODUCT_ID,
-          employee_id: args.EMPLOYEE_ID,
+          employee_id: args.EMPLOYEE_RESPONSIBLE,
         });
       }
     });
