@@ -4,7 +4,7 @@ const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
 
-dashboard_router.get("/get_products_dash", (req, res) => {
+dashboard_router.post("/get_products_dash", (req, res) => {
   endpoint_handler.dashboard.get_products(req, res);
 });
 
