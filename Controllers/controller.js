@@ -136,6 +136,8 @@ const print_label = (args) => {
   services.http_print_label(args);
 };
 
+
+
 class controller {
   shipment_controller = {
     select_all_shipment: (callback) => {

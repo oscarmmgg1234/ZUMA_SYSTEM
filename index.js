@@ -7,6 +7,7 @@ const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");
 const service_endpoints = require("./Routes/Endpoints/serviceEndpoints");
 const reduction_endpoints = require("./Routes/Endpoints/reductionEndpoints");
 const shipment_endpoints = require("./Routes/Endpoints/shipmentEndpoints");
+const dashboard_endpoints = require("./Routes/Endpoints/dashboardEndpoints");
 
 server.use(express.json());
 server.use(middleware);
@@ -14,6 +15,7 @@ server.use(activation_endpoints);
 server.use(service_endpoints);
 server.use(reduction_endpoints);
 server.use(shipment_endpoints);
+server.use(dashboard_endpoints);
 
 
 const PORT = process.env.PORT || 3001;

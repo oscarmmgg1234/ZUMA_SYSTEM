@@ -59,6 +59,8 @@ const tools = {
   consumption_log: "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 3",
 };
 
+
+
 exports.queries = {
   shipment_log: shipment_log,
   activation_product: activation_product,
