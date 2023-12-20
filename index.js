@@ -1,6 +1,7 @@
 const express = require("express");
 const server = express();
 const reflect = require("reflect-metadata")
+const cors = require("cors");
 
 const middleware = require("./MiddleWare/middleware");
 const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");
@@ -9,6 +10,7 @@ const reduction_endpoints = require("./Routes/Endpoints/reductionEndpoints");
 const shipment_endpoints = require("./Routes/Endpoints/shipmentEndpoints");
 const dashboard_endpoints = require("./Routes/Endpoints/dashboardEndpoints");
 
+server.use(cors());
 server.use(express.json());
 server.use(middleware);
 server.use(activation_endpoints);
