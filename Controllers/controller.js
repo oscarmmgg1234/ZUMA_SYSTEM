@@ -2,6 +2,7 @@ const { db_interface } = require("../DB/interface.js");
 const { res_interface } = require("../Models/INTERFACE/res/res_interface.js");
 const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
+const { db } = require("../DB/db_init.js");
 
 const helper = Helper();
 const res = res_interface();
@@ -15,6 +16,17 @@ const select_all_shipment_log = (callback) => {
     });
   });
 };
+
+const getProductAnalytics = (args, callback) => {
+
+  db_api.get_product_stock(args, (stock) => {
+    db_api.get_product_reduction_recent(args, (reduction) => {
+      db_api.get_product_activation_recent(args, (activation) => {
+          return callback({stock: stock, reduction: reduction, activation: activation});
+      });
+    });
+  });
+}
 
 const insert_shipment_log = (args) => {
   db_api.insert_shipment_log(args);
@@ -228,6 +240,14 @@ class controller {
   tools = {
     get_product_by_id: (args, callback) => {
       get_product_by_id(args, (data) => {
+        return callback(data);
+      });
+    },
+  };
+
+  dashboard_controller = {
+    getProductAnalytics: (args, callback) => {
+      getProductAnalytics(args, (data) => {
         return callback(data);
       });
     },

@@ -56,10 +56,17 @@ const tools = {
   shipment_log: "SELECT * FROM shipment_history_log ORDER BY DATE DESC LIMIT 5",
   activation_log:
     "SELECT * FROM inv_activation_history_log ORDER BY DATE DESC LIMIT 3",
-  consumption_log: "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 3",
+  consumption_log:
+    "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 3",
 };
 
-
+const dashboard = {
+  get_product_stock: "SELECT * from product_inventory where PRODUCT_ID = ?",
+  get_product_reduction_recent:
+    "SELECT * from inv_consumption_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+  get_product_activation_recent:
+    "SELECT * from inv_activation_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+};
 
 exports.queries = {
   shipment_log: shipment_log,
@@ -69,4 +76,5 @@ exports.queries = {
   label_print: label_print,
   shipment: shipment,
   tools: tools,
+  dashboard: dashboard,
 };

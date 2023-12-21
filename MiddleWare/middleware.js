@@ -5,6 +5,19 @@ const { ErrorRequest } = require("../Error/error_handling");
 
 const req_model = req_interface();
 
+router.use("/get_product_analytics", (req, res, next) => {
+  req_model.productAnalytics(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
+
 router.use("/shipment_insert", (req, res, next) => {
   req_model.insert_shipment(req.body, (data) => {
     const err = new ErrorRequest(data);

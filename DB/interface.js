@@ -1,9 +1,36 @@
+const { query } = require("express");
 const { db } = require("./db_init.js");
 const { queries } = require("./queries.js");
 
 // const insertShipmentLog = (args) => {
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
+
+const getProductStock = (args, callback) => {
+  db.execute(queries.dashboard.get_product_stock, [args.PRODUCT_ID], (err, result) => {
+    return callback(result);
+  });
+};
+
+const getProductReductionRecent = (args, callback) => {
+  db.execute(
+    queries.dashboard.get_product_reduction_recent,
+    [args.PRODUCT_ID],
+    (err, result) => {
+      return callback(result);
+    }
+  );
+};
+
+const getProductActivationRecent = (args, callback) => {
+  db.execute(
+    queries.dashboard.get_product_activation_recent,
+    [args.PRODUCT_ID],
+    (err, result) => {
+      return callback(result);
+    }
+  );
+};
 
 const getProductById = (args, callback) => {
   db.execute(queries.tools.get_product_by_id, args.to_arr(), (err, result) => {
@@ -79,7 +106,6 @@ const get_company_info = (callback) => {
   });
 };
 
-
 const get_shipment_log = (callback) => {
   db.execute(queries.tools.shipment_log, (err, result) => {
     return callback(result);
@@ -98,25 +124,22 @@ const get_consumption_log = (callback) => {
   });
 };
 
-
-
-
 class db_interface {
   get_shipment_log = (callback) => {
     get_shipment_log((data) => {
       return callback(data);
     });
-  }
+  };
   get_activation_log = (callback) => {
     get_activation_log((data) => {
       return callback(data);
     });
-  }
+  };
   get_consumption_log = (callback) => {
     get_consumption_log((data) => {
       return callback(data);
     });
-  }
+  };
   insert_shipment_log = (args, callback) => {
     return insertShipmentLog(args, (data) => {
       return callback(data);
@@ -160,6 +183,21 @@ class db_interface {
   };
   get_product_by_id = (args, callback) => {
     getProductById(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_product_stock = (args, callback) => {
+    getProductStock(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_product_reduction_recent = (args, callback) => {
+    getProductReductionRecent(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_product_activation_recent = (args, callback) => {
+    getProductActivationRecent(args, (data) => {
       return callback(data);
     });
   };

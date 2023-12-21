@@ -8,5 +8,8 @@ dashboard_router.post("/get_products_dash", (req, res) => {
   endpoint_handler.dashboard.get_products(req, res);
 });
 
+dashboard_router.post("/get_product_analytics", (req, res) => {
+  endpoint_handler.dashboard.get_product_analytics(req, res);
+});
 
 module.exports = dashboard_router;
