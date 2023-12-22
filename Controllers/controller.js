@@ -18,15 +18,21 @@ const select_all_shipment_log = (callback) => {
 };
 
 const getProductAnalytics = (args, callback) => {
-
   db_api.get_product_stock(args, (stock) => {
     db_api.get_product_reduction_recent(args, (reduction) => {
       db_api.get_product_activation_recent(args, (activation) => {
-          return callback({stock: stock, reduction: reduction, activation: activation});
+        db_api.get_product_shipment_recent(args, (shipment) => {
+          return callback({
+            stock: stock,
+            reduction: reduction,
+            activation: activation,
+            shipment: shipment,
+          });
+        });
       });
     });
   });
-}
+};
 
 const insert_shipment_log = (args) => {
   db_api.insert_shipment_log(args);
@@ -143,12 +149,9 @@ const get_consumption_log = (callback) => {
   });
 };
 
-
 const print_label = (args) => {
   services.http_print_label(args);
 };
-
-
 
 class controller {
   shipment_controller = {
@@ -224,17 +227,17 @@ class controller {
     getHistoryLog: (callback) => {
       get_shipment_log((data) => {
         return callback(data);
-      })
+      });
     },
     getActivationLog: (callback) => {
       get_activation_log((data) => {
         return callback(data);
-      })
+      });
     },
     getConsumptionLog: (callback) => {
       get_consumption_log((data) => {
         return callback(data);
-      })
+      });
     },
   };
   tools = {

@@ -66,6 +66,8 @@ const dashboard = {
     "SELECT * from inv_consumption_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
   get_product_activation_recent:
     "SELECT * from inv_activation_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+  get_product_shipment_recent: 
+    "SELECT * from shipment_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
 };
 
 exports.queries = {

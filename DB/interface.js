@@ -32,6 +32,16 @@ const getProductActivationRecent = (args, callback) => {
   );
 };
 
+const getProductShipmentRecent = (args, callback) => {
+  db.execute(
+    queries.dashboard.get_product_shipment_recent,
+    [args.PRODUCT_ID],
+    (err, result) => {
+      return callback(result);
+    }
+  );
+}
+
 const getProductById = (args, callback) => {
   db.execute(queries.tools.get_product_by_id, args.to_arr(), (err, result) => {
     return callback(result);
@@ -198,6 +208,11 @@ class db_interface {
   };
   get_product_activation_recent = (args, callback) => {
     getProductActivationRecent(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_product_shipment_recent = (args, callback) => {
+    getProductShipmentRecent(args, (data) => {
       return callback(data);
     });
   };
