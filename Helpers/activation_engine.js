@@ -33,7 +33,7 @@ function createProductRegex(productName) {
 }
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
-const exeptions = ["78c8da4d", "4d1f188e", "79200b24"];
+const exeptions = ["78c8da4d", "4d1f188e",];
 
 //detergent //pet-shampoo //Zeolite
 //run each protocol and if product matches exeption rule then run exeption protocol
@@ -421,6 +421,8 @@ const Type1_Protocol = (args, exeptions) => {
 
 const Type2_Protocol = (args, exeptions) => {
   try {
+    console.log("type 2 protocol hit")
+    console.log(args);
     if (!exeptions.includes(args.product_id)) {
       args.product_components.forEach((component) => {
         if (product_type(component.NAME) == 0) {
@@ -520,8 +522,11 @@ const Type2_Protocol = (args, exeptions) => {
 };
 const Type3_Protocol = (args, exeptions) => {
   try {
+    console.log(args);
+    console.log("type 3 protocol hit")
     args.product_components.forEach((component) => {
       if (product_type(component.NAME) == 0) {
+        
         db.query(queries.activation_product.product_activation_liquid, [
           component.PRODUCT_ID,
           args.quantity,
@@ -535,7 +540,7 @@ const Type3_Protocol = (args, exeptions) => {
               console.log(err);
             } else {
               //update product inventory base
-
+// fix this 0
               db.query(queries.product_inventory.update_activation, [
                 result[0].ACTIVE_STOCK,
                 args.quantity,
@@ -734,6 +739,8 @@ const Type5_Protocol = (args, exeptions) => {
 };
 
 const Type1_Component_Procotol = (args, exeptions) => {
+  console.log("type1 sub protocol hit")
+  console.log(args);
   //50ml bottle
   db.query(
     queries.product_release.insert_product_release,
@@ -1120,12 +1127,12 @@ const Type12_Component_Procotol = (args, exeptions) => {
   //60ml pump
   db.query(
     queries.product_release.insert_product_release,
-    ["trd21qsw", args.quantity, args.employee_id],
+    ["398bddd5", args.quantity, args.employee_id],
     (err) => {}
   );
   db.query(
     queries.product_release.get_quantity_by_stored_id_storage,
-    ["trd21qsw"],
+    ["398bddd5"],
     (err, result) => {
       if (err) {
         console.log(err);
@@ -1133,7 +1140,7 @@ const Type12_Component_Procotol = (args, exeptions) => {
         //update product inventory base
         db.query(queries.product_inventory.update_consumption_stored, [
           result[0].STORED_STOCK - args.quantity,
-          "trd21qsw",
+          "398bddd5",
         ]);
       }
     }

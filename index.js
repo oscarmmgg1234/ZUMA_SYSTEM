@@ -1,7 +1,10 @@
 const express = require("express");
 const server = express();
-const reflect = require("reflect-metadata")
+const reflect = require("reflect-metadata");
 const cors = require("cors");
+const unit_test = require("./Test/engine_unit_test");
+
+const engineTest = new unit_test.engine_unit_test();
 
 const middleware = require("./MiddleWare/middleware");
 const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");
@@ -19,6 +22,8 @@ server.use(reduction_endpoints);
 server.use(shipment_endpoints);
 server.use(dashboard_endpoints);
 
+//engineTest.populate_base_components();
+// engineTest.test();
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

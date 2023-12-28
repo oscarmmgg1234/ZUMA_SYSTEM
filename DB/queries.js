@@ -66,8 +66,22 @@ const dashboard = {
     "SELECT * from inv_consumption_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
   get_product_activation_recent:
     "SELECT * from inv_activation_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
-  get_product_shipment_recent: 
+  get_product_shipment_recent:
     "SELECT * from shipment_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+};
+
+const development = {
+  get_product: "SELECT * FROM product WHERE TYPE = ?",
+  insert_test_quantity:
+    "UPDATE product_inventory SET STORED_STOCK = ? WHERE PRODUCT_ID = ?",
+  get_activation_recent:
+    "SELECT * FROM inventory_activation WHERE PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+  get_consumption_recent:
+    "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 5",
+  get_shipment_recent:
+    "SELECT * FROM shipment_history_log ORDER BY DATE DESC LIMIT 1",
+  get_stored_stock: "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
+  get_active_stock: "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
 };
 
 exports.queries = {
@@ -79,4 +93,5 @@ exports.queries = {
   shipment: shipment,
   tools: tools,
   dashboard: dashboard,
+  development: development,
 };
