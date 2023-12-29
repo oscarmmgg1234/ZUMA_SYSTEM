@@ -23,7 +23,7 @@ server.use(shipment_endpoints);
 server.use(dashboard_endpoints);
 
 //engineTest.populate_base_components();
-// engineTest.test();
+engineTest.test();
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

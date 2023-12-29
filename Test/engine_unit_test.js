@@ -24,7 +24,7 @@ const activation_engine_test = () => {
   db.execute(queries.development.get_product, ["122"], (err, result) => {
     result.forEach((product, index) => {
         
-      if (product.PRODUCT_ID === "c064f810") {
+      if (product.PRODUCT_ID === "d5c06e4f") {
         activation_engine.activation_engine(
           {
             PRODUCT_ID: product.PRODUCT_ID,

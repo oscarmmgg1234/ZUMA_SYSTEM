@@ -33,7 +33,7 @@ function createProductRegex(productName) {
 }
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
-const exeptions = ["78c8da4d", "4d1f188e",];
+const exeptions = ["78c8da4d", "4d1f188e"];
 
 //detergent //pet-shampoo //Zeolite
 //run each protocol and if product matches exeption rule then run exeption protocol
@@ -134,13 +134,26 @@ const getProductProccessInfo = (args, callback) => {
     const product_components = products.filter((product) => {
       return product.NAME.match(component_regex);
     });
+    
+    const formated_components = product_components.filter((product) => {
+      if(args.PRODUCT_NAME.includes("30ml")){
+        if(product.NAME.includes("30ml")){
+          return product
+        }
+      }
+      else{
+        if(!product.NAME.includes("30ml")){
+          return product
+        }
+      }
+    })
     return callback({
       quantity: args.QUANTITY * args.MULTIPLIER,
       process_type: process_info[0].PROCESS_TYPE,
       process_component: process_info[0].PROCESS_COMPONENT_TYPE,
       product_id: process_info[0].PRODUCT_ID,
       product_name: process_info[0].NAME,
-      product_components: product_components,
+      product_components: formated_components,
       employee_id: args.EMPLOYEE_ID,
     });
   });
@@ -421,7 +434,7 @@ const Type1_Protocol = (args, exeptions) => {
 
 const Type2_Protocol = (args, exeptions) => {
   try {
-    console.log("type 2 protocol hit")
+    console.log("type 2 protocol hit");
     console.log(args);
     if (!exeptions.includes(args.product_id)) {
       args.product_components.forEach((component) => {
@@ -523,10 +536,9 @@ const Type2_Protocol = (args, exeptions) => {
 const Type3_Protocol = (args, exeptions) => {
   try {
     console.log(args);
-    console.log("type 3 protocol hit")
+    console.log("type 3 protocol hit");
     args.product_components.forEach((component) => {
       if (product_type(component.NAME) == 0) {
-        
         db.query(queries.activation_product.product_activation_liquid, [
           component.PRODUCT_ID,
           args.quantity,
@@ -540,7 +552,7 @@ const Type3_Protocol = (args, exeptions) => {
               console.log(err);
             } else {
               //update product inventory base
-// fix this 0
+              // fix this 0
               db.query(queries.product_inventory.update_activation, [
                 result[0].ACTIVE_STOCK,
                 args.quantity,
@@ -739,7 +751,7 @@ const Type5_Protocol = (args, exeptions) => {
 };
 
 const Type1_Component_Procotol = (args, exeptions) => {
-  console.log("type1 sub protocol hit")
+  console.log("type1 sub protocol hit");
   console.log(args);
   //50ml bottle
   db.query(
@@ -900,7 +912,7 @@ const Type7_Component_Procotol = (args, exeptions) => {
       }
     }
   );
-//shrink wrap
+  //shrink wrap
   db.query(
     queries.product_release.insert_product_release,
     ["c7e573b6", args.quantity, args.employee_id],
