@@ -85,14 +85,14 @@ const get_product_by_id = (args, callback) => {
 const activate_product = (args) => {
   helper.activation_engine(args);
   // barcode generation
-  // services.http_print_barcode({
-  //   PRODUCT_ID: args.PRODUCT_ID,
-  //   NAME: args.EMPLOYEE_NAME,
-  //   QUANTITY: args.QUANTITY,
-  //   MULTIPLIER: args.MULTIPLIER,
-  //   PRODUCT_NAME: args.PRODUCT_NAME,
-  //   EMPLOYEE_ID: args.EMPLOYEE_ID,
-  // });
+  services.http_print_barcode({
+    PRODUCT_ID: args.PRODUCT_ID,
+    NAME: args.EMPLOYEE_NAME,
+    QUANTITY: args.QUANTITY,
+    MULTIPLIER: args.MULTIPLIER,
+    PRODUCT_NAME: args.PRODUCT_NAME,
+    EMPLOYEE_ID: args.EMPLOYEE_ID,
+  });
 };
 
 const get_products_info = (callback) => {

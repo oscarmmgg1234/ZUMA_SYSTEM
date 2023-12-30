@@ -1,1 +1,15 @@
 Activation Engine Test
+
+
+Activation Entry: id: 0a1018a3, name: Parasite Detox, quantity: 100, index: 280
+Consumption Entry: id: 70a2b315, quantity: 100, index: undefined
+Consumption Entry: id: 3c30ff9c, quantity: 100, index: undefined
+Consumption Entry: id: fe260002, quantity: 1.3208608627319336, index: undefined
+Consumption Entry: id: f8f8d895, quantity: 100, index: undefined
+Consumption Entry: id: 3c30ff9c, quantity: 100, index: undefined
+Active Stock: 400, product id: 0a1018a3
+Stored Stock: 9700 , product id: 70a2b315
+Stored Stock: -400 , product id: 3c30ff9c
+Stored Stock: 9996.0390625 , product id: fe260002
+Stored Stock: 9700 , product id: f8f8d895
+Stored Stock: -400 , product id: 3c30ff9c
