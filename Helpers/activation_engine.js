@@ -1,4 +1,4 @@
-const e = require("express");
+
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 
@@ -20,12 +20,6 @@ function createProductRegex(productName) {
     );
     // Create regex pattern with optional suffixes like "Label", "Gal", or "30ml"
     // Also, allow for variations like "PET_Palm Balm" and "Probiotic_Lg" where underscore may be used
-    console.log(
-      escapedProductName.includes("30ml")
-        ? escapedProductName.replace("30ml", "")
-        : escapedProductName
-    );
-
     const pattern = new RegExp(
       `\\b${
         escapedProductName.includes("30ml")
@@ -150,13 +144,11 @@ const getProductProccessInfo = (args, callback) => {
     });
 
     const formated_components = product_components.filter((product) => {
-      console.log(args.PRODUCT_NAME);
       if (args.PRODUCT_NAME.includes("30ml")) {
         if (
           product.NAME.includes("30ml") ||
           (product.NAME.includes("Gal") && !product.NAME.includes("Label"))
         ) {
-          console.log(product);
           return product;
         }
       } else {
@@ -451,11 +443,9 @@ const Type1_Protocol = (args, exeptions) => {
 };
 
 const Type2_Protocol = (args, exeptions) => {
-  console.log(args);
   try {
     if (!exeptions.includes(args.product_id)) {
       args.product_components.forEach((component) => {
-        console.log(product_type(component.NAME));
 
         if (product_type(component.NAME) == 0) {
           db.query(queries.activation_product.product_activation_liquid, [
@@ -484,15 +474,14 @@ const Type2_Protocol = (args, exeptions) => {
             queries.product_release.insert_product_release,
             [component.PRODUCT_ID, args.quantity, args.employee_id],
             (err) => {
-              console.log("zero");
-            }
+              console.log(err);
+          }
           );
           db.query(
             queries.product_release.get_quantity_by_stored_id_storage,
             [component.PRODUCT_ID],
             (err, result) => {
               if (err) {
-                console.log("entry");
               } else {
                 //update product inventory base
                 db.query(queries.product_inventory.update_consumption_stored, [
@@ -523,7 +512,7 @@ const Type2_Protocol = (args, exeptions) => {
                     component.PRODUCT_ID,
                   ],
                   (err) => {
-                    console.log("second");
+
                   }
                 );
               }
@@ -542,7 +531,6 @@ const Type2_Protocol = (args, exeptions) => {
             ],
             (err) => {
               if (err) {
-                console.log("last");
               }
             }
           );
@@ -557,15 +545,12 @@ const Type2_Protocol = (args, exeptions) => {
 };
 const Type3_Protocol = (args, exeptions) => {
   try {
-    console.log(args);
-    console.log("type 3 protocol hit");
     args.product_components.forEach((component) => {
       if (product_type(component.NAME) == 0) {
         db.query(
           queries.activation_product.product_activation_liquid,
           [component.PRODUCT_ID, args.quantity, args.employee_id],
           (err, result) => {
-            if (err) console.log("first");
           }
         );
         db.query(
@@ -573,20 +558,19 @@ const Type3_Protocol = (args, exeptions) => {
           [component.PRODUCT_ID],
           (err, result) => {
             if (err) {
-              console.log("second");
             } else {
               //update product inventory base
               // fix this 0
               db.query(
                 queries.product_inventory.update_activation,
                 [
-                  result[0].ACTIVE_STOCK - product_ml_type(args.name) == 1
+                  result[0].ACTIVE_STOCK + (product_ml_type(component.NAME) == 0
                     ? args.quantity
-                    : (30 / 50) * args.quantity,
-                  component.PRODUCT_ID,
+                    : 0.6 * args.quantity),
+                    component.PRODUCT_ID  ,
                 ],
                 (err) => {
-                  if (err) console.log("third");
+                  if (err) console.log(err);
                 }
               );
             }
@@ -594,17 +578,17 @@ const Type3_Protocol = (args, exeptions) => {
         );
         db.query(
           queries.product_release.get_quantity_by_stored_id_storage,
-          [component.PRODUCT_ID],
+          ["c064f810"],
           (err, result) => {
             if (err) {
               console.log(err);
             } else {
               //update product inventory base
               db.query(queries.product_inventory.update_activation_stored, [
-                result[0].STORED_STOCK - product_ml_type(component.NAME) == 1
+                result[0].STORED_STOCK - (product_ml_type(component.NAME) == 0
                   ? args.quantity
-                  : (30 / 50) * args.quantity,
-                component.PRODUCT_ID,
+                  : 0.6 * args.quantity),
+                "c064f810",
               ]);
             }
           }
@@ -615,7 +599,7 @@ const Type3_Protocol = (args, exeptions) => {
           queries.product_release.insert_product_release,
           [component.PRODUCT_ID, args.quantity, args.employee_id],
           (err) => {
-            if (err) console.log("fourth");
+            if (err) console.log(err);
           }
         );
         db.query(
@@ -623,7 +607,7 @@ const Type3_Protocol = (args, exeptions) => {
           [component.PRODUCT_ID],
           (err, result) => {
             if (err) {
-              console.log("fifth");
+              console.log(err);
             } else {
               //update product inventory base
               db.query(
@@ -636,7 +620,7 @@ const Type3_Protocol = (args, exeptions) => {
                   component.PRODUCT_ID,
                 ],
                 (err) => {
-                  if (err) console.log("sixth");
+                  if (err) console.log(err);
                 }
               );
             }
@@ -808,8 +792,6 @@ const Type5_Protocol = (args, exeptions) => {
 };
 
 const Type1_Component_Procotol = (args, exeptions) => {
-  console.log("type1 sub protocol hit");
-  console.log(args);
   //50ml bottle
   db.query(
     queries.product_release.insert_product_release,
