@@ -41,7 +41,7 @@ function createProductRegex(productName) {
 }
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
-const exeptions = ["78c8da4d", "4d1f188e"];
+const exeptions = [];
 
 //detergent //pet-shampoo //Zeolite
 //run each protocol and if product matches exeption rule then run exeption protocol
