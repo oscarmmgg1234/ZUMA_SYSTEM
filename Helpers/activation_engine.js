@@ -1,3 +1,4 @@
+const e = require("express");
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 
@@ -19,8 +20,18 @@ function createProductRegex(productName) {
     );
     // Create regex pattern with optional suffixes like "Label", "Gal", or "30ml"
     // Also, allow for variations like "PET_Palm Balm" and "Probiotic_Lg" where underscore may be used
+    console.log(
+      escapedProductName.includes("30ml")
+        ? escapedProductName.replace("30ml", "")
+        : escapedProductName
+    );
+
     const pattern = new RegExp(
-      `\\b${escapedProductName}(?:\\s+(?:Label|Gal|30ml))?\\b`,
+      `\\b${
+        escapedProductName.includes("30ml")
+          ? escapedProductName.replace("30ml", "")
+          : escapedProductName
+      }(?:\\s+(?:Label|Gal|30ml))?\\b`,
       "i"
     );
 
@@ -30,6 +41,9 @@ function createProductRegex(productName) {
     success.status = false;
     success.message = "error creating regex pattern";
   }
+  // Create regex pattern with optional suffixes like "Label", "Gal", or "30ml"
+  // Also, allow for variations like "PET_Palm Balm" and "Probiotic_Lg" where underscore may be used
+  // will capture Fulvic Detox, Fulvic Detox Label, Fulvic Detox Gal, Fulvic & Detox 30ml Label, etc. and
 }
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
@@ -52,10 +66,10 @@ const getProducts = (callback) => {
 
 const product_type = (product) => {
   try {
-    if (product.match("Label")) {
+    if (product.match(/\bLabel\b/)) {
       return 1;
     }
-    if (product.match("Gal")) {
+    if (product.match(/\bGal\b/)) {
       return 2;
     } else {
       return 0;
@@ -69,7 +83,7 @@ const product_type = (product) => {
 
 const product_ml_type = (product) => {
   try {
-    if (product.match("30ml")) {
+    if (product.match(/\b30ml\b/)) {
       return 1;
     } else {
       return 0;
@@ -134,19 +148,23 @@ const getProductProccessInfo = (args, callback) => {
     const product_components = products.filter((product) => {
       return product.NAME.match(component_regex);
     });
-    
+
     const formated_components = product_components.filter((product) => {
-      if(args.PRODUCT_NAME.includes("30ml")){
-        if(product.NAME.includes("30ml")){
-          return product
+      console.log(args.PRODUCT_NAME);
+      if (args.PRODUCT_NAME.includes("30ml")) {
+        if (
+          product.NAME.includes("30ml") ||
+          (product.NAME.includes("Gal") && !product.NAME.includes("Label"))
+        ) {
+          console.log(product);
+          return product;
+        }
+      } else {
+        if (!product.NAME.includes("30ml")) {
+          return product;
         }
       }
-      else{
-        if(!product.NAME.includes("30ml")){
-          return product
-        }
-      }
-    })
+    });
     return callback({
       quantity: args.QUANTITY * args.MULTIPLIER,
       process_type: process_info[0].PROCESS_TYPE,
@@ -433,11 +451,12 @@ const Type1_Protocol = (args, exeptions) => {
 };
 
 const Type2_Protocol = (args, exeptions) => {
+  console.log(args);
   try {
-    console.log("type 2 protocol hit");
-    console.log(args);
     if (!exeptions.includes(args.product_id)) {
       args.product_components.forEach((component) => {
+        console.log(product_type(component.NAME));
+
         if (product_type(component.NAME) == 0) {
           db.query(queries.activation_product.product_activation_liquid, [
             component.PRODUCT_ID,
@@ -464,14 +483,16 @@ const Type2_Protocol = (args, exeptions) => {
           db.query(
             queries.product_release.insert_product_release,
             [component.PRODUCT_ID, args.quantity, args.employee_id],
-            (err) => {}
+            (err) => {
+              console.log("zero");
+            }
           );
           db.query(
             queries.product_release.get_quantity_by_stored_id_storage,
             [component.PRODUCT_ID],
             (err, result) => {
               if (err) {
-                console.log(err);
+                console.log("entry");
               } else {
                 //update product inventory base
                 db.query(queries.product_inventory.update_consumption_stored, [
@@ -496,13 +517,14 @@ const Type2_Protocol = (args, exeptions) => {
                   queries.product_inventory.update_consumption_stored,
                   [
                     result[0].STORED_STOCK -
-                      (product_ml_type(args.product_name) == 1
-                        ? 30
-                        : 50 * args.quantity) /
+                      ((product_ml_type(args.product_name) == 1 ? 30 : 50) *
+                        args.quantity) /
                         ml_to_gallon,
                     component.PRODUCT_ID,
                   ],
-                  (err) => {}
+                  (err) => {
+                    console.log("second");
+                  }
                 );
               }
             }
@@ -520,7 +542,7 @@ const Type2_Protocol = (args, exeptions) => {
             ],
             (err) => {
               if (err) {
-                console.log(err);
+                console.log("last");
               }
             }
           );
@@ -539,23 +561,49 @@ const Type3_Protocol = (args, exeptions) => {
     console.log("type 3 protocol hit");
     args.product_components.forEach((component) => {
       if (product_type(component.NAME) == 0) {
-        db.query(queries.activation_product.product_activation_liquid, [
-          component.PRODUCT_ID,
-          args.quantity,
-          args.employee_id,
-        ]);
+        db.query(
+          queries.activation_product.product_activation_liquid,
+          [component.PRODUCT_ID, args.quantity, args.employee_id],
+          (err, result) => {
+            if (err) console.log("first");
+          }
+        );
         db.query(
           queries.product_release.get_quantity_by_stored_id_active,
+          [component.PRODUCT_ID],
+          (err, result) => {
+            if (err) {
+              console.log("second");
+            } else {
+              //update product inventory base
+              // fix this 0
+              db.query(
+                queries.product_inventory.update_activation,
+                [
+                  result[0].ACTIVE_STOCK - product_ml_type(args.name) == 1
+                    ? args.quantity
+                    : (30 / 50) * args.quantity,
+                  component.PRODUCT_ID,
+                ],
+                (err) => {
+                  if (err) console.log("third");
+                }
+              );
+            }
+          }
+        );
+        db.query(
+          queries.product_release.get_quantity_by_stored_id_storage,
           [component.PRODUCT_ID],
           (err, result) => {
             if (err) {
               console.log(err);
             } else {
               //update product inventory base
-              // fix this 0
-              db.query(queries.product_inventory.update_activation, [
-                result[0].ACTIVE_STOCK,
-                args.quantity,
+              db.query(queries.product_inventory.update_activation_stored, [
+                result[0].STORED_STOCK - product_ml_type(component.NAME) == 1
+                  ? args.quantity
+                  : (30 / 50) * args.quantity,
                 component.PRODUCT_ID,
               ]);
             }
@@ -566,22 +614,31 @@ const Type3_Protocol = (args, exeptions) => {
         db.query(
           queries.product_release.insert_product_release,
           [component.PRODUCT_ID, args.quantity, args.employee_id],
-          (err) => {}
+          (err) => {
+            if (err) console.log("fourth");
+          }
         );
         db.query(
           queries.product_release.get_quantity_by_stored_id_storage,
           [component.PRODUCT_ID],
           (err, result) => {
             if (err) {
-              console.log(err);
+              console.log("fifth");
             } else {
               //update product inventory base
-              db.query(queries.product_inventory.update_consumption_stored, [
-                result[0].STORED_STOCK - product_ml_type(args.name) == 1
-                  ? args.quantity
-                  : (30 / 50) * args.quantity,
-                component.PRODUCT_ID,
-              ]);
+              db.query(
+                queries.product_inventory.update_consumption_stored,
+                [
+                  // result[0].STORED_STOCK - product_ml_type(args.name) == 1
+                  //   ? args.quantity
+                  //   : (30 / 50) * args.quantity,
+                  result[0].STORED_STOCK - args.quantity,
+                  component.PRODUCT_ID,
+                ],
+                (err) => {
+                  if (err) console.log("sixth");
+                }
+              );
             }
           }
         );
