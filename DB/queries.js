@@ -57,7 +57,7 @@ const tools = {
   activation_log:
     "SELECT * FROM inv_activation_history_log ORDER BY DATE DESC LIMIT 3",
   consumption_log:
-    "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 3",
+    "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 5",
 };
 
 const dashboard = {
