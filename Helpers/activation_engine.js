@@ -677,7 +677,8 @@ const Type4_Protocol = (args, exeptions) => {
         );
         db.query(
           queries.product_release.insert_product_release,
-          [component.PRODUCT_ID, args.quantity, args.employee_id],
+          [component.PRODUCT_ID, (args.quantity * amount
+            [1] / amount[0]), args.employee_id],
           (err) => {}
         );
       }
