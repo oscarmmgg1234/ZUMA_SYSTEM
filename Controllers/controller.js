@@ -2,7 +2,6 @@ const { db_interface } = require("../DB/interface.js");
 const { res_interface } = require("../Models/INTERFACE/res/res_interface.js");
 const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
-const { db } = require("../DB/db_init.js");
 
 const helper = Helper();
 const res = res_interface();
