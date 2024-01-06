@@ -29,9 +29,9 @@ const activation_engine_test = () => {
   logToFile("Activation Engine Test");
   //liquids
   setTimeout(() => {
-    db.execute(queries.development.get_product, ["122"], (err, result) => {
+    db.execute(queries.development.get_product, ["44"], (err, result) => {
       result.forEach((product, index) => {
-        if (index == 1) {
+        logToFile(`product index ${index}`)
           activation_engine.activation_engine(
             {
               PRODUCT_ID: product.PRODUCT_ID,
@@ -83,7 +83,7 @@ const activation_engine_test = () => {
               }
             );
           }, 7000);
-        }
+        
       });
     });
   }, 2000);

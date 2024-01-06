@@ -636,6 +636,7 @@ const Type3_Protocol = (args, exeptions) => {
 };
 const Type4_Protocol = (args, exeptions) => {
   try {
+    const amount = pill_base_amount(args.product_name);
     args.product_components.forEach((component) => {
       if (product_type(component.NAME) == 0) {
         db.query(queries.activation_product.product_activation_liquid, [
@@ -666,7 +667,6 @@ const Type4_Protocol = (args, exeptions) => {
               console.log(err);
             } else {
               //update product inventory base
-              const amount = pill_base_amount(args.product_name);
               db.query(queries.product_inventory.update_activation_stored, [
                 result[0].STORED_STOCK -
                   (args.quantity * amount[1]) / amount[0],
