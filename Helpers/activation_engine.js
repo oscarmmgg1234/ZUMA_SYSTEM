@@ -41,7 +41,7 @@ function createProductRegex(productName) {
 }
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
-const exeptions = [];
+const exeptions = ["78c8da4d", "4d1f188e"];
 
 //detergent //pet-shampoo //Zeolite
 //run each protocol and if product matches exeption rule then run exeption protocol
@@ -151,11 +151,19 @@ const getProductProccessInfo = (args, callback) => {
         ) {
           return product;
         }
-      } else {
-        if (!product.NAME.includes("30ml")) {
+
+      } 
+      if (args.PRODUCT_NAME.includes("Sm")) {
+        if (product.NAME.includes("Sm")) {
+          return product;
+        }
+      } 
+      else {
+        if (!product.NAME.includes("30ml" && "Sm")) {
           return product;
         }
       }
+  
     });
     return callback({
       quantity: args.QUANTITY * args.MULTIPLIER,
