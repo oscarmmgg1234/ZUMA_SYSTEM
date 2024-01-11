@@ -3,7 +3,7 @@ const mysql = require("mysql2");
 const db = mysql.createConnection({
   host: "192.168.1.25",
   user: "oscy",
-  port: 3307,
+  port: 3306,
   password: "admin",
   database: "zuma_main",
 });
