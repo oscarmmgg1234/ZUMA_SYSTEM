@@ -2,7 +2,6 @@ const bwipjs = require("bwip-js");
 const sharp = require("sharp");
 
 const barcode_builder = (args, callback) => {
-  console.log(args);
   const promises = [];
   const text = args.employee_id + ">" + args.product_id + ">" + args.quantity;
   console.log(args.employee_id)
