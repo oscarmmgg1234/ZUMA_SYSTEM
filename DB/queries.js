@@ -58,6 +58,8 @@ const tools = {
     "SELECT * FROM inv_activation_history_log ORDER BY DATE DESC LIMIT 3",
   consumption_log:
     "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 5",
+  barcode_log:
+    "INSERT INTO barcode_log (BarcodeID, Employee,Product,Quantity,Status) VALUES (?,?,?,?,?)",
 };
 
 const dashboard = {

@@ -29,6 +29,5 @@ const db = mysql.createConnection({
   database: process.argv[2] == "dev" ? "zuma_development" : "zuma_main",
   ssl: sslOptions,
 });
-console.log( process.argv[2] == "dev" ? "using development db" : "using production db")
 
 exports.db = db;
