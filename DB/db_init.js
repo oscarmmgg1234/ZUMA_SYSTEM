@@ -1,3 +1,5 @@
+const process = require("process");
+
 const mysql = require("mysql2");
 // const db = mysql.createConnection({
 //   host: "192.168.1.25",
@@ -11,6 +13,8 @@ const mysql = require("mysql2");
 const fs = require("fs");
 const tls = require("tls");
 
+console.log( process.argv[2] == "dev" ? "system using development db" : "system using production db")
+
 const sslOptions = {
   ca: fs.readFileSync("./Certs/DigiCertGlobalRootCA.crt.pem"), // CA certificate (optional)
   rejectUnauthorized: true, // Reject unauthorized connections (optional, true by default)
@@ -22,8 +26,9 @@ const db = mysql.createConnection({
   user: "oscar",
   port: 3306,
   password: "Omariscool1234!",
-  database: "zuma_main",
+  database: process.argv[2] == "dev" ? "zuma_development" : "zuma_main",
   ssl: sslOptions,
 });
+console.log( process.argv[2] == "dev" ? "using development db" : "using production db")
 
 exports.db = db;
