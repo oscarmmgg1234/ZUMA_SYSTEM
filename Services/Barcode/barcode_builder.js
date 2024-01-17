@@ -105,7 +105,6 @@ const barcode_builder = (args, callback) => {
               ])
               .toBuffer();
 
-            console.log("Buffer created successfully.");
             resolve(compo);
           } catch (sharpErr) {
             console.error("Error in Sharp:", sharpErr);

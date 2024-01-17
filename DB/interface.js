@@ -6,10 +6,24 @@ const { queries } = require("./queries.js");
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const getBarcodeData = (args, callback) => {
+  db.execute(
+    queries.tools.get_barcode_data,
+    [args.BARCODE_ID],
+    (err, result) => {
+      return callback(result);
+    }
+  );
+};
+
 const getProductStock = (args, callback) => {
-  db.execute(queries.dashboard.get_product_stock, [args.PRODUCT_ID], (err, result) => {
-    return callback(result);
-  });
+  db.execute(
+    queries.dashboard.get_product_stock,
+    [args.PRODUCT_ID],
+    (err, result) => {
+      return callback(result);
+    }
+  );
 };
 
 const getProductReductionRecent = (args, callback) => {
@@ -40,7 +54,7 @@ const getProductShipmentRecent = (args, callback) => {
       return callback(result);
     }
   );
-}
+};
 
 const getProductById = (args, callback) => {
   db.execute(queries.tools.get_product_by_id, args.to_arr(), (err, result) => {
@@ -213,6 +227,11 @@ class db_interface {
   };
   get_product_shipment_recent = (args, callback) => {
     getProductShipmentRecent(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_barcode_data = (args, callback) => {
+    getBarcodeData(args, (data) => {
       return callback(data);
     });
   };

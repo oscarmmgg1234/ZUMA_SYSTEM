@@ -11,7 +11,6 @@ const reduction_type = (args, callback) => {
 };
 
 const reduction_engine = (args) => {
-
   reduction_protocol.forEach((protocol, index) => {
     reduction_type(args, (type) => {
       if (index + 1 == type) {
@@ -19,6 +18,7 @@ const reduction_engine = (args) => {
           quantity: args.QUANTITY,
           product_id: args.PRODUCT_ID,
           employee_id: args.EMPLOYEE_RESPONSIBLE,
+          BARCODE_ID: args.BARCODE_ID,
         });
       }
     });
@@ -26,6 +26,10 @@ const reduction_engine = (args) => {
 };
 
 const type1_reduction = (args) => {
+  db.query(queries.product_release.barcode_status_change, [
+    "Deducted",
+    args.BARCODE_ID,
+  ]);
   //product realase
   db.query(
     queries.product_release.insert_product_release,
@@ -50,6 +54,10 @@ const type1_reduction = (args) => {
 };
 
 const type2_reduction = (args) => {
+  db.query(queries.product_release.barcode_status_change, [
+    "Deducted",
+    args.BARCODE_ID,
+  ]);
   db.query(
     queries.product_release.insert_product_release,
     [args.product_id, args.quantity, args.employee_id],

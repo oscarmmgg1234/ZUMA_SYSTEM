@@ -17,6 +17,18 @@ router.use("/get_product_analytics", (req, res, next) => {
   });
 });
 
+router.use("/get_barcode_data", (req, res, next) => {
+  req_model.barcodeParse(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
 
 router.use("/shipment_insert", (req, res, next) => {
   req_model.insert_shipment(req.body, (data) => {

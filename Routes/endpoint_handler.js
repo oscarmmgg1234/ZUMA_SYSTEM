@@ -119,6 +119,18 @@ class http_handler {
   };
 
   services = {
+    get_barcode_data: (req, res) => {
+      controller.tools.getBarcodeData(req.req_data, (data) => {
+        const err = new ErrorHandling(data, "Error getting barcode data");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Barcode Data").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
     print_label: (req, res) => {
       controller.label_print_controller.labelPrint(req);
       res.send(
@@ -181,8 +193,7 @@ class http_handler {
         } else {
           res.send(err.getError());
         }
-      })
-
+      });
     },
     getActivationLog: (req, res) => {
       controller.services.getActivationLog((data) => {
@@ -195,7 +206,7 @@ class http_handler {
           res.send(err.getError());
         }
       });
-    },  
+    },
     getReductionLog: (req, res) => {
       controller.services.getConsumptionLog((data) => {
         const err = new ErrorHandling(data, "Error getting consumption log");
@@ -224,20 +235,27 @@ class http_handler {
       });
     },
     get_product_analytics: (req, res) => {
-      controller.dashboard_controller.getProductAnalytics(req.req_data, (data) => {
-        const err = new ErrorHandling(data, "Error getting product analytics");
-        if (err.isValid()) {
-          res.send(
-            new success_handling(data, "Retrieved Product Analytics").getSuccess()
+      controller.dashboard_controller.getProductAnalytics(
+        req.req_data,
+        (data) => {
+          const err = new ErrorHandling(
+            data,
+            "Error getting product analytics"
           );
-        } else {
-          res.send(err.getError());
+          if (err.isValid()) {
+            res.send(
+              new success_handling(
+                data,
+                "Retrieved Product Analytics"
+              ).getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
         }
-      });
-    }
-  }
-
-
+      );
+    },
+  };
 }
 
 exports.endpointHandler = () => {

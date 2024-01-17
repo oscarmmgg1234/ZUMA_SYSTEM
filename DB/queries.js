@@ -28,6 +28,7 @@ const product_release = {
     "SELECT ACTIVE_STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
   insert_product_release:
     "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
+  barcode_status_change: 'UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?'
 };
 
 const product_inventory = {
@@ -60,6 +61,7 @@ const tools = {
     "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 5",
   barcode_log:
     "INSERT INTO barcode_log (BarcodeID, Employee,Product,Quantity,Status) VALUES (?,?,?,?,?)",
+  get_barcode_data: "SELECT * FROM barcode_log WHERE BarcodeID = ?",
 };
 
 const dashboard = {

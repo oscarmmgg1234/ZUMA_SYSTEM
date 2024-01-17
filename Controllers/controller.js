@@ -154,6 +154,12 @@ const print_label = (args) => {
   services.http_print_label(args);
 };
 
+const getBarcodeData = (args, callback) => {
+  db_api.get_barcode_data(args, (data) => {
+    return callback(data);
+  });
+}
+
 class controller {
   shipment_controller = {
     select_all_shipment: (callback) => {
@@ -244,6 +250,11 @@ class controller {
   tools = {
     get_product_by_id: (args, callback) => {
       get_product_by_id(args, (data) => {
+        return callback(data);
+      });
+    },
+    getBarcodeData: (args, callback) => {
+      getBarcodeData(args, (data) => {
         return callback(data);
       });
     },

@@ -35,5 +35,9 @@ service_router.get("/get_products", (req, res) => {
     endpoint_handler.services.getProducts(req, res);
 });
 
+service_router.post("/get_barcode_data", (req, res) => {
+    endpoint_handler.services.get_barcode_data(req, res);
+});
+
 
 module.exports = service_router;
