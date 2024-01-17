@@ -91,8 +91,10 @@ const activate_product = (args) => {
     MULTIPLIER: args.MULTIPLIER,
     PRODUCT_NAME: args.PRODUCT_NAME,
     EMPLOYEE_ID: args.EMPLOYEE_ID,
+    SRC: "Active/Passive",
   });
 };
+
 
 const get_products_info = (callback) => {
   db_api.get_products_info((data) => {

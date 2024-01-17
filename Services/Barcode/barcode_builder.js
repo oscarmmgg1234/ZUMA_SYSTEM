@@ -1,10 +1,36 @@
 const bwipjs = require("bwip-js");
 const sharp = require("sharp");
+const { db } = require("../../DB/db_init.js");
+const { queries } = require("../../DB/queries.js");
 
 const barcode_builder = (args, callback) => {
   const promises = [];
-  const text = args.employee_id + ">" + args.product_id + ">" + args.quantity + ">" + args.id;
   for (let i = 0; i < parseInt(args.multiplier); i++) {
+    let id = args.id;
+    if (i > 0) {
+      id = Math.floor(Math.random() * 1000000000);
+      db.query(
+        queries.tools.barcode_log,
+        [
+          id,
+          args.employee_id,
+          args.product_name,
+          args.quantity,
+          args.src == "Manually Printed"
+            ? "Manually Printed"
+            : "Active/Passive",
+        ],
+        (err, result) => {
+          if (err) {
+            console.log(err);
+          }
+        }
+      );
+    }
+
+    const text =
+      args.employee_id + ">" + args.product_id + ">" + args.quantity + ">" + id;
+
     const promise = new Promise((resolve, reject) => {
       bwipjs.toBuffer(
         {

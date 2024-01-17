@@ -2,7 +2,6 @@ const barcode_gen = require("./Barcode/barcode_builder");
 const { req_interface } = require("../Models/INTERFACE/req/req_interface");
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
-const { get } = require("http");
 
 const req_model = req_interface();
 
@@ -14,7 +13,13 @@ class Services {
   barcode_gen = (args, callback) => {
     db.query(
       queries.tools.barcode_log,
-      [args.id, args.employee_id, args.product_name, args.quantity, "Manually Printed"],
+      [
+        args.id,
+        args.employee_id,
+        args.product_name,
+        args.quantity,
+        args.src == "Manually Printed" ? "Manually Printed" : "Active/Passive",
+      ],
       (err, result) => {
         if (err) {
           console.log(err);
