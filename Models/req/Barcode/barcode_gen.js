@@ -21,7 +21,7 @@ class parseBarcode {
     this.EMPLOYEE_ID = arg_arr[0];
     this.PRODUCT_ID = arg_arr[1];
     this.QUANTITY = arg_arr[2];
-    this.BARCODE_ID = arg_arr.length > 2 ? arg_arr[3] : null;
+    this.BARCODE_ID = arg_arr[3] ? arg_arr[3] : 0;
   }
   to_arr() {
     return [this.PRODUCT_ID];
