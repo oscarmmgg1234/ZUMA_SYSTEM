@@ -16,6 +16,12 @@ const select_all_shipment_log = (callback) => {
   });
 };
 
+const getShipmentLog = (args, callback) => {
+  db_api.getShipmentByDate(args, (data) => {
+    return callback(data);
+  });
+};
+
 const getProductAnalytics = (args, callback) => {
   db_api.get_product_stock(args, (stock) => {
     db_api.get_product_reduction_recent(args, (reduction) => {
@@ -95,7 +101,6 @@ const activate_product = (args) => {
   });
 };
 
-
 const get_products_info = (callback) => {
   db_api.get_products_info((data) => {
     return callback(data);
@@ -158,7 +163,7 @@ const getBarcodeData = (args, callback) => {
   db_api.get_barcode_data(args, (data) => {
     return callback(data);
   });
-}
+};
 
 class controller {
   shipment_controller = {
@@ -175,6 +180,11 @@ class controller {
     },
     delete_shipment_log: (args) => {
       delete_shipment_log(args);
+    },
+    getShipmentByDate: (args, callback) => {
+      getShipmentLog(args, (data) => {
+        return callback(data);
+      });
     },
   };
   product_activation_controller = {

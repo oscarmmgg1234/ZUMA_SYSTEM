@@ -12,6 +12,24 @@ class http_handler {
   }
 
   shipment = {
+    get_shipment_by_date: (req, res) => {
+      controller.shipment_controller.getShipmentByDate(
+        req.req_data,
+        (data) => {
+          const err = new ErrorHandling(data, "Error getting shipment by date");
+          if (err.isValid()) {
+            res.send(
+              new success_handling(
+                data,
+                "Retrieved Shipment By Date"
+              ).getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
+        }
+      );
+    },
     shimpent_insert: (req, res) => {
       controller.shipment_controller.insert_shipment(req.req_data);
       res.send(

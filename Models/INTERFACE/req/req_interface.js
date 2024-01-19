@@ -8,6 +8,7 @@ const barcode_gen = require("../../req/Barcode/barcode_gen");
 const product_reduc = require("../../req/inv_consumption/insert");
 const parseBarcode = require("../../req/Barcode/barcode_gen.js");
 const product_analytics = require("../../req/Dashboard/getProductAnalytics");
+const shipment_date = require("../../req/shipment/getShipmentsByDate");
 
 class req_interface {
   productAnalytics = (args, callback) => {
@@ -57,6 +58,11 @@ class req_interface {
   };
   barcodeParse = (args, callback) => {
     parseBarcode.parseBCode(args, (data) => {
+      return callback(data);
+    });
+  };
+  getShipmentByDate = (args, callback) => {
+    shipment_date.ShipmentsByDate(args, (data) => {
       return callback(data);
     });
   };

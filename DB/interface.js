@@ -6,6 +6,16 @@ const { queries } = require("./queries.js");
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const getShipmentLog = (args, callback) => {
+  db.execute(
+    queries.shipment.get_shipment_log_byDate,
+    [args.date],
+    (err, result) => {
+      return callback(result);
+    }
+  );
+};
+
 const getBarcodeData = (args, callback) => {
   db.execute(
     queries.tools.get_barcode_data,
@@ -149,6 +159,11 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  getShipmentByDate = (args, callback) => {
+    getShipmentLog(args, (data) => {
+      return callback(data);
+    });
+  };
   get_shipment_log = (callback) => {
     get_shipment_log((data) => {
       return callback(data);

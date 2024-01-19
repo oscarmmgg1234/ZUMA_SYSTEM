@@ -46,6 +46,7 @@ const shipment = {
   get_product_by_company: "SELECT * FROM product WHERE COMPANY = ?",
   get_company_info: "SELECT * FROM company",
   get_employee_info: "SELECT * FROM employee",
+  get_shipment_log_byDate: "SELECT * FROM shipment_log WHERE DATE(SHIPMENT_DATE) = ?",
 };
 
 const label_print = {

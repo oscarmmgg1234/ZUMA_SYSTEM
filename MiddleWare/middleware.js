@@ -126,4 +126,17 @@ router.use("/product_reduction", (req, res, next) => {
   });
 });
 
+router.use("/get_shipment_by_date", (req, res, next) => { 
+  req_model.getShipmentByDate(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
 module.exports = router;

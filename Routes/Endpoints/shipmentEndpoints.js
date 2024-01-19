@@ -17,4 +17,8 @@ shipment_router.post("/get_products_by_company", (req, res) => {
   endpoint_handler.shipment.get_products_by_company(req, res);
 });
 
+shipment_router.post("/get_shipment_by_date", (req, res) => {
+  endpoint_handler.shipment.get_shipment_by_date(req, res);
+});
+
 module.exports = shipment_router;
