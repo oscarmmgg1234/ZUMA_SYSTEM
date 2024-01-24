@@ -45,9 +45,7 @@ class Services {
               "Content-Type": "application/json",
             },
           });
-        } catch (err) {
-          console.log(err);
-        }
+        } catch (err) {}
       });
     });
   };

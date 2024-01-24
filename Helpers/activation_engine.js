@@ -1,21 +1,24 @@
-
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
-const {activationEngineComponents} = require("./EngineComponents/Activation/activationEngine.js")
-const {activationProtocols} = require("./EngineComponents/Activation/activationProtocols.js")
-const {activationSubProtocols} = require("./EngineComponents/Activation/activationSubProtocols.js")
+const {
+  activationEngineComponents,
+} = require("./EngineComponents/Activation/activationEngine.js");
+const {
+  activationProtocols,
+} = require("./EngineComponents/Activation/activationProtocols.js");
+const {
+  activationSubProtocols,
+} = require("./EngineComponents/Activation/activationSubProtocols.js");
 
 const engineHelper = activationEngineComponents;
 const protocols = activationProtocols();
 const subProtocols = activationSubProtocols();
-
 
 //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
 //think about this a bit more => maintanance, add products, remove product, tweaks to products
 
 // error handling
 let success = { status: true, message: "success" };
-
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
 const exeptions = ["78c8da4d", "4d1f188e"];
@@ -52,25 +55,29 @@ const getProductProccessInfo = (args, callback) => {
 
     const formated_components = product_components.filter((product) => {
       if (args.PRODUCT_NAME.includes("30ml")) {
-        if (
-          product.NAME.includes("30ml") ||
-          (product.NAME.includes("Gal") && !product.NAME.includes("Label"))
-        ) {
+        if (product.NAME.includes("30ml")) {
           return product;
         }
-
-      } 
+        if (product.NAME.includes("Gal") && !product.NAME.includes("Label")) {
+          return product;
+        }
+      }
       if (args.PRODUCT_NAME.includes("Sm")) {
         if (product.NAME.includes("Sm")) {
           return product;
         }
-      } 
-      else {
-        if (!product.NAME.includes("30ml" && "Sm")) {
-          return product;
+      }
+
+      if (!args.PRODUCT_NAME.includes("30ml")) {
+        if (!product.NAME.includes("30ml")) {
+          if (product.NAME.includes("Gal")) {
+            return product;
+          }
+          if (product.NAME.includes("Label")) {
+            return product;
+          }
         }
       }
-  
     });
     return callback({
       quantity: args.QUANTITY * args.MULTIPLIER,
@@ -119,12 +126,8 @@ const main_activation = (args) => {
           }
         });
       }
-      if (success.status == false) {
-        console.log(success.message);
-      }
     }
   );
 };
-
 
 exports.activation_engine = main_activation;
