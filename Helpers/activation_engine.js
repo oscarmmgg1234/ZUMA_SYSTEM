@@ -4,7 +4,10 @@ const { queries } = require("../DB/queries.js");
 const {activationEngineComponents} = require("./EngineComponents/Activation/activationEngine.js")
 const {activationProtocols} = require("./EngineComponents/Activation/activationProtocols.js")
 const {activationSubProtocols} = require("./EngineComponents/Activation/activationSubProtocols.js")
+
 const engineHelper = activationEngineComponents;
+const protocols = activationProtocols();
+const subProtocols = activationSubProtocols();
 
 
 //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
@@ -95,7 +98,7 @@ const main_activation = (args) => {
       quantity,
       employee_id,
     }) => {
-      activationProtocols.forEach((protocol, index) => {
+      protocols.forEach((protocol, index) => {
         if (index + 1 == process_type) {
           protocol(
             {
@@ -110,7 +113,7 @@ const main_activation = (args) => {
         }
       });
       if (process_component != null) {
-        activationSubProtocols.forEach((protocol, index) => {
+        subProtocols.forEach((protocol, index) => {
           if (index + 1 === process_component) {
             protocol({ process_component, quantity, employee_id }, exeptions);
           }
