@@ -1,6 +1,10 @@
 
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
+const {activationEngineComponents} = require("./EngineComponents/Activation/activationEngine.js")
+
+const engineHelper = activationEngineComponents;
+
 
 //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
 //think about this a bit more => maintanance, add products, remove product, tweaks to products
@@ -10,35 +14,6 @@ let success = { status: true, message: "success" };
 
 const ml_to_gallon = 3785.41;
 
-//helper functions
-function createProductRegex(productName) {
-  // Escape special characters for regex pattern
-  try {
-    const escapedProductName = productName.replace(
-      /[-/\\^$*+?.()|[\]{}]/g,
-      "\\$&"
-    );
-    // Create regex pattern with optional suffixes like "Label", "Gal", or "30ml"
-    // Also, allow for variations like "PET_Palm Balm" and "Probiotic_Lg" where underscore may be used
-    const pattern = new RegExp(
-      `\\b${
-        escapedProductName.includes("30ml")
-          ? escapedProductName.replace("30ml", "")
-          : escapedProductName
-      }(?:\\s+(?:Label|Gal|30ml))?\\b`,
-      "i"
-    );
-
-    return pattern; // will capture Fulvic Detox, Fulvic Detox Label, Fulvic Detox Gal, Fulvic & Detox 30ml Label, etc. and
-  } catch (err) {
-    console.log(err);
-    success.status = false;
-    success.message = "error creating regex pattern";
-  }
-  // Create regex pattern with optional suffixes like "Label", "Gal", or "30ml"
-  // Also, allow for variations like "PET_Palm Balm" and "Probiotic_Lg" where underscore may be used
-  // will capture Fulvic Detox, Fulvic Detox Label, Fulvic Detox Gal, Fulvic & Detox 30ml Label, etc. and
-}
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
 const exeptions = ["78c8da4d", "4d1f188e"];
@@ -58,80 +33,10 @@ const getProducts = (callback) => {
   }
 };
 
-const product_type = (product) => {
-  try {
-    if (product.match(/\bLabel\b/)) {
-      return 1;
-    }
-    if (product.match(/\bGal\b/)) {
-      return 2;
-    } else {
-      return 0;
-    }
-  } catch (err) {
-    console.log(err);
-    success.status = false;
-    success.message = "error getting product type";
-  }
-};
-
-const product_ml_type = (product) => {
-  try {
-    if (product.match(/\b30ml\b/)) {
-      return 1;
-    } else {
-      return 0;
-    }
-  } catch (err) {
-    console.log(err);
-    success.status = false;
-    success.message = "error getting product ml type";
-  }
-};
-
-const pill_base_amount = (product) => {
-  if (product.match("L-Theanine")) {
-    return [180, 60];
-  }
-  if (product.match("L-Lysine")) {
-    return [200, 120];
-  }
-  if (product.match("L-Proline")) {
-    return [100, 60];
-  }
-  if (product.match("Amino Acid")) {
-    return [200, 50];
-  }
-  if (product.match("Probiotic")) {
-    return [150, 60];
-  }
-  if (product.match("Digestive Enzyme")) {
-    return [180, 60];
-  }
-  if (product.match("Colostrum")) {
-    return [120, 60];
-  }
-  if (product.match("Butyric Acid")) {
-    return [90, 60];
-  }
-  if (product.match("Arabinogalactan")) {
-    return [90, 60];
-  }
-  if (product.match("Stress B-Complex & Vtm C")) {
-    return [240, 60];
-  }
-  if (product.match("Coenzyme B-Complex")) {
-    return [100, 60];
-  }
-  if (product.match("PET_Agaricus")) {
-    return [60, 30];
-  }
-};
-
 //foundation of activation engine
 const getProductProccessInfo = (args, callback) => {
   //1st step
-  const component_regex = createProductRegex(args.PRODUCT_NAME);
+  const component_regex = engineHelper.createRegex(args.PRODUCT_NAME);
   //parses request object and create obj needed for protocols
 
   getProducts((products) => {
@@ -224,7 +129,7 @@ const Type1_Protocol = (args, exeptions) => {
   try {
     if (!exeptions.includes(args.product_id)) {
       args.product_components.forEach((component) => {
-        if (product_type(component.NAME) == 0) {
+        if (engineHelper.productType(component.NAME) == 0) {
           db.query(queries.activation_product.product_activation_liquid, [
             component.PRODUCT_ID,
             args.quantity,
@@ -263,7 +168,7 @@ const Type1_Protocol = (args, exeptions) => {
             }
           );
         }
-        if (product_type(component.NAME) == 1) {
+        if (engineHelper.productType(component.NAME) == 1) {
           db.query(
             queries.product_release.insert_product_release,
             [component.PRODUCT_ID, args.quantity, args.employee_id],
@@ -290,7 +195,7 @@ const Type1_Protocol = (args, exeptions) => {
       //run custom code
       args.product_components.forEach((component) => {
         if ("78c8da4d" == args.product_id) {
-          if (product_type(component.NAME) == 0) {
+          if (engineHelper.productType(component.NAME) == 0) {
             //product protocol
             db.query(queries.activation_product.product_activation_liquid, [
               "78c8da4d",
@@ -343,7 +248,7 @@ const Type1_Protocol = (args, exeptions) => {
 
           //
 
-          if (product_type(component.NAME) == 1) {
+          if (engineHelper.productType(component.NAME) == 1) {
             db.query(
               queries.product_release.insert_product_release,
               ["4f6d1af3", args.quantity, args.employee_id],
@@ -369,7 +274,7 @@ const Type1_Protocol = (args, exeptions) => {
         }
 
         if ("4d1f188e" == args.product_id) {
-          if (product_type(component.NAME) == 0) {
+          if (engineHelper.productType(component.NAME) == 0) {
             db.query(queries.activation_product.product_activation_liquid, [
               "4d1f188e",
               args.quantity,
@@ -418,7 +323,7 @@ const Type1_Protocol = (args, exeptions) => {
             );
           }
 
-          if (product_type(component.NAME) == 1) {
+          if (engineHelper.productType(component.NAME) == 1) {
             db.query(
               queries.product_release.insert_product_release,
               ["62c42a38", args.quantity, args.employee_id],
@@ -455,7 +360,7 @@ const Type2_Protocol = (args, exeptions) => {
     if (!exeptions.includes(args.product_id)) {
       args.product_components.forEach((component) => {
 
-        if (product_type(component.NAME) == 0) {
+        if (engineHelper.productType(component.NAME) == 0) {
           db.query(queries.activation_product.product_activation_liquid, [
             component.PRODUCT_ID,
             args.quantity,
@@ -477,7 +382,7 @@ const Type2_Protocol = (args, exeptions) => {
             }
           );
         }
-        if (product_type(component.NAME) == 1) {
+        if (engineHelper.productType(component.NAME) == 1) {
           db.query(
             queries.product_release.insert_product_release,
             [component.PRODUCT_ID, args.quantity, args.employee_id],
@@ -500,7 +405,7 @@ const Type2_Protocol = (args, exeptions) => {
             }
           );
         }
-        if (product_type(component.NAME) == 2) {
+        if (engineHelper.productType(component.NAME) == 2) {
           //base
           db.query(
             queries.product_release.get_quantity_by_stored_id_storage,
@@ -514,7 +419,7 @@ const Type2_Protocol = (args, exeptions) => {
                   queries.product_inventory.update_consumption_stored,
                   [
                     result[0].STORED_STOCK -
-                      ((product_ml_type(args.product_name) == 1 ? 30 : 50) *
+                      ((engineHelper.productMLType(args.product_name) == 1 ? 30 : 50) *
                         args.quantity) /
                         ml_to_gallon,
                     component.PRODUCT_ID,
@@ -532,7 +437,7 @@ const Type2_Protocol = (args, exeptions) => {
             queries.product_release.insert_product_release,
             [
               component.PRODUCT_ID,
-              (product_ml_type(args.product_name) == 1
+              (engineHelper.productMLType(args.product_name) == 1
                 ? 30
                 : 50 * args.quantity) / ml_to_gallon,
               args.employee_id,
@@ -554,7 +459,7 @@ const Type2_Protocol = (args, exeptions) => {
 const Type3_Protocol = (args, exeptions) => {
   try {
     args.product_components.forEach((component) => {
-      if (product_type(component.NAME) == 0) {
+      if (engineHelper.productType(component.NAME) == 0) {
         db.query(
           queries.activation_product.product_activation_liquid,
           [component.PRODUCT_ID, args.quantity, args.employee_id],
@@ -572,7 +477,7 @@ const Type3_Protocol = (args, exeptions) => {
               db.query(
                 queries.product_inventory.update_activation,
                 [
-                  result[0].ACTIVE_STOCK + (product_ml_type(component.NAME) == 0
+                  result[0].ACTIVE_STOCK + (engineHelper.productMLType(component.NAME) == 0
                     ? args.quantity
                     : 0.6 * args.quantity),
                     component.PRODUCT_ID  ,
@@ -593,7 +498,7 @@ const Type3_Protocol = (args, exeptions) => {
             } else {
               //update product inventory base
               db.query(queries.product_inventory.update_activation_stored, [
-                result[0].STORED_STOCK - (product_ml_type(component.NAME) == 0
+                result[0].STORED_STOCK - (engineHelper.productMLType(component.NAME) == 0
                   ? args.quantity
                   : 0.6 * args.quantity),
                 "c064f810",
@@ -602,7 +507,7 @@ const Type3_Protocol = (args, exeptions) => {
           }
         );
       }
-      if (product_type(component.NAME) == 1) {
+      if (engineHelper.productType(component.NAME) == 1) {
         db.query(
           queries.product_release.insert_product_release,
           [component.PRODUCT_ID, args.quantity, args.employee_id],
@@ -621,7 +526,7 @@ const Type3_Protocol = (args, exeptions) => {
               db.query(
                 queries.product_inventory.update_consumption_stored,
                 [
-                  // result[0].STORED_STOCK - product_ml_type(args.name) == 1
+                  // result[0].STORED_STOCK - engineHelper.productMLType(args.name) == 1
                   //   ? args.quantity
                   //   : (30 / 50) * args.quantity,
                   result[0].STORED_STOCK - args.quantity,
@@ -644,9 +549,9 @@ const Type3_Protocol = (args, exeptions) => {
 };
 const Type4_Protocol = (args, exeptions) => {
   try {
-    const amount = pill_base_amount(args.product_name);
+    const amount = engineHelper.pillBaseAmount(args.product_name);
     args.product_components.forEach((component) => {
-      if (product_type(component.NAME) == 0) {
+      if (engineHelper.productType(component.NAME) == 0) {
         db.query(queries.activation_product.product_activation_liquid, [
           component.PRODUCT_ID,
           args.quantity,
@@ -690,7 +595,7 @@ const Type4_Protocol = (args, exeptions) => {
           (err) => {}
         );
       }
-      if (product_type(component.NAME) == 1) {
+      if (engineHelper.productType(component.NAME) == 1) {
         db.query(
           queries.product_release.get_quantity_by_stored_id_storage,
           [component.PRODUCT_ID],
@@ -716,7 +621,7 @@ const Type4_Protocol = (args, exeptions) => {
 };
 const Type5_Protocol = (args, exeptions) => {
   args.product_components.forEach((component) => {
-    if (product_type(component.NAME) == 0) {
+    if (engineHelper.productType(component.NAME) == 0) {
       db.query(queries.activation_product.product_activation_liquid, [
         component.PRODUCT_ID,
         args.quantity,
@@ -738,7 +643,7 @@ const Type5_Protocol = (args, exeptions) => {
         }
       );
     }
-    if (product_type(component.NAME) == 1) {
+    if (engineHelper.productType(component.NAME) == 1) {
       //label
       db.query(
         queries.product_release.insert_product_release,
@@ -761,7 +666,7 @@ const Type5_Protocol = (args, exeptions) => {
         }
       );
     }
-    if (product_type(component.NAME) == 2) {
+    if (engineHelper.productType(component.NAME) == 2) {
       db.query(
         queries.product_release.get_quantity_by_stored_id_storage,
         [component.PRODUCT_ID],
