@@ -28,7 +28,8 @@ const product_release = {
     "SELECT ACTIVE_STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
   insert_product_release:
     "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
-  barcode_status_change: 'UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?'
+  barcode_status_change:
+    "UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?",
 };
 
 const product_inventory = {
@@ -46,7 +47,8 @@ const shipment = {
   get_product_by_company: "SELECT * FROM product WHERE COMPANY = ?",
   get_company_info: "SELECT * FROM company",
   get_employee_info: "SELECT * FROM employee",
-  get_shipment_log_byDate: "SELECT * FROM shipment_log WHERE DATE(SHIPMENT_DATE) = ?",
+  get_shipment_log_byDate:
+    "SELECT * FROM shipment_log WHERE DATE(SHIPMENT_DATE) = ? ORDER BY SHIPMENT_DATE DESC",
 };
 
 const label_print = {
@@ -73,6 +75,20 @@ const dashboard = {
     "SELECT * from inv_activation_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
   get_product_shipment_recent:
     "SELECT * from shipment_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+  get_active_stock:
+    "SELECT ACTIVE_STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
+  get_stored_stock:
+    "SELECT STORED_STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
+  transform_active_product:
+    "UPDATE product_inventory SET ACTIVE_STOCK = ? WHERE PRODUCT_ID = ?",
+  transform_stored_product:
+    "UPDATE product_inventory SET STORED_STOCK = ? WHERE PRODUCT_ID = ?",
+  transform_barcode_product:
+    "UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?",
+  activationByDate:
+    "SELECT * FROM inventory_activation WHERE DATE(DATE) = ? ORDER BY DATE DESC",
+  reductionByDate:
+    "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = ? ORDER BY DATE DESC",
 };
 
 const development = {
@@ -87,6 +103,11 @@ const development = {
     "SELECT * FROM shipment_history_log ORDER BY DATE DESC LIMIT 1",
   get_stored_stock: "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
   get_active_stock: "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
+  add_product:
+    "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION,  COMPANY, PROCESS_TYPE, PROCESS_COMPONENT_TYPE, REDUCTION_TYPE, SHIPMENT_TYPE, UNIT_TYPE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ",
+  delete_product: "DELETE FROM product WHERE PRODUCT_ID = ?",
+  delete_product_inventory:
+    "DELETE FROM product_inventory WHERE PRODUCT_ID = ?",
 };
 
 exports.queries = {

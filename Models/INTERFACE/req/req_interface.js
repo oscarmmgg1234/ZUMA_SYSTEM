@@ -9,8 +9,23 @@ const product_reduc = require("../../req/inv_consumption/insert");
 const parseBarcode = require("../../req/Barcode/barcode_gen.js");
 const product_analytics = require("../../req/Dashboard/getProductAnalytics");
 const shipment_date = require("../../req/shipment/getShipmentsByDate");
+const modifyStock = require("../../req/Update/modifyStock");
+const activationByDate = require("../../req/inv_activation/getActivationByDate");
+const reductionByDate = require("../../req/inv_consumption/getReductionByDate");
+const addProduct = require("../../req/Dashboard/addProduct");
+const deleteProduct = require("../../req/Dashboard/deleteProduct");
 
 class req_interface {
+  addProduct = (args, callback) => {
+    addProduct.addProduct(args, (status) => {
+      return callback(status);
+    });
+  };
+  deleteProduct = (args, callback) => {
+    deleteProduct.deleteProduct(args, (status) => {
+      return callback(status);
+    });
+  };
   productAnalytics = (args, callback) => {
     product_analytics.product_analytics(args, (data) => {
       return callback(data);
@@ -63,6 +78,21 @@ class req_interface {
   };
   getShipmentByDate = (args, callback) => {
     shipment_date.ShipmentsByDate(args, (data) => {
+      return callback(data);
+    });
+  };
+  modifyStock = (args, callback) => {
+    modifyStock.modifyStock(args, (data) => {
+      return callback(data);
+    });
+  };
+  getActivationByDate = (args, callback) => {
+    activationByDate.activationByDate(args, (data) => {
+      return callback(data);
+    });
+  };
+  getReductionByDate = (args, callback) => {
+    reductionByDate.reductionByDate(args, (data) => {
       return callback(data);
     });
   };

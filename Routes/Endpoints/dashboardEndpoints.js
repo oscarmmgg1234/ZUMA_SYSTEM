@@ -12,4 +12,28 @@ dashboard_router.post("/get_product_analytics", (req, res) => {
   endpoint_handler.dashboard.get_product_analytics(req, res);
 });
 
+dashboard_router.post("/modify_active_stock", (req, res) => {
+  endpoint_handler.dashboard.modifyActiveStock(req, res);
+});
+
+dashboard_router.post("/modify_stored_stock", (req, res) => {
+  endpoint_handler.dashboard.modifyStoredStock(req, res);
+});
+
+dashboard_router.post("/getActivationByDate", (req, res) => {
+  endpoint_handler.dashboard.getActivationByDate(req, res);
+});
+
+dashboard_router.post("/getReductionByDate", (req, res) => {
+  endpoint_handler.dashboard.getReductionByDate(req, res);
+});
+
+dashboard_router.post("/deleteProduct", (req, res) => {
+  endpoint_handler.dashboard.deleteProduct(req, res);
+});
+
+dashboard_router.post("/addProduct", (req, res) => {
+  endpoint_handler.dashboard.addProduct(req, res);
+});
+
 module.exports = dashboard_router;

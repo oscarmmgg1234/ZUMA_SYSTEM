@@ -6,6 +6,129 @@ const { queries } = require("./queries.js");
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const addProduct = (args, callback) => {
+  db.execute(queries.development.add_product, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+      return callback({ status: false, status_mes: "Error adding product" });
+    }
+    return callback({ status: true, status_mes: "Successfully added product" });
+  });
+};
+
+const deleteProduct = (args, callback) => {
+  db.execute(queries.development.delete_product, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+      return callback({ status: false, status_mes: "Error deleting product" });
+    }
+    db.execute(
+      queries.development.delete_product_inventory,
+      args.to_arr(),
+      (err) => {
+        if (err) {
+          console.log(err);
+          return callback({
+            status: false,
+            status_mes: "Error deleting product",
+          });
+        }
+        return callback({
+          status: true,
+          status_mes: "Successfully deleted product",
+        });
+      }
+    );
+  });
+};
+
+const modifyStockGivenID = (args, action, callback) => {
+  if (action == "active") {
+    db.execute(
+      queries.dashboard.get_active_stock,
+      args.to_arr(),
+      (err, result) => {
+        if (err) {
+          console.log(err);
+          return callback({
+            status: false,
+            status_mes: "Error modifying database",
+          });
+        }
+        if (result.length == 0) {
+          return callback({
+            status: false,
+            status_mes: "Error modifying database",
+          });
+        }
+        db.execute(queries.dashboard.transform_active_product, [
+          parseInt(args.quantity + result[0].ACTIVE_STOCK),
+          args.productID,
+        ]);
+        return callback({
+          status: true,
+          status_mes: "Successfully modified database",
+        });
+      }
+    );
+  }
+  if (action == "stored") {
+    db.execute(
+      queries.dashboard.get_stored_stock,
+      args.to_arr(),
+      (err, result) => {
+        if (err) {
+          console.log(err);
+          return callback({
+            status: false,
+            status_mes: "Error modifying database",
+          });
+        }
+        if (result.length == 0) {
+          return callback({
+            status: false,
+            status_mes: "Error modifying database",
+          });
+        }
+        db.execute(queries.dashboard.transform_stored_product, [
+          parseInt(args.quantity + result[0].STORED_STOCK),
+          args.productID,
+        ]);
+        return callback({
+          status: true,
+          status_mes: "Successfully modified database",
+        });
+      }
+    );
+  }
+};
+
+const getActivationByDate = (args, callback) => {
+  db.execute(
+    queries.dashboard.activationByDate,
+    args.to_arr(),
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
+    }
+  );
+};
+
+const getReductionByDate = (args, callback) => {
+  db.execute(
+    queries.dashboard.reductionByDate,
+    args.to_arr(),
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
+    }
+  );
+};
+
 const getShipmentLog = (args, callback) => {
   db.execute(
     queries.shipment.get_shipment_log_byDate,
@@ -248,6 +371,31 @@ class db_interface {
   get_barcode_data = (args, callback) => {
     getBarcodeData(args, (data) => {
       return callback(data);
+    });
+  };
+  modifyStockGivenID = (args, action, callback) => {
+    modifyStockGivenID(args, action, (status) => {
+      return callback(status);
+    });
+  };
+  getActivationByDate = (args, callback) => {
+    getActivationByDate(args, (data) => {
+      return callback(data);
+    });
+  };
+  getReductionByDate = (args, callback) => {
+    getReductionByDate(args, (data) => {
+      return callback(data);
+    });
+  };
+  addProduct = (args, callback) => {
+    addProduct(args, (status) => {
+      return callback(status);
+    });
+  };
+  deleteProduct = (args, callback) => {
+    deleteProduct(args, (status) => {
+      return callback(status);
     });
   };
 }

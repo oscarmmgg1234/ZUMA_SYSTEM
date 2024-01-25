@@ -13,22 +13,19 @@ class http_handler {
 
   shipment = {
     get_shipment_by_date: (req, res) => {
-      controller.shipment_controller.getShipmentByDate(
-        req.req_data,
-        (data) => {
-          const err = new ErrorHandling(data, "Error getting shipment by date");
-          if (err.isValid()) {
-            res.send(
-              new success_handling(
-                data,
-                "Retrieved Shipment By Date"
-              ).getSuccess()
-            );
-          } else {
-            res.send(err.getError());
-          }
+      controller.shipment_controller.getShipmentByDate(req.req_data, (data) => {
+        const err = new ErrorHandling(data, "Error getting shipment by date");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(
+              data,
+              "Retrieved Shipment By Date"
+            ).getSuccess()
+          );
+        } else {
+          res.send(err.getError());
         }
-      );
+      });
     },
     shimpent_insert: (req, res) => {
       controller.shipment_controller.insert_shipment(req.req_data);
@@ -240,6 +237,94 @@ class http_handler {
   };
 
   dashboard = {
+    addProduct: (req, res) => {
+      controller.dashboard_controller.addProduct(req.req_data, (data) => {
+        const err = new ErrorHandling(data, "Error adding product");
+        if (err.isValid()) {
+          res.send(new success_handling(data, "Added Product").getSuccess());
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    deleteProduct: (req, res) => {
+      controller.dashboard_controller.deleteProduct(req.req_data, (data) => {
+        const err = new ErrorHandling(data, "Error deleting product");
+        if (err.isValid()) {
+          res.send(new success_handling(data, "Deleted Product").getSuccess());
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    getReductionByDate: (req, res) => {
+      controller.dashboard_controller.getReductionByDate(
+        req.req_data,
+        (data) => {
+          const err = new ErrorHandling(
+            data,
+            "Error getting reduction by date"
+          );
+          if (err.isValid()) {
+            res.send(
+              new success_handling(
+                data,
+                "Retrieved Reduction By Date"
+              ).getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
+        }
+      );
+    },
+    getActivationByDate: (req, res) => {
+      controller.dashboard_controller.getActivationByDate(
+        req.req_data,
+        (data) => {
+          const err = new ErrorHandling(
+            data,
+            "Error getting activation by date"
+          );
+          if (err.isValid()) {
+            res.send(
+              new success_handling(
+                data,
+                "Retrieved Activation By Date"
+              ).getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
+        }
+      );
+    },
+    modifyActiveStock: (req, res) => {
+      controller.dashboard_controller.modifyActiveStock(
+        req.req_data,
+        (status) => {
+          res.send(
+            new success_handling(
+              { status: status },
+              "Active Stock manual override attempt"
+            ).getSuccess()
+          );
+        }
+      );
+    },
+    modifyStoredStock: (req, res) => {
+      controller.dashboard_controller.modifyStoredStock(
+        req.req_data,
+        (status) => {
+          res.send(
+            new success_handling(
+              { status: status },
+              "Stored Stock manual override attempt"
+            ).getSuccess()
+          );
+        }
+      );
+    },
     get_products: (req, res) => {
       controller.label_print_controller.get_products_info((data) => {
         const err = new ErrorHandling(data, "Error getting products");

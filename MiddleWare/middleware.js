@@ -5,6 +5,32 @@ const { ErrorRequest } = require("../Error/error_handling");
 
 const req_model = req_interface();
 
+router.use("/modify_active_stock", (req, res, next) => {
+  req_model.modifyStock(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
+router.use("/modify_stored_stock", (req, res, next) => {
+  req_model.modifyStock(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
 router.use("/get_product_analytics", (req, res, next) => {
   req_model.productAnalytics(req.body, (data) => {
     const err = new ErrorRequest(data);
@@ -126,8 +152,60 @@ router.use("/product_reduction", (req, res, next) => {
   });
 });
 
-router.use("/get_shipment_by_date", (req, res, next) => { 
+router.use("/get_shipment_by_date", (req, res, next) => {
   req_model.getShipmentByDate(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
+router.use("/getActivationByDate", (req, res, next) => {
+  req_model.getActivationByDate(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
+router.use("/getReductionByDate", (req, res, next) => {
+  req_model.getReductionByDate(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
+router.use("/addProduct", (req, res, next) => {
+  req_model.addProduct(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
+router.use("/deleteProduct", (req, res, next) => {
+  req_model.deleteProduct(req.body, (data) => {
     const err = new ErrorRequest(data);
     if (err.isValid()) {
       res.send(err.getError());

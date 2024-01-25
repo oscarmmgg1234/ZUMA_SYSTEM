@@ -8,6 +8,41 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const addProduct = (args, callback) => {
+  db_api.addProduct(args, (status) => {
+    return callback(status);
+  });
+};
+
+const deleteProduct = (args, callback) => {
+  db_api.deleteProduct(args, (status) => {
+    return callback(status);
+  });
+};
+const getActivationByDate = (args, callback) => {
+  db_api.getActivationByDate(args, (data) => {
+    return callback(data);
+  });
+};
+
+const getReductionByDate = (args, callback) => {
+  db_api.getReductionByDate(args, (data) => {
+    return callback(data);
+  });
+};
+
+const modifyActiveStock = (args, callback) => {
+  db_api.modifyStockGivenID(args, "active", (status) => {
+    return callback(status);
+  });
+};
+
+const modifyStoredStock = (args, callback) => {
+  db_api.modifyStockGivenID(args, "stored", (status) => {
+    return callback(status);
+  });
+};
+
 const select_all_shipment_log = (callback) => {
   db_api.select_all_shipment_log((data) => {
     res.select_all(data, (data) => {
@@ -274,6 +309,36 @@ class controller {
     getProductAnalytics: (args, callback) => {
       getProductAnalytics(args, (data) => {
         return callback(data);
+      });
+    },
+    modifyActiveStock: (args, callback) => {
+      modifyActiveStock(args, (status) => {
+        return callback(status);
+      });
+    },
+    modifyStoredStock: (args, callback) => {
+      modifyStoredStock(args, (status) => {
+        return callback(status);
+      });
+    },
+    getActivationByDate: (args, callback) => {
+      getActivationByDate(args, (data) => {
+        return callback(data);
+      });
+    },
+    getReductionByDate: (args, callback) => {
+      getReductionByDate(args, (data) => {
+        return callback(data);
+      });
+    },
+    addProduct: (args, callback) => {
+      addProduct(args, (status) => {
+        return callback(status);
+      });
+    },
+    deleteProduct: (args, callback) => {
+      deleteProduct(args, (status) => {
+        return callback(status);
       });
     },
   };
