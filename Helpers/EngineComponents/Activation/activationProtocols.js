@@ -5,7 +5,7 @@ const engineHelper = activationEngineComponents;
 
 const ml_to_gallon = 3785.41;
 const glycerin_in_mlperGal = 768.912;
-const mlToGallonWithGlycerin = ml_to_gallon + glycerin_in_mlperGal;
+
 
 const glycerinConsumption50ml = (productQuantity) => {
   return ((50*productQuantity / ml_to_gallon) * glycerin_in_mlperGal) / ml_to_gallon;
@@ -84,7 +84,7 @@ db.query(queries.activation_product.product_activation_liquid, [
                         ? 30
                         : 50) *
                         args.quantity) /
-                        mlToGallonWithGlycerin,
+                        ml_to_gallon,
                     component.PRODUCT_ID,
                   ],
                   (err) => {}
@@ -100,7 +100,7 @@ db.query(queries.activation_product.product_activation_liquid, [
               component.PRODUCT_ID,
               (engineHelper.productMLType(args.product_name) == 1
                 ? 30
-                : 50 * args.quantity) / mlToGallonWithGlycerin,
+                : 50 * args.quantity) / ml_to_gallon,
               args.employee_id,
             ],
             (err) => {
@@ -177,7 +177,7 @@ products.product_components.forEach((component) => {
                             ? 30
                             : 50) *
                             args.quantity) /
-                            mlToGallonWithGlycerin,
+                            ml_to_gallon,
                         component.PRODUCT_ID,
                       ],
                       (err) => {}
@@ -193,7 +193,7 @@ products.product_components.forEach((component) => {
                   component.PRODUCT_ID,
                   (engineHelper.productMLType(args.product_name) == 1
                     ? 30
-                    : 50 * args.quantity) / mlToGallonWithGlycerin,
+                    : 50 * args.quantity) / ml_to_gallon,
                   args.employee_id,
                 ],
                 (err) => {
