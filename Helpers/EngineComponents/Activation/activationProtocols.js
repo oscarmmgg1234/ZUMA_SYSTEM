@@ -5,205 +5,177 @@ const engineHelper = activationEngineComponents;
 
 const ml_to_gallon = 3785.41;
 const glycerin_in_mlperGal = 768.912;
-
+const productGallonGlyrcerin = ml_to_gallon + glycerin_in_mlperGal;
+const glycerinBottle = 9463.53;
 
 const glycerinConsumption50ml = (productQuantity) => {
-  return ((50*productQuantity / ml_to_gallon) * glycerin_in_mlperGal) / ml_to_gallon;
-}
+  return (
+    (((50 * productQuantity) / productGallonGlyrcerin) * glycerin_in_mlperGal) /
+    glycerinBottle
+  );
+};
 const glycerinConsumption30ml = (productQuantity) => {
-  return ((30*productQuantity / ml_to_gallon) * glycerin_in_mlperGal) / ml_to_gallon;
-}
+  return (
+    (((30 * productQuantity) / productGallonGlyrcerin) * glycerin_in_mlperGal) /
+    glycerinBottle
+  );
+};
 
+const exeptions = [
+  "78c8da4d",
+  "4d1f188e",
+  "cc53b880",
+  "4377889f",
+  "db1386a2",
+  "2f24a868",
+  "a897effe",
+  "5f7dbd29",
+  "5770875f",
+  "411be6dd",
+  "433retyt",
+  "decad337",
+  "092f5ec4",
+  "bf198df2",
+  "3ae608b6",
+  "erd123se",
+  "d5c06e4f",
+  "403933d3",
+];
 
-
-const exeptions = ["78c8da4d", "4d1f188e", "cc53b880", "4377889f","db1386a2", "2f24a868", "a897effe", "5f7dbd29",
- "5770875f", "411be6dd", "433retyt", "decad337", "092f5ec4", "bf198df2", "3ae608b6", "erd123se", "d5c06e4f", "403933d3" ];
-
-const glycerinExeption50ml = (products) => {
- products.product_components.forEach((component) => {
-  if (engineHelper.productType(component.NAME) == 0) {
-db.query(queries.activation_product.product_activation_liquid, [
-            component.PRODUCT_ID,
-            args.quantity,
-            args.employee_id,
-          ]);
-          db.query(
-            queries.product_release.get_quantity_by_stored_id_active,
-            [component.PRODUCT_ID],
-            (err, result) => {
-              if (err) {
-                console.log(err);
-              } else {
-                //update product inventory base
-                db.query(queries.product_inventory.update_activation, [
-                  result[0].ACTIVE_STOCK + args.quantity,
-                  component.PRODUCT_ID,
-                ]);
-              }
-            }
-          );
-        }
-        if (engineHelper.productType(component.NAME) == 1) {
-          db.query(
-            queries.product_release.insert_product_release,
-            [component.PRODUCT_ID, args.quantity, args.employee_id],
-            (err) => {
-              console.log(err);
-            }
-          );
-          db.query(
-            queries.product_release.get_quantity_by_stored_id_storage,
-            [component.PRODUCT_ID],
-            (err, result) => {
-              if (err) {
-              } else {
-                //update product inventory base
-                db.query(queries.product_inventory.update_consumption_stored, [
-                  result[0].STORED_STOCK - args.quantity,
-                  component.PRODUCT_ID,
-                ]);
-              }
-            }
-          );
-        }
-        if (engineHelper.productType(component.NAME) == 2) {
-          //base
-          db.query(
-            queries.product_release.get_quantity_by_stored_id_storage,
-            [component.PRODUCT_ID],
-            (err, result) => {
-              if (err) {
-                console.log(err);
-              } else {
-                //update product inventory base
-                db.query(
-                  queries.product_inventory.update_consumption_stored,
-                  [
-                    result[0].STORED_STOCK -
-                      ((engineHelper.productMLType(args.product_name) == 1
-                        ? 30
-                        : 50) *
-                        args.quantity) /
-                        ml_to_gallon,
-                    component.PRODUCT_ID,
-                  ],
-                  (err) => {}
-                );
-              }
-            }
-          );
-
-          //insert log for product release
-          db.query(
-            queries.product_release.insert_product_release,
-            [
+const glycerinExeption = (products) => {
+  products.product_components.forEach((component) => {
+    if (engineHelper.productType(component.NAME) == 0) {
+      db.query(queries.activation_product.product_activation_liquid, [
+        component.PRODUCT_ID,
+        args.quantity,
+        args.employee_id,
+      ]);
+      db.query(
+        queries.product_release.get_quantity_by_stored_id_active,
+        [component.PRODUCT_ID],
+        (err, result) => {
+          if (err) {
+            console.log(err);
+          } else {
+            //update product inventory base
+            db.query(queries.product_inventory.update_activation, [
+              result[0].ACTIVE_STOCK + args.quantity,
               component.PRODUCT_ID,
-              (engineHelper.productMLType(args.product_name) == 1
-                ? 30
-                : 50 * args.quantity) / ml_to_gallon,
-              args.employee_id,
-            ],
-            (err) => {
-              if (err) {
-              }
-            }
-          );
+            ]);
+          }
         }
- })
-}
-
-const glycerinExeption30ml = (products) => {
-products.product_components.forEach((component) => {
-  if (engineHelper.productType(component.NAME) == 0) {
-    db.query(queries.activation_product.product_activation_liquid, [
-                component.PRODUCT_ID,
-                args.quantity,
-                args.employee_id,
-              ]);
-              db.query(
-                queries.product_release.get_quantity_by_stored_id_active,
-                [component.PRODUCT_ID],
-                (err, result) => {
-                  if (err) {
-                    console.log(err);
-                  } else {
-                    //update product inventory base
-                    db.query(queries.product_inventory.update_activation, [
-                      result[0].ACTIVE_STOCK + args.quantity,
-                      component.PRODUCT_ID,
-                    ]);
-                  }
-                }
-              );
-            }
-            if (engineHelper.productType(component.NAME) == 1) {
-              db.query(
-                queries.product_release.insert_product_release,
-                [component.PRODUCT_ID, args.quantity, args.employee_id],
-                (err) => {
-                  console.log(err);
-                }
-              );
-              db.query(
-                queries.product_release.get_quantity_by_stored_id_storage,
-                [component.PRODUCT_ID],
-                (err, result) => {
-                  if (err) {
-                  } else {
-                    //update product inventory base
-                    db.query(queries.product_inventory.update_consumption_stored, [
-                      result[0].STORED_STOCK - args.quantity,
-                      component.PRODUCT_ID,
-                    ]);
-                  }
-                }
-              );
-            }
-            if (engineHelper.productType(component.NAME) == 2) {
-              //base
-              db.query(
-                queries.product_release.get_quantity_by_stored_id_storage,
-                [component.PRODUCT_ID],
-                (err, result) => {
-                  if (err) {
-                    console.log(err);
-                  } else {
-                    //update product inventory base
-                    db.query(
-                      queries.product_inventory.update_consumption_stored,
-                      [
-                        result[0].STORED_STOCK -
-                          ((engineHelper.productMLType(args.product_name) == 1
-                            ? 30
-                            : 50) *
-                            args.quantity) /
-                            ml_to_gallon,
-                        component.PRODUCT_ID,
-                      ],
-                      (err) => {}
-                    );
-                  }
-                }
-              );
-    
-              //insert log for product release
-              db.query(
-                queries.product_release.insert_product_release,
-                [
-                  component.PRODUCT_ID,
-                  (engineHelper.productMLType(args.product_name) == 1
+      );
+    }
+    if (engineHelper.productType(component.NAME) == 1) {
+      db.query(
+        queries.product_release.insert_product_release,
+        [component.PRODUCT_ID, args.quantity, args.employee_id],
+        (err) => {
+          console.log(err);
+        }
+      );
+      db.query(
+        queries.product_release.get_quantity_by_stored_id_storage,
+        [component.PRODUCT_ID],
+        (err, result) => {
+          if (err) {
+          } else {
+            //update product inventory base
+            db.query(queries.product_inventory.update_consumption_stored, [
+              result[0].STORED_STOCK - args.quantity,
+              component.PRODUCT_ID,
+            ]);
+          }
+        }
+      );
+    }
+    if (engineHelper.productType(component.NAME) == 2) {
+      const glycerinComsump50ml = glycerinConsumption50ml(args.quantity);
+      const glycerinComsump30ml = glycerinConsumption30ml(args.quantity);
+      //base
+      db.query(
+        queries.product_release.get_quantity_by_stored_id_storage,
+        [component.PRODUCT_ID],
+        (err, result) => {
+          if (err) {
+            console.log(err);
+          } else {
+            //update product inventory base
+            db.query(
+              queries.product_inventory.update_consumption_stored,
+              [
+                result[0].STORED_STOCK -
+                  ((engineHelper.productMLType(args.product_name) == 1
                     ? 30
-                    : 50 * args.quantity) / ml_to_gallon,
-                  args.employee_id,
-                ],
-                (err) => {
-                  if (err) {
-                  }
-                }
-              );
-            }
-})
-}
+                    : 50) *
+                    args.quantity) /
+                    ml_to_gallon,
+                component.PRODUCT_ID,
+              ],
+              (err) => {}
+            );
+          }
+        }
+      );
+
+      //insert log for product release
+      db.query(
+        queries.product_release.insert_product_release,
+        [
+          component.PRODUCT_ID,
+          (engineHelper.productMLType(args.product_name) == 1
+            ? 30
+            : 50 * args.quantity) / ml_to_gallon,
+          args.employee_id,
+        ],
+        (err) => {
+          if (err) {
+          }
+        }
+      );
+
+      //glycerin
+      db.query(
+        queries.product_release.get_quantity_by_stored_id_storage,
+        ["14aa3aba"],
+        (err, result) => {
+          if (err) {
+            console.log(err);
+          } else {
+            //update product inventory base
+            db.query(
+              queries.product_inventory.update_consumption_stored,
+              [
+                result[0].STORED_STOCK -
+                  (engineHelper.productMLType(args.product_name) == 1
+                    ? glycerinComsump30ml
+                    : glycerinComsump50ml),
+                component.PRODUCT_ID,
+              ],
+              (err) => {}
+            );
+          }
+        }
+      );
+
+      //insert log for product release
+      db.query(
+        queries.product_release.insert_product_release,
+        [
+          "14aa3aba",
+          engineHelper.productMLType(args.product_name) == 1
+            ? glycerinComsump30ml
+            : glycerinComsump50ml,
+          args.employee_id,
+        ],
+        (err) => {
+          if (err) {
+          }
+        }
+      );
+    }
+  });
+};
 
 let success = { status: true, message: "success" };
 
@@ -530,25 +502,26 @@ const Type2_Protocol = (args, exeptions) => {
           );
         }
       });
-    }
-    else {
-      if("" == args.product_id){
-        
-      }
-      if("" == args.product_id){
-
-      }
-      if("" == args.product_id){
-        
-      }
-      if("" == args.product_id){
-        
-      }
-      if("" == args.product_id){
-        
-      }
-      if("" == args.product_id){
-        
+    } else {
+      if (
+        args.product_id === "cc53b880" ||
+        args.product_id === "4377889f" ||
+        args.product_id === "db1386a2" ||
+        args.product_id === "2f24a868" ||
+        args.product_id === "a897effe" ||
+        args.product_id === "5f7dbd29" ||
+        args.product_id === "5770875f" ||
+        args.product_id === "411be6dd" ||
+        args.product_id === "433retyt" ||
+        args.product_id === "decad337" ||
+        args.product_id === "092f5ec4" ||
+        args.product_id === "bf198df2" ||
+        args.product_id === "3ae608b6" ||
+        args.product_id === "erd123se" ||
+        args.product_id === "d5c06e4f" ||
+        args.product_id === "403933d3"
+      ) {
+        glycerinExeption(args);
       }
     }
   } catch (err) {
