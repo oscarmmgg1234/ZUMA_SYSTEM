@@ -21,7 +21,8 @@ const subProtocols = activationSubProtocols();
 let success = { status: true, message: "success" };
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
-const exeptions = ["78c8da4d", "4d1f188e"];
+const exeptions = ["78c8da4d", "4d1f188e", "cc53b880", "4377889f","db1386a2", "2f24a868", "a897effe", "5f7dbd29",
+ "5770875f", "411be6dd", "433retyt", "decad337", "092f5ec4", "bf198df2", "3ae608b6", "erd123se", "d5c06e4f", "403933d3" ];
 
 //detergent //pet-shampoo //Zeolite
 //run each protocol and if product matches exeption rule then run exeption protocol
