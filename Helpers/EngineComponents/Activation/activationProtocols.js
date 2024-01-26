@@ -42,8 +42,8 @@ const exeptions = [
   "403933d3",
 ];
 
-const glycerinExeption = (products) => {
-  products.product_components.forEach((component) => {
+const glycerinException = (args) => {
+  args.product_components.forEach((component) => {
     if (engineHelper.productType(component.NAME) == 0) {
       db.query(queries.activation_product.product_activation_liquid, [
         component.PRODUCT_ID,
@@ -150,7 +150,7 @@ const glycerinExeption = (products) => {
                   (engineHelper.productMLType(args.product_name) == 1
                     ? glycerinComsump30ml
                     : glycerinComsump50ml),
-                component.PRODUCT_ID,
+                "14aa3aba",
               ],
               (err) => {}
             );
@@ -521,7 +521,7 @@ const Type2_Protocol = (args, exeptions) => {
         args.product_id === "d5c06e4f" ||
         args.product_id === "403933d3"
       ) {
-        glycerinExeption(args);
+        glycerinException(args);
       }
     }
   } catch (err) {
