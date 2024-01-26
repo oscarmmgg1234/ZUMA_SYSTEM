@@ -237,6 +237,18 @@ class http_handler {
   };
 
   dashboard = {
+    getInventory: (req, res) => {
+      controller.dashboard_controller.getInventory((data) => {
+        const err = new ErrorHandling(data, "Error getting inventory");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Inventory").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
     addProduct: (req, res) => {
       controller.dashboard_controller.addProduct(req.req_data, (data) => {
         const err = new ErrorHandling(data, "Error adding product");

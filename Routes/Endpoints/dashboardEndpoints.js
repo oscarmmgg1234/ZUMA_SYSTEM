@@ -36,4 +36,7 @@ dashboard_router.post("/addProduct", (req, res) => {
   endpoint_handler.dashboard.addProduct(req, res);
 });
 
+dashboard_router.post("/getInventory", (req, res) => {
+  endpoint_handler.dashboard.getInventory(req, res);
+});
 module.exports = dashboard_router;

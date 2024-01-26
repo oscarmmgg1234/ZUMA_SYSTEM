@@ -89,6 +89,7 @@ const dashboard = {
     "SELECT * FROM inventory_activation WHERE DATE(DATE) = ? ORDER BY DATE DESC",
   reductionByDate:
     "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = ? ORDER BY DATE DESC",
+  getInventory: "SELECT * FROM product_inventory",
 };
 
 const development = {

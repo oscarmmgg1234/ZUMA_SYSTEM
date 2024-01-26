@@ -8,6 +8,12 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const getInventory = (callback) => {
+  db_api.getInventory((data) => {
+    return callback(data);
+  });
+};
+
 const addProduct = (args, callback) => {
   db_api.addProduct(args, (status) => {
     return callback(status);
@@ -306,6 +312,11 @@ class controller {
   };
 
   dashboard_controller = {
+    getInventory: (callback) => {
+      getInventory((data) => {
+        return callback(data);
+      });
+    },
     getProductAnalytics: (args, callback) => {
       getProductAnalytics(args, (data) => {
         return callback(data);

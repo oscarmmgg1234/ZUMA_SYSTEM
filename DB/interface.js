@@ -6,6 +6,12 @@ const { queries } = require("./queries.js");
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const getProductInventory = (callback) => {
+  db.execute(queries.dashboard.getInventory, (err, result) => {
+    return callback(result);
+  });
+};
+
 const addProduct = (args, callback) => {
   db.execute(queries.development.add_product, args.to_arr(), (err) => {
     if (err) {
@@ -396,6 +402,11 @@ class db_interface {
   deleteProduct = (args, callback) => {
     deleteProduct(args, (status) => {
       return callback(status);
+    });
+  };
+  getInventory = (callback) => {
+    getProductInventory((data) => {
+      return callback(data);
     });
   };
 }
