@@ -57,11 +57,11 @@ const label_print = {
 
 const tools = {
   get_product_by_id: "SELECT * FROM product WHERE PRODUCT_ID = ?",
-  shipment_log: "SELECT * FROM shipment_history_log ORDER BY DATE DESC LIMIT 5",
+  shipment_log: "SELECT * FROM shipment_history_log ORDER BY DATE DESC LIMIT 15",
   activation_log:
-    "SELECT * FROM inv_activation_history_log ORDER BY DATE DESC LIMIT 3",
+    "SELECT * FROM inv_activation_history_log ORDER BY DATE DESC LIMIT 15",
   consumption_log:
-    "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 5",
+    "SELECT * FROM inv_consumption_history_log ORDER BY DATE DESC LIMIT 15",
   barcode_log:
     "INSERT INTO barcode_log (BarcodeID, Employee,Product,Quantity,Status) VALUES (?,?,?,?,?)",
   get_barcode_data: "SELECT * FROM barcode_log WHERE BarcodeID = ?",
