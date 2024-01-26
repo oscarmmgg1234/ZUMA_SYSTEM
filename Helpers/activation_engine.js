@@ -1,6 +1,9 @@
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 const {
+  product_analytics,
+} = require("../Models/req/Dashboard/getProductAnalytics.js");
+const {
   activationEngineComponents,
 } = require("./EngineComponents/Activation/activationEngine.js");
 const {
@@ -21,8 +24,26 @@ const subProtocols = activationSubProtocols();
 let success = { status: true, message: "success" };
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
-const exeptions = ["78c8da4d", "4d1f188e", "cc53b880", "4377889f","db1386a2", "2f24a868", "a897effe", "5f7dbd29",
- "5770875f", "411be6dd", "433retyt", "decad337", "092f5ec4", "bf198df2", "3ae608b6", "erd123se", "d5c06e4f", "403933d3" ];
+const exeptions = [
+  "78c8da4d",
+  "4d1f188e",
+  "cc53b880",
+  "4377889f",
+  "db1386a2",
+  "2f24a868",
+  "a897effe",
+  "5f7dbd29",
+  "5770875f",
+  "411be6dd",
+  "433retyt",
+  "decad337",
+  "092f5ec4",
+  "bf198df2",
+  "3ae608b6",
+  "erd123se",
+  "d5c06e4f",
+  "403933d3",
+];
 
 //detergent //pet-shampoo //Zeolite
 //run each protocol and if product matches exeption rule then run exeption protocol
@@ -62,6 +83,9 @@ const getProductProccessInfo = (args, callback) => {
         if (product.NAME.includes("Gal") && !product.NAME.includes("Label")) {
           return product;
         }
+        if (args.PRODUCT_NAME == product.NAME) {
+          return product;
+        }
       }
       if (args.PRODUCT_NAME.includes("Sm")) {
         if (product.NAME.includes("Sm")) {
@@ -75,6 +99,9 @@ const getProductProccessInfo = (args, callback) => {
             return product;
           }
           if (product.NAME.includes("Label")) {
+            return product;
+          }
+          if (args.PRODUCT_NAME == product.NAME) {
             return product;
           }
         }
