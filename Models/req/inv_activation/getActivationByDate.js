@@ -1,5 +1,5 @@
 class activationByDate {
-  constructor(date) {
+  constructor(args) {
     this.date = args.date;
   }
   to_arr() {

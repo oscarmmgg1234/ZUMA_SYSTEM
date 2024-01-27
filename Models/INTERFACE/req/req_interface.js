@@ -92,7 +92,7 @@ class req_interface {
     });
   };
   getReductionByDate = (args, callback) => {
-    reductionByDate.reductionByDate(args, (data) => {
+    reductionByDate.consumptionByDate(args, (data) => {
       return callback(data);
     });
   };

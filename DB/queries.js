@@ -30,6 +30,7 @@ const product_release = {
     "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
   barcode_status_change:
     "UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?",
+
 };
 
 const product_inventory = {
@@ -88,7 +89,7 @@ const dashboard = {
   activationByDate:
     "SELECT * FROM inventory_activation WHERE DATE(DATE) = ? ORDER BY DATE DESC",
   reductionByDate:
-    "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = ? ORDER BY DATE DESC",
+    "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = ? ORDER BY DATETIME DESC",
   getInventory: "SELECT * FROM product_inventory",
 };
 

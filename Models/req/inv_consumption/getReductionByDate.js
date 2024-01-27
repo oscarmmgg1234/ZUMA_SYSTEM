@@ -10,5 +10,3 @@ class consumptionByDate {
 exports.consumptionByDate = (args, callback) => {
     return callback(new consumptionByDate(args));
 }
-
-
