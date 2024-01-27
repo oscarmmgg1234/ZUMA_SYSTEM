@@ -21,26 +21,6 @@ const glycerinConsumption30ml = (productQuantity) => {
   );
 };
 
-const exeptions = [
-  "78c8da4d",
-  "4d1f188e",
-  "cc53b880",
-  "4377889f",
-  "db1386a2",
-  "2f24a868",
-  "a897effe",
-  "5f7dbd29",
-  "5770875f",
-  "411be6dd",
-  "433retyt",
-  "decad337",
-  "092f5ec4",
-  "bf198df2",
-  "3ae608b6",
-  "erd123se",
-  "d5c06e4f",
-  "403933d3",
-];
 
 const glycerinException = (args) => {
   args.product_components.forEach((component) => {
