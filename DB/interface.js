@@ -110,7 +110,6 @@ const modifyStockGivenID = (args, action, callback) => {
 };
 
 const getActivationByDate = (args, callback) => {
-  console.log("activation");
   db.execute(
     queries.dashboard.activationByDate,
     args.to_arr(),
