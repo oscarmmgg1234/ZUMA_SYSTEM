@@ -7,9 +7,9 @@ function isObjectOrArrayEmpty(obj) {
 
 function isObjectOrArrayValid(obj) {
   if (Array.isArray(obj)) {
-    return obj.every((item) => item != null && item !== "");
+    return obj.every((item) =>  item !== "");
   }
-  return Object.keys(obj).every((key) => obj[key] != null && obj[key] !== "");
+  return Object.keys(obj).every((key) => obj[key] !== "");
 }
 
 class ErrorHandling {
