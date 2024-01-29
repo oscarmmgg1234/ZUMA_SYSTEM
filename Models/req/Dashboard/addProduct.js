@@ -23,6 +23,7 @@ class product {
     this.reductionType = args.reductionType;
     this.shipmentType = args.shipmentType;
     this.unitType = args.unitType;
+    this.min_limit = args.minLimit;
   }
   to_arr() {
     return [
@@ -38,6 +39,7 @@ class product {
       this.reductionType,
       this.shipmentType,
       this.unitType,
+      this.min_limit
     ];
   }
 }

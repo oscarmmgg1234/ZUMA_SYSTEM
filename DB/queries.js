@@ -106,7 +106,7 @@ const development = {
   get_stored_stock: "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
   get_active_stock: "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
   add_product:
-    "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION,  COMPANY, PROCESS_TYPE, PROCESS_COMPONENT_TYPE, REDUCTION_TYPE, SHIPMENT_TYPE, UNIT_TYPE) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ",
+    "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION,  COMPANY, PROCESS_TYPE, PROCESS_COMPONENT_TYPE, REDUCTION_TYPE, SHIPMENT_TYPE, UNIT_TYPE, MIN_LIMIT) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ",
   delete_product: "DELETE FROM product WHERE PRODUCT_ID = ?",
   delete_product_inventory:
     "DELETE FROM product_inventory WHERE PRODUCT_ID = ?",
