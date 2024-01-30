@@ -8,6 +8,18 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const addCompany = (args, callback) => {
+  db_api.addCompany(args, (status) => {
+    return callback(status);
+  });
+};
+
+const deleteCompany = (args, callback) => {
+  db_api.deleteCompany(args, (status) => {
+    return callback(status);
+  });
+};
+
 const updateTracking = (args) => {
   db_api.updateTracking(args);
 };
@@ -321,6 +333,16 @@ class controller {
   };
 
   dashboard_controller = {
+    addCompany: (args, callback) => {
+      addCompany(args, (status) => {
+        return callback(status);
+      });
+    },
+    deleteCompany: (args, callback) => {
+      deleteCompany(args, (status) => {
+        return callback(status);
+      });
+    },
     updateTracking: (args) => {
       updateTracking(args);
     },

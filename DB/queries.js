@@ -94,6 +94,8 @@ const dashboard = {
   getCompanies: "SELECT * FROM company",
   updateProductMinLimit:
     "UPDATE product SET MIN_LIMIT = ? WHERE PRODUCT_ID = ?",
+  addCompany: "INSERT INTO company (COMPANY_ID, NAME, ADDRESS, TYPE, PHONE) VALUES (?, ?, ?, ?, ?)",
+  deleteCompany: "DELETE FROM company WHERE COMPANY_ID = ?",
 };
 
 const development = {

@@ -15,8 +15,21 @@ const reductionByDate = require("../../req/inv_consumption/getReductionByDate");
 const addProduct = require("../../req/Dashboard/addProduct");
 const deleteProduct = require("../../req/Dashboard/deleteProduct");
 const tracking = require("../../req/Update/productTracking.js");
+const addCompany = require("../../req/Update/addCompany");
+const deleteCompany = require("../../req/Update/deleteCompany");
 
 class req_interface {
+  deleteCompany = (args, callback) => {
+    deleteCompany.deleteCompany(args, (status) => {
+      return callback(status);
+    });
+  };
+  addCompany = (args, callback) => {
+    addCompany.addCompany(args, (status) => {
+      return callback(status);
+    });
+  };
+
   productTracking = (args, callback) => {
     tracking.trackingShema(args, (data) => {
       return callback(data);

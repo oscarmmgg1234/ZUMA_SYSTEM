@@ -47,5 +47,12 @@ dashboard_router.post("/getPartnerCompanies", (req, res) => {
 dashboard_router.post("/trackProduct", (req, res) => {
   endpoint_handler.dashboard.updateTracking(req, res);
 });
+dashboard_router.post("/addCompany", (req, res) => {
+  endpoint_handler.dashboard.addCompany(req, res);
+});
+
+dashboard_router.post("/deleteCompany", (req, res) => {
+  endpoint_handler.dashboard.deleteCompany(req, res);
+});
 
 module.exports = dashboard_router;

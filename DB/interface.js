@@ -5,6 +5,30 @@ const { queries } = require("./queries.js");
 // const insertShipmentLog = (args) => {
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
+
+const addCompany = (args, callback) => {
+  db.execute(queries.dashboard.addCompany, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+      return callback({ status: false, status_mes: "Error adding company" });
+    }
+    return callback({ status: true, status_mes: "Successfully added company" });
+  });
+};
+
+const deleteCompany = (args, callback) => {
+  db.execute(queries.dashboard.deleteCompany, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+      return callback({ status: false, status_mes: "Error deleting company" });
+    }
+    return callback({
+      status: true,
+      status_mes: "Successfully deleted company",
+    });
+  });
+};
+
 const updateTracking = (args) => {
   db.execute(queries.dashboard.updateProductMinLimit, args.to_arr(), (err) => {
     if (err) {
@@ -304,6 +328,16 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  addCompany = (args, callback) => {
+    addCompany(args, (status) => {
+      return callback(status);
+    });
+  };
+  deleteCompany = (args, callback) => {
+    deleteCompany(args, (status) => {
+      return callback(status);
+    });
+  };
   updateTracking = (args) => {
     updateTracking(args);
   };

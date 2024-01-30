@@ -5,6 +5,30 @@ const { ErrorRequest } = require("../Error/error_handling");
 
 const req_model = req_interface();
 
+router.use("/addCompany", (req, res, next) => {
+  req_model.addCompany(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
+router.use("/deleteCompany", (req, res, next) => {
+  req_model.deleteCompany(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
 router.use("/trackProduct", (req, res, next) => {
   req_model.productTracking(req.body, (data) => {
     const err = new ErrorRequest(data);

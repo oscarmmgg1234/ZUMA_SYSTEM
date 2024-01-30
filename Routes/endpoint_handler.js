@@ -237,6 +237,16 @@ class http_handler {
   };
 
   dashboard = {
+    addCompany: (req, res) => {
+      controller.dashboard_controller.addCompany(req.req_data, (status) => {
+        res.send(new success_handling(status, "Company Added").getSuccess());
+      });
+    },
+    deleteCompany: (req, res) => {
+      controller.dashboard_controller.deleteCompany(req.req_data, (status) => {
+        res.send(new success_handling(status, "Company Deleted").getSuccess());
+      });
+    },
     updateTracking: (req, res) => {
       controller.dashboard_controller.updateTracking(req.req_data);
       res.send(
