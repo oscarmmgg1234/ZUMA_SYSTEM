@@ -98,7 +98,7 @@ const getProductProccessInfo = (args, callback) => {
           if (product.NAME.includes("Gal")) {
             return product;
           }
-          if (product.NAME.includes("Label")) {
+          if (product.NAME.includes("Label") && !product.NAME.includes("Sm")) {
             return product;
           }
           if (args.PRODUCT_NAME == product.NAME) {

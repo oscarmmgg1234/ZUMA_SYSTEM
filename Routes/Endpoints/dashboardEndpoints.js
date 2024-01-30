@@ -39,4 +39,8 @@ dashboard_router.post("/addProduct", (req, res) => {
 dashboard_router.post("/getInventory", (req, res) => {
   endpoint_handler.dashboard.getInventory(req, res);
 });
+
+dashboard_router.post("/getPartnerCompanies", (req, res) => {
+  endpoint_handler.dashboard.getCompanies(req, res);
+});
 module.exports = dashboard_router;

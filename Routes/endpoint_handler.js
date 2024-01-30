@@ -237,6 +237,18 @@ class http_handler {
   };
 
   dashboard = {
+    getCompanies: (req, res) => {
+      controller.dashboard_controller.getCompaniesZuma((data) => {
+        const err = new ErrorHandling(data, "Error getting companies");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Companies").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
     getInventory: (req, res) => {
       controller.dashboard_controller.getInventory((data) => {
         const err = new ErrorHandling(data, "Error getting inventory");

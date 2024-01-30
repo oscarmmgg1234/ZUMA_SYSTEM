@@ -6,6 +6,15 @@ const { queries } = require("./queries.js");
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const getZumaPartneredCompanies = (callback) => {
+  db.execute(queries.dashboard.getCompanies, (err, result) => {
+    if(err){
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
 const getProductInventory = (callback) => {
   db.execute(queries.dashboard.getInventory, (err, result) => {
     return callback(result);
@@ -406,6 +415,11 @@ class db_interface {
   };
   getInventory = (callback) => {
     getProductInventory((data) => {
+      return callback(data);
+    });
+  };
+  getZumaPartneredCompanies = (callback) => {
+    getZumaPartneredCompanies((data) => {
       return callback(data);
     });
   };

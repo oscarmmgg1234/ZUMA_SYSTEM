@@ -8,6 +8,12 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const getCompaniesZuma = (callback) => {
+  db_api.getZumaPartneredCompanies((data) => {
+    return callback(data);
+  });
+};
+
 const getInventory = (callback) => {
   db_api.getInventory((data) => {
     return callback(data);
@@ -312,6 +318,11 @@ class controller {
   };
 
   dashboard_controller = {
+    getCompaniesZuma: (callback) => {
+      getCompaniesZuma((data) => {
+        return callback(data);
+      });
+    },
     getInventory: (callback) => {
       getInventory((data) => {
         return callback(data);
