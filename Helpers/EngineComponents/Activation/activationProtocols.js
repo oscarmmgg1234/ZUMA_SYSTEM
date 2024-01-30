@@ -21,6 +21,12 @@ const glycerinConsumption30ml = (productQuantity) => {
   );
 };
 
+const productConsumption50ml = (productQuantity) => {
+  return (50 * productQuantity) / ml_to_gallon;
+};
+const productConsumption30ml = (productQuantity) => {
+  return (30 * productQuantity) / ml_to_gallon;
+};
 
 const glycerinException = (args) => {
   args.product_components.forEach((component) => {
@@ -452,11 +458,9 @@ const Type2_Protocol = (args, exeptions) => {
                   queries.product_inventory.update_consumption_stored,
                   [
                     result[0].STORED_STOCK -
-                      ((engineHelper.productMLType(args.product_name) == 1
-                        ? 30
-                        : 50) *
-                        args.quantity) /
-                        ml_to_gallon,
+                      (engineHelper.productMLType(args.product_name) == 1
+                        ? productConsumption30ml(args.quantity)
+                        : productConsumption50ml(args.quantity)),
                     component.PRODUCT_ID,
                   ],
                   (err) => {}
@@ -470,9 +474,9 @@ const Type2_Protocol = (args, exeptions) => {
             queries.product_release.insert_product_release,
             [
               component.PRODUCT_ID,
-              (engineHelper.productMLType(args.product_name) == 1
-                ? 30
-                : 50 * args.quantity) / ml_to_gallon,
+              engineHelper.productMLType(args.product_name) == 1
+                ? productConsumption30ml(args.quantity)
+                : productConsumption50ml(args.quantity),
               args.employee_id,
             ],
             (err) => {
@@ -580,13 +584,7 @@ const Type3_Protocol = (args, exeptions) => {
               //update product inventory base
               db.query(
                 queries.product_inventory.update_consumption_stored,
-                [
-                  // result[0].STORED_STOCK - engineHelper.productMLType(args.name) == 1
-                  //   ? args.quantity
-                  //   : (30 / 50) * args.quantity,
-                  result[0].STORED_STOCK - args.quantity,
-                  component.PRODUCT_ID,
-                ],
+                [result[0].STORED_STOCK - args.quantity, component.PRODUCT_ID],
                 (err) => {
                   if (err) console.log(err);
                 }
@@ -604,7 +602,7 @@ const Type3_Protocol = (args, exeptions) => {
 };
 const Type4_Protocol = (args, exeptions) => {
   try {
-    const amount = engineHelper.pillBaseAmount(args.product_name);
+    engineHelper.pillBaseAmount(args.product_name, (amount) => {
     args.product_components.forEach((component) => {
       if (engineHelper.productType(component.NAME) == 0) {
         db.query(queries.activation_product.product_activation_liquid, [
@@ -636,8 +634,7 @@ const Type4_Protocol = (args, exeptions) => {
             } else {
               //update product inventory base
               db.query(queries.product_inventory.update_activation_stored, [
-                result[0].STORED_STOCK -
-                  (args.quantity * amount[1]) / amount[0],
+                result[0].STORED_STOCK - args.quantity * amount,
                 component.PRODUCT_ID,
               ]);
             }
@@ -645,11 +642,7 @@ const Type4_Protocol = (args, exeptions) => {
         );
         db.query(
           queries.product_release.insert_product_release,
-          [
-            component.PRODUCT_ID,
-            (args.quantity * amount[1]) / amount[0],
-            args.employee_id,
-          ],
+          [component.PRODUCT_ID, args.quantity * amount, args.employee_id],
           (err) => {}
         );
       }
@@ -670,6 +663,7 @@ const Type4_Protocol = (args, exeptions) => {
           }
         );
       }
+    });
     });
   } catch (err) {
     console.log(err);
@@ -736,7 +730,7 @@ const Type5_Protocol = (args, exeptions) => {
             db.query(
               queries.product_inventory.update_consumption_stored,
               [
-                result[0].STORED_STOCK - (50 * args.quantity) / ml_to_gallon,
+                result[0].STORED_STOCK - productConsumption50ml(args.quantity),
                 component.PRODUCT_ID,
               ],
               (err) => {}
@@ -750,7 +744,7 @@ const Type5_Protocol = (args, exeptions) => {
         queries.product_release.insert_product_release,
         [
           component.PRODUCT_ID,
-          (50 * args.quantity) / ml_to_gallon,
+          productConsumption50ml(args.quantity),
           args.employee_id,
         ],
         (err) => {

@@ -30,7 +30,6 @@ const product_release = {
     "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
   barcode_status_change:
     "UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?",
-
 };
 
 const product_inventory = {
@@ -58,7 +57,8 @@ const label_print = {
 
 const tools = {
   get_product_by_id: "SELECT * FROM product WHERE PRODUCT_ID = ?",
-  shipment_log: "SELECT * FROM shipment_history_log ORDER BY DATE DESC LIMIT 10",
+  shipment_log:
+    "SELECT * FROM shipment_history_log ORDER BY DATE DESC LIMIT 10",
   activation_log:
     "SELECT * FROM inv_activation_history_log ORDER BY DATE DESC LIMIT 6",
   consumption_log:
@@ -92,7 +92,8 @@ const dashboard = {
     "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = ? ORDER BY DATETIME DESC",
   getInventory: "SELECT * FROM product_inventory",
   getCompanies: "SELECT * FROM company",
-  updateProductMinLimit: "UPDATE product SET MIN_LIMIT = ? WHERE PRODUCT_ID = ?",
+  updateProductMinLimit:
+    "UPDATE product SET MIN_LIMIT = ? WHERE PRODUCT_ID = ?",
 };
 
 const development = {
@@ -108,7 +109,7 @@ const development = {
   get_stored_stock: "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
   get_active_stock: "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
   add_product:
-    "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION,  COMPANY, PROCESS_TYPE, PROCESS_COMPONENT_TYPE, REDUCTION_TYPE, SHIPMENT_TYPE, UNIT_TYPE, MIN_LIMIT) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ",
+    "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION,  COMPANY, PROCESS_TYPE, PROCESS_COMPONENT_TYPE, REDUCTION_TYPE, SHIPMENT_TYPE, UNIT_TYPE, MIN_LIMIT, PILL_Ratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ",
   delete_product: "DELETE FROM product WHERE PRODUCT_ID = ?",
   delete_product_inventory:
     "DELETE FROM product_inventory WHERE PRODUCT_ID = ?",

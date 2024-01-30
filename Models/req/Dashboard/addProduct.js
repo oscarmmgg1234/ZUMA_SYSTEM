@@ -24,6 +24,7 @@ class product {
     this.shipmentType = args.shipmentType;
     this.unitType = args.unitType;
     this.min_limit = args.minLimit;
+    this.pillRatio = args.pillRatio;
   }
   to_arr() {
     return [
@@ -39,7 +40,8 @@ class product {
       this.reductionType,
       this.shipmentType,
       this.unitType,
-      this.min_limit
+      this.min_limit,
+      this.pillRatio,
     ];
   }
 }
