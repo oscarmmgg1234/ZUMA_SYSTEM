@@ -237,6 +237,16 @@ class http_handler {
   };
 
   dashboard = {
+    updateTracking: (req, res) => {
+      controller.dashboard_controller.updateTracking(req.req_data);
+      res.send(
+        new success_handling(
+          { request_data: req.req_data },
+          "Tracking Updated"
+        ).getSuccess()
+      );
+    },
+
     getCompanies: (req, res) => {
       controller.dashboard_controller.getCompaniesZuma((data) => {
         const err = new ErrorHandling(data, "Error getting companies");

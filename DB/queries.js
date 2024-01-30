@@ -92,6 +92,7 @@ const dashboard = {
     "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = ? ORDER BY DATETIME DESC",
   getInventory: "SELECT * FROM product_inventory",
   getCompanies: "SELECT * FROM company",
+  updateProductMinLimit: "UPDATE product SET MIN_LIMIT = ? WHERE PRODUCT_ID = ?",
 };
 
 const development = {

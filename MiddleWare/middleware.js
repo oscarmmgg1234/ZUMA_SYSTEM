@@ -5,6 +5,19 @@ const { ErrorRequest } = require("../Error/error_handling");
 
 const req_model = req_interface();
 
+router.use("/trackProduct", (req, res, next) => {
+  req_model.productTracking(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
 router.use("/modify_active_stock", (req, res, next) => {
   req_model.modifyStock(req.body, (data) => {
     const err = new ErrorRequest(data);

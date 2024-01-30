@@ -14,8 +14,14 @@ const activationByDate = require("../../req/inv_activation/getActivationByDate")
 const reductionByDate = require("../../req/inv_consumption/getReductionByDate");
 const addProduct = require("../../req/Dashboard/addProduct");
 const deleteProduct = require("../../req/Dashboard/deleteProduct");
+const tracking = require("../../req/Update/productTracking.js");
 
 class req_interface {
+  productTracking = (args, callback) => {
+    tracking.trackingShema(args, (data) => {
+      return callback(data);
+    });
+  };
   addProduct = (args, callback) => {
     addProduct.addProduct(args, (status) => {
       return callback(status);

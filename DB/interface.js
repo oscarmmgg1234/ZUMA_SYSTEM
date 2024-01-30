@@ -5,10 +5,17 @@ const { queries } = require("./queries.js");
 // const insertShipmentLog = (args) => {
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
+const updateTracking = (args) => {
+  db.execute(queries.dashboard.updateProductMinLimit, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+};
 
 const getZumaPartneredCompanies = (callback) => {
   db.execute(queries.dashboard.getCompanies, (err, result) => {
-    if(err){
+    if (err) {
       console.log(err);
     }
     return callback(result);
@@ -297,6 +304,9 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  updateTracking = (args) => {
+    updateTracking(args);
+  };
   getShipmentByDate = (args, callback) => {
     getShipmentLog(args, (data) => {
       return callback(data);

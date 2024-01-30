@@ -8,6 +8,9 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const updateTracking = (args) => {
+  db_api.updateTracking(args);
+};
 const getCompaniesZuma = (callback) => {
   db_api.getZumaPartneredCompanies((data) => {
     return callback(data);
@@ -318,6 +321,9 @@ class controller {
   };
 
   dashboard_controller = {
+    updateTracking: (args) => {
+      updateTracking(args);
+    },
     getCompaniesZuma: (callback) => {
       getCompaniesZuma((data) => {
         return callback(data);
