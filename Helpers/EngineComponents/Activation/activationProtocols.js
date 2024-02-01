@@ -603,67 +603,72 @@ const Type3_Protocol = (args, exeptions) => {
 const Type4_Protocol = (args, exeptions) => {
   try {
     engineHelper.pillBaseAmount(args.product_name, (amount) => {
-    args.product_components.forEach((component) => {
-      if (engineHelper.productType(component.NAME) == 0) {
-        db.query(queries.activation_product.product_activation_liquid, [
-          component.PRODUCT_ID,
-          args.quantity,
-          args.employee_id,
-        ]);
-        db.query(
-          queries.product_release.get_quantity_by_stored_id_active,
-          [component.PRODUCT_ID],
-          (err, result) => {
-            if (err) {
-              console.log(err);
-            } else {
-              //update product inventory base
-              db.query(queries.product_inventory.update_activation, [
-                result[0].ACTIVE_STOCK + args.quantity,
-                component.PRODUCT_ID,
-              ]);
+      args.product_components.forEach((component) => {
+        if (engineHelper.productType(component.NAME) == 0) {
+          db.query(queries.activation_product.product_activation_liquid, [
+            component.PRODUCT_ID,
+            args.quantity,
+            args.employee_id,
+          ]);
+          db.query(
+            queries.product_release.get_quantity_by_stored_id_active,
+            [component.PRODUCT_ID],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                //update product inventory base
+                db.query(queries.product_inventory.update_activation, [
+                  result[0].ACTIVE_STOCK + args.quantity,
+                  component.PRODUCT_ID,
+                ]);
+              }
             }
-          }
-        );
-        db.query(
-          queries.product_release.get_quantity_by_stored_id_storage,
-          [component.PRODUCT_ID],
-          (err, result) => {
-            if (err) {
-              console.log(err);
-            } else {
-              //update product inventory base
-              db.query(queries.product_inventory.update_activation_stored, [
-                result[0].STORED_STOCK - args.quantity * amount,
-                component.PRODUCT_ID,
-              ]);
+          );
+          db.query(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            [component.PRODUCT_ID],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                //update product inventory base
+                db.query(queries.product_inventory.update_activation_stored, [
+                  result[0].STORED_STOCK - args.quantity * amount,
+                  component.PRODUCT_ID,
+                ]);
+              }
             }
-          }
-        );
-        db.query(
-          queries.product_release.insert_product_release,
-          [component.PRODUCT_ID, args.quantity * amount, args.employee_id],
-          (err) => {}
-        );
-      }
-      if (engineHelper.productType(component.NAME) == 1) {
-        db.query(
-          queries.product_release.get_quantity_by_stored_id_storage,
-          [component.PRODUCT_ID],
-          (err, result) => {
-            if (err) {
-              console.log(err);
-            } else {
-              //update product inventory base
-              db.query(queries.product_inventory.update_consumption_stored, [
-                result[0].STORED_STOCK - args.quantity,
-                component.PRODUCT_ID,
-              ]);
+          );
+          db.query(
+            queries.product_release.insert_product_release,
+            [component.PRODUCT_ID, args.quantity * amount, args.employee_id],
+            (err) => {}
+          );
+        }
+        if (engineHelper.productType(component.NAME) == 1) {
+          db.query(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            [component.PRODUCT_ID],
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              } else {
+                //update product inventory base
+                db.query(queries.product_inventory.update_consumption_stored, [
+                  result[0].STORED_STOCK - args.quantity,
+                  component.PRODUCT_ID,
+                ]);
+                db.query(
+                  queries.product_release.insert_product_release,
+                  [component.PRODUCT_ID, args.quantity, args.employee_id],
+                  (err) => {}
+                );
+              }
             }
-          }
-        );
-      }
-    });
+          );
+        }
+      });
     });
   } catch (err) {
     console.log(err);
