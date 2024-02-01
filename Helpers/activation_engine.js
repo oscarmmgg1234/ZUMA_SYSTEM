@@ -40,7 +40,6 @@ const exeptions = [
   "092f5ec4",
   "bf198df2",
   "3ae608b6",
-  "erd123se",
   "d5c06e4f",
   "403933d3",
 ];
