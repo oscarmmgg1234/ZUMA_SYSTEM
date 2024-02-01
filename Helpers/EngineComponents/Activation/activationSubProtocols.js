@@ -363,15 +363,15 @@ const Type10_Component_Procotol = (args, exeptions) => {
 };
 
 const Type11_Component_Procotol = (args, exeptions) => {
-  //60ml Dropper
+  //50ml Dropper
   db.query(
     queries.product_release.insert_product_release,
-    ["ff6ec949", args.quantity, args.employee_id],
+    ["70a2b315", args.quantity, args.employee_id],
     (err) => {}
   );
   db.query(
     queries.product_release.get_quantity_by_stored_id_storage,
-    ["ff6ec949"],
+    ["70a2b315"],
     (err, result) => {
       if (err) {
         console.log(err);
@@ -379,7 +379,7 @@ const Type11_Component_Procotol = (args, exeptions) => {
         //update product inventory base
         db.query(queries.product_inventory.update_consumption_stored, [
           result[0].STORED_STOCK - args.quantity,
-          "ff6ec949",
+          "70a2b315",
         ]);
       }
     }
