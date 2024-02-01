@@ -55,4 +55,8 @@ dashboard_router.post("/deleteCompany", (req, res) => {
   endpoint_handler.dashboard.deleteCompany(req, res);
 });
 
+dashboard_router.post("/getTopEmployee", (req, res) => {
+  endpoint_handler.dashboard.getTopEmployee(req, res);
+});
+
 module.exports = dashboard_router;

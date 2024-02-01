@@ -8,6 +8,12 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const getTopEmployee = (callback) => {
+  db_api.getTopEmployee((data) => {
+    return callback(data);
+  });
+};
+
 const addCompany = (args, callback) => {
   db_api.addCompany(args, (status) => {
     return callback(status);
@@ -333,6 +339,11 @@ class controller {
   };
 
   dashboard_controller = {
+    getTopEmployee: (callback) => {
+      getTopEmployee((data) => {
+        return callback(data);
+      });
+    },
     addCompany: (args, callback) => {
       addCompany(args, (status) => {
         return callback(status);

@@ -237,6 +237,18 @@ class http_handler {
   };
 
   dashboard = {
+    getTopEmployee: (req, res) => {
+      controller.dashboard_controller.getTopEmployee((data) => {
+        const err = new ErrorHandling(data, "Error getting top employee");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Top Employee").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
     addCompany: (req, res) => {
       controller.dashboard_controller.addCompany(req.req_data, (status) => {
         res.send(new success_handling(status, "Company Added").getSuccess());

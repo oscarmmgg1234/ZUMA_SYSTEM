@@ -6,6 +6,15 @@ const { queries } = require("./queries.js");
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const getTopConsumpEmployee = (callback) => {
+  db.query(queries.dashboard.getCompany, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
 const addCompany = (args, callback) => {
   db.execute(queries.dashboard.addCompany, args.to_arr(), (err) => {
     if (err) {
@@ -328,6 +337,11 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  getTopEmployee = (callback) => {
+    getTopConsumpEmployee((data) => {
+      return callback(data);
+    });
+  };
   addCompany = (args, callback) => {
     addCompany(args, (status) => {
       return callback(status);
