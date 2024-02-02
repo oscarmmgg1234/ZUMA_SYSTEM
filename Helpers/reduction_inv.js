@@ -28,7 +28,7 @@ const reduction_engine = (args) => {
 const type1_reduction = (args) => {
   db.query(queries.product_release.barcode_status_change, [
     "Deducted",
-    args.BARCODE_ID
+    args.BARCODE_ID,
   ]);
   //product realase
   db.query(
@@ -56,7 +56,7 @@ const type1_reduction = (args) => {
 const type2_reduction = (args) => {
   db.query(queries.product_release.barcode_status_change, [
     "Deducted",
-    args.BARCODE_ID
+    args.BARCODE_ID,
   ]);
   db.query(
     queries.product_release.insert_product_release,

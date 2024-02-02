@@ -1,10 +1,21 @@
-const { query } = require("express");
 const { db } = require("./db_init.js");
 const { queries } = require("./queries.js");
 
 // const insertShipmentLog = (args) => {
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
+checkBarcodeStatus = (args, callback) => {
+  db.execute(
+    queries.product_release.checkBarcodeStatus,
+    args,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
+    }
+  );
+};
 
 const getTopConsumpEmployee = (callback) => {
   db.query(queries.dashboard.getCompany, (err, result) => {
@@ -337,6 +348,11 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  checkBarcodeStatus = (args, callback) => {
+    checkBarcodeStatus(args, (data) => {
+      return callback(data);
+    });
+  };
   getTopEmployee = (callback) => {
     getTopConsumpEmployee((data) => {
       return callback(data);

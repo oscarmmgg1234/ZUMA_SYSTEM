@@ -123,13 +123,9 @@ class http_handler {
 
   reduction = {
     release_product: (req, res) => {
-      controller.reduction.product_reduction(req.req_data, (result) => {});
-      res.send(
-        new success_handling(
-          { request_data: req.req_data },
-          "Product Reduced"
-        ).getSuccess()
-      );
+      controller.reduction.product_reduction(req.req_data, (result) => {
+        res.send(new success_handling(result, "Product Released").getSuccess());
+      });
     },
   };
 

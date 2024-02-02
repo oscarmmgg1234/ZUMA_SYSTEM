@@ -30,6 +30,7 @@ const product_release = {
     "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
   barcode_status_change:
     "UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?",
+  checkBarcodeStatus: "SELECT * FROM barcode_log WHERE BarcodeID = ?",
 };
 
 const product_inventory = {

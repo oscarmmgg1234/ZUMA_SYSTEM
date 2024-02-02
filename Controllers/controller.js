@@ -194,8 +194,13 @@ const generate_barcode = (args, callback) => {
 };
 
 const product_reduction = (args, callback) => {
-  helper.reduction_engine(args, (data) => {
-    return data;
+  db_api.checkBarcodeStatus([args.BARCODE_ID], (data) => {
+    if (data[0].Status === "Active/Passive") {
+      helper.reduction_engine(args, (data) => {});
+      return callback({ status: true, message: "Product Reduced" });
+    } else {
+      return callback({ status: false, message: "Product Already Reduced" });
+    }
   });
 };
 
