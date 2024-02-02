@@ -1,0 +1,18 @@
+{
+  "name": "zuma_system",
+  "version": "1.0.0",
+  "description": "notification system",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Oscar Maldonado",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/communication-email": "^1.0.0",
+    "dotenv": "^16.4.1",
+    "mysql2": "^3.9.1",
+    "node-cron": "^3.0.3"
+  }
+}
