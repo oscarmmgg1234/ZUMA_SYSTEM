@@ -18,7 +18,6 @@ async function main() {
   });
 
   if (products.length === 0) {
-    console.log("No products require review or ordering.");
     return;
   }
 
@@ -48,11 +47,9 @@ async function main() {
 
   try {
     const poller = await client.beginSend(emailMessage);
-    const result = await poller.pollUntilDone();
-
-    console.log("Email sent! Result:", result);
+    
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("The sample encountered an error:", error);
   }
 }
 
