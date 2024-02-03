@@ -12,7 +12,7 @@ class http_handler {
     this.init = true;
     this.ProductCache = new InMemoryCache();
     this.CompanyCache = new InMemoryCache();
-    this.EmployeeCache = new InMemoryCache();
+    this.ProductInventoryCache = new InMemoryCache();
   }
 
   shipment = {
@@ -76,18 +76,6 @@ class http_handler {
     activate_prod: (req, res) => {
       controller.product_activation_controller.activate_product(req.req_data);
       res.send(new success_handling({}, "Product Activated").getSuccess());
-    },
-    get_employee_info: (req, res) => {
-      controller.product_activation_controller.get_employee_info((data) => {
-        const err = new ErrorHandling(data, "Error getting employee info");
-        if (err.isValid()) {
-          res.send(
-            new success_handling(data, "Retrieved Employee Info").getSuccess()
-          );
-        } else {
-          res.send(err.getError());
-        }
-      });
     },
     get_employee_info: (req, res) => {
       controller.product_activation_controller.get_employee_info((data) => {
@@ -261,16 +249,19 @@ class http_handler {
       });
     },
     addCompany: (req, res) => {
+      this.CompanyCache.systemChange = true;
       controller.dashboard_controller.addCompany(req.req_data, (status) => {
         res.send(new success_handling(status, "Company Added").getSuccess());
       });
     },
     deleteCompany: (req, res) => {
+      this.CompanyCache.systemChange = true;
       controller.dashboard_controller.deleteCompany(req.req_data, (status) => {
         res.send(new success_handling(status, "Company Deleted").getSuccess());
       });
     },
     updateTracking: (req, res) => {
+      this.ProductCache.systemChange = true;
       controller.dashboard_controller.updateTracking(req.req_data);
       res.send(
         new success_handling(
@@ -281,31 +272,54 @@ class http_handler {
     },
 
     getCompanies: (req, res) => {
-      controller.dashboard_controller.getCompaniesZuma((data) => {
-        const err = new ErrorHandling(data, "Error getting companies");
-        if (err.isValid()) {
-          res.send(
-            new success_handling(data, "Retrieved Companies").getSuccess()
-          );
-        } else {
-          res.send(err.getError());
-        }
-      });
+      if (!this.CompanyCache.getCacheStatus()) {
+        controller.dashboard_controller.getCompaniesZuma((data) => {
+          const err = new ErrorHandling(data, "Error getting companies");
+          if (err.isValid()) {
+            this.CompanyCache.setCache(data);
+            this.CompanyCache.systemChange = false;
+            res.send(
+              new success_handling(data, "Retrieved Companies").getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
+        });
+      } else {
+        res.send(
+          new success_handling(
+            this.CompanyCache.getCache(),
+            "Retrieved Companies"
+          ).getSuccess()
+        );
+      }
     },
     getInventory: (req, res) => {
-      controller.dashboard_controller.getInventory((data) => {
-        const err = new ErrorHandling(data, "Error getting inventory");
-        if (err.isValid()) {
-          res.send(
-            new success_handling(data, "Retrieved Inventory").getSuccess()
-          );
-        } else {
-          res.send(err.getError());
-        }
-      });
+      if (!this.ProductInventoryCache.getCacheStatus()) {
+        controller.dashboard_controller.getInventory((data) => {
+          const err = new ErrorHandling(data, "Error getting inventory");
+          if (err.isValid()) {
+            this.ProductInventoryCache.setCache(data);
+            this.ProductInventoryCache.systemChange = false;
+            res.send(
+              new success_handling(data, "Retrieved Inventory").getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
+        });
+      } else {
+        res.send(
+          new success_handling(
+            this.ProductInventoryCache.getCache(),
+            "Retrieved Inventory"
+          ).getSuccess()
+        );
+      }
     },
     addProduct: (req, res) => {
       controller.dashboard_controller.addProduct(req.req_data, (data) => {
+        this.ProductInventoryCache.systemChange = true;
         this.ProductCache.systemChange = true;
         const err = new ErrorHandling(data, "Error adding product");
         if (err.isValid()) {
@@ -317,6 +331,7 @@ class http_handler {
     },
     deleteProduct: (req, res) => {
       controller.dashboard_controller.deleteProduct(req.req_data, (data) => {
+        this.ProductInventoryCache.systemChange = true;
         this.ProductCache.systemChange = true;
         const err = new ErrorHandling(data, "Error deleting product");
         if (err.isValid()) {
