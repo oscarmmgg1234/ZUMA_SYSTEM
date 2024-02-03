@@ -2,6 +2,11 @@ const express = require("express");
 const router = express.Router();
 const { req_interface } = require("../Models/INTERFACE/req/req_interface");
 const { ErrorRequest } = require("../Error/error_handling");
+const { InMemoryCache } = require("../MiddleWare/CACHE/in_memory_cache");
+
+const ProductCache = new InMemoryCache();
+const CompanyCache = new InMemoryCache();
+const EmployeeCache = new InMemoryCache();
 
 const req_model = req_interface();
 
