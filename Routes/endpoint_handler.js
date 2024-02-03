@@ -384,6 +384,7 @@ class http_handler {
       );
     },
     modifyActiveStock: (req, res) => {
+      this.ProductInventoryCache.systemChange = true;
       controller.dashboard_controller.modifyActiveStock(
         req.req_data,
         (status) => {
@@ -397,6 +398,7 @@ class http_handler {
       );
     },
     modifyStoredStock: (req, res) => {
+      this.ProductInventoryCache.systemChange = true;
       controller.dashboard_controller.modifyStoredStock(
         req.req_data,
         (status) => {
