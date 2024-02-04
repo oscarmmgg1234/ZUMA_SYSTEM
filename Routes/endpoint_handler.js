@@ -74,6 +74,7 @@ class http_handler {
 
   activation = {
     activate_prod: (req, res) => {
+      this.ProductInventoryCache.systemChange = true;
       controller.product_activation_controller.activate_product(req.req_data);
       res.send(new success_handling({}, "Product Activated").getSuccess());
     },
@@ -115,6 +116,7 @@ class http_handler {
 
   reduction = {
     release_product: (req, res) => {
+      this.ProductInventoryCache.systemChange = true;
       controller.reduction.product_reduction(req.req_data, (result) => {
         res.send(new success_handling(result, "Product Released").getSuccess());
       });
