@@ -195,7 +195,10 @@ const generate_barcode = (args, callback) => {
 
 const product_reduction = (args, callback) => {
   db_api.checkBarcodeStatus([args.BARCODE_ID], (data) => {
-    if (data[0].Status === "Active/Passive") {
+    if (
+      data[0].Status === "Active/Passive" ||
+      data[0].Status === "Manually Printed"
+    ) {
       helper.reduction_engine(args, (data) => {});
       return callback({ status: true, message: "Product Reduced" });
     } else {
