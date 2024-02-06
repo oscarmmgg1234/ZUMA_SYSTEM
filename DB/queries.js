@@ -31,6 +31,8 @@ const product_release = {
   barcode_status_change:
     "UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?",
   checkBarcodeStatus: "SELECT * FROM barcode_log WHERE BarcodeID = ?",
+  set_barcode_employee:
+    "UPDATE barcode_log SET Employee = ? WHERE BarcodeID = ?",
 };
 
 const product_inventory = {

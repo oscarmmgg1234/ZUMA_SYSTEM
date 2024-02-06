@@ -11,6 +11,10 @@ const reduction_type = (args, callback) => {
 };
 
 const reduction_engine = (args) => {
+  local_service.setBarcodeEmployee([
+    args.EMPLOYEE_RESPONSIBLE,
+    args.BARCODE_ID,
+  ]);
   reduction_protocol.forEach((protocol, index) => {
     reduction_type(args, (type) => {
       if (index + 1 == type) {

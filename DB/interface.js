@@ -4,6 +4,15 @@ const { queries } = require("./queries.js");
 // const insertShipmentLog = (args) => {
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
+
+const setBarcodeEmployee = (args) => {
+  db.execute(queries.product_release.set_barcode_employee, args, (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+};
+
 checkBarcodeStatus = (args, callback) => {
   db.execute(
     queries.product_release.checkBarcodeStatus,
@@ -348,6 +357,10 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  setBarcodeEmployee = (args) => {
+    setBarcodeEmployee(args);
+  };
+  
   checkBarcodeStatus = (args, callback) => {
     checkBarcodeStatus(args, (data) => {
       return callback(data);
