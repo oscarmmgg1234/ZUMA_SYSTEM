@@ -61,9 +61,35 @@ const barcode_builder = (args, callback) => {
             // const compositeBuffer = await sharp(barcodeBuffer)
             //   .composite([{ input: textImage, top: 0, left: 50 }])
             //   .toBuffer();
+            const zumaLogo = await sharp(
+              Buffer.from(
+                `<svg width="300" height="50">
+      <style>
+        .underline { font: bold 25px Verdana; }
+      </style>
+      <text x="0" y="30" class="underline">ZUMA</text>
+      <line x1="0" y1="35" x2="82" y2="35" stroke="black" stroke-width="2"/>
+    </svg>`
+              )
+            ).toBuffer();
+
+            const time = new Date().toLocaleString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            });
+            const timePrinted = await sharp(
+              Buffer.from(
+                `<svg width="300" height="20"><text x="0" y="9" font-family="Verdana" font-size="9"><tspan>Created:</tspan><tspan font-weight="bold">${time}</tspan></text></svg>`
+              )
+            ).toBuffer();
+
             const employeeText = await sharp(
               Buffer.from(
-                `<svg width="300" height="20"><text x="0" y="11" font-family="Verdana" font-size="11"><tspan>Emp:</tspan><tspan font-weight="bold">${args.employee.substr(
+                `<svg width="300" height="20"><text x="0" y="11" font-family="Verdana" font-size="11"><tspan>Created by:</tspan><tspan font-weight="bold">${args.employee.substr(
                   0,
                   10
                 )}</tspan></text></svg>`
@@ -98,10 +124,12 @@ const barcode_builder = (args, callback) => {
 
             const compo = await sharp(main_view)
               .composite([
-                { input: b, top: 10, left: 180 },
-                { input: employeeText, top: 20, left: 10, text: args.employee },
-                { input: productText, top: 45, left: 10 },
-                { input: quantityText, top: 70, left: 10 },
+                { input: b, top: 9, left: 180 },
+                { input: zumaLogo, top: -2, left: 20 },
+                { input: employeeText, top: 46, left: 10, text: args.employee },
+                { input: productText, top: 60, left: 10 },
+                { input: quantityText, top: 75, left: 10 },
+                { input: timePrinted, top: 90, left: 10 },
               ])
               .toBuffer();
 
