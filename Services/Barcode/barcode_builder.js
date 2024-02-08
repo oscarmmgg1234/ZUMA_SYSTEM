@@ -80,6 +80,7 @@ const barcode_builder = (args, callback) => {
               hour: "2-digit",
               minute: "2-digit",
               hour12: true,
+              timeZone: "America/Los_Angeles",
             });
             const timePrinted = await sharp(
               Buffer.from(
