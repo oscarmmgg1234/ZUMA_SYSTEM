@@ -6,7 +6,7 @@ const { queries } = require("./queries.js");
 // };
 
 const setBarcodeEmployee = (args) => {
-  db(queries.product_release.set_barcode_employee, args.to_arr(), (err) => {
+  db(queries.product_release.set_barcode_employee, args, (err) => {
     if (err) {
       console.log(err);
     }
@@ -16,7 +16,7 @@ const setBarcodeEmployee = (args) => {
 checkBarcodeStatus = (args, callback) => {
   db(
     queries.product_release.checkBarcodeStatus,
-    args.to_arr(),
+    [args.BARCODE_ID],
     (err, result) => {
       if (err) {
         console.log(err);
