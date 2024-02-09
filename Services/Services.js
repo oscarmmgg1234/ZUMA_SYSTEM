@@ -11,14 +11,14 @@ class Services {
   }
 
   barcode_gen = (args, callback) => {
-    db.query(
+    db(
       queries.tools.barcode_log,
       [
         args.id,
         args.employee_id,
         args.product_name,
         args.quantity,
-        args.src == "Manually Printed" ? "Manually Printed" : "Active/Passive",
+        args.src === "Manually Printed" ? "Manually Printed" : "Active/Passive",
       ],
       (err, result) => {
         if (err) {
@@ -26,6 +26,7 @@ class Services {
         }
       }
     );
+
     barcode_gen.barcode_builder(args, (data) => {
       return callback(data);
     });

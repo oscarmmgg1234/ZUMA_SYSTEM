@@ -30,25 +30,29 @@ const reduction_engine = (args) => {
 };
 
 const type1_reduction = (args) => {
-  db.query(queries.product_release.barcode_status_change, [
+  db(queries.product_release.barcode_status_change, [
     "Deducted",
     args.BARCODE_ID,
   ]);
-  //product realase
-  db.query(
+
+  db(
     queries.product_release.insert_product_release,
     [args.product_id, args.quantity, args.employee_id],
-    (err) => {}
+    (err) => {
+      if (err) {
+        console.log(err);
+      }
+    }
   );
-  db.query(
+
+  db(
     queries.product_release.get_quantity_by_stored_id_active,
     [args.product_id],
     (err, result) => {
       if (err) {
         console.log(err);
       } else {
-        //update product inventory base
-        db.query(queries.product_inventory.update_consumption_active, [
+        db(queries.product_inventory.update_consumption_active, [
           parseInt(result[0].ACTIVE_STOCK) - args.quantity,
           args.product_id,
         ]);
@@ -58,24 +62,29 @@ const type1_reduction = (args) => {
 };
 
 const type2_reduction = (args) => {
-  db.query(queries.product_release.barcode_status_change, [
+  db(queries.product_release.barcode_status_change, [
     "Deducted",
     args.BARCODE_ID,
   ]);
-  db.query(
+
+  db(
     queries.product_release.insert_product_release,
     [args.product_id, args.quantity, args.employee_id],
-    (err) => {}
+    (err) => {
+      if (err) {
+        console.log(err);
+      }
+    }
   );
-  db.query(
+
+  db(
     queries.product_release.get_quantity_by_stored_id_storage,
     [args.product_id],
     (err, result) => {
       if (err) {
         console.log(err);
       } else {
-        //update product inventory base
-        db.query(queries.product_inventory.update_consumption_stored, [
+        db(queries.product_inventory.update_consumption_stored, [
           parseInt(result[0].STORED_STOCK) - args.quantity,
           args.product_id,
         ]);

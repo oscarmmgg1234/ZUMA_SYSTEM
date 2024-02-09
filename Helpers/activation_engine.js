@@ -48,15 +48,13 @@ const exeptions = [
 //run each protocol and if product matches exeption rule then run exeption protocol
 //gets products from db to allow dynamic addition of feature products
 const getProducts = (callback) => {
-  try {
-    db.execute(queries.activation_product.get_products, (err, result) => {
-      return callback(result);
-    });
-  } catch (err) {
-    console.log(err);
-    success.status = false;
-    success.message = "error getting fetching products from db";
-  }
+  db(queries.activation_product.get_products, (err, result) => {
+    if (err) {
+      console.log(err);
+      // Assuming there is a mechanism to indicate failure to the callback // Indicate an error occurred
+    }
+    callback(result); // Success case, pass results and no error
+  });
 };
 
 //foundation of activation engine

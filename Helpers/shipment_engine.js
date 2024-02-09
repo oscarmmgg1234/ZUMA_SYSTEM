@@ -18,27 +18,29 @@ const shipment_engine = (args) => {
   });
 };
 
-type1_shipment = (args) => {
-  //update stored quantity
-
-  db.query(
+const type1_shipment = (args) => {
+  // Update stored quantity
+  db(
     queries.product_release.get_quantity_by_stored_id_storage,
     [args.product_id],
     (err, result) => {
       if (err) {
         console.log(err);
       } else {
-        //update product inventory base
-        db.query(queries.product_inventory.update_activation_stored, [
+        // Update product inventory base
+        db(queries.product_inventory.update_activation_stored, [
           result[0].STORED_STOCK + args.quantity,
           args.product_id,
         ]);
       }
     }
   );
-  //insert shipment log
-  db.query(queries.shipment_log.insert, args.arr, (err) => {
-    console.log(err);
+
+  // Insert shipment log
+  db(queries.shipment_log.insert, args.arr, (err) => {
+    if (err) {
+      console.log(err);
+    }
   });
 };
 
