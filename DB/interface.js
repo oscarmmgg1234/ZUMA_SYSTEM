@@ -6,7 +6,7 @@ const { queries } = require("./queries.js");
 // };
 
 const setBarcodeEmployee = (args) => {
-  db.execute(queries.product_release.set_barcode_employee, args, (err) => {
+  db(queries.product_release.set_barcode_employee, args.to_arr(), (err) => {
     if (err) {
       console.log(err);
     }
@@ -14,9 +14,9 @@ const setBarcodeEmployee = (args) => {
 };
 
 checkBarcodeStatus = (args, callback) => {
-  db.execute(
+  db(
     queries.product_release.checkBarcodeStatus,
-    args,
+    args.to_arr(),
     (err, result) => {
       if (err) {
         console.log(err);
@@ -27,7 +27,7 @@ checkBarcodeStatus = (args, callback) => {
 };
 
 const getTopConsumpEmployee = (callback) => {
-  db.query(queries.dashboard.getCompany, (err, result) => {
+  db(queries.dashboard.getCompany, (err, result) => {
     if (err) {
       console.log(err);
     }
@@ -36,7 +36,7 @@ const getTopConsumpEmployee = (callback) => {
 };
 
 const addCompany = (args, callback) => {
-  db.execute(queries.dashboard.addCompany, args.to_arr(), (err) => {
+  db(queries.dashboard.addCompany, args.to_arr(), (err) => {
     if (err) {
       console.log(err);
       return callback({ status: false, status_mes: "Error adding company" });
@@ -46,7 +46,7 @@ const addCompany = (args, callback) => {
 };
 
 const deleteCompany = (args, callback) => {
-  db.execute(queries.dashboard.deleteCompany, args.to_arr(), (err) => {
+  db(queries.dashboard.deleteCompany, args.to_arr(), (err) => {
     if (err) {
       console.log(err);
       return callback({ status: false, status_mes: "Error deleting company" });
@@ -59,7 +59,7 @@ const deleteCompany = (args, callback) => {
 };
 
 const updateTracking = (args) => {
-  db.execute(queries.dashboard.updateProductMinLimit, args.to_arr(), (err) => {
+  db(queries.dashboard.updateProductMinLimit, args.to_arr(), (err) => {
     if (err) {
       console.log(err);
     }
@@ -67,7 +67,7 @@ const updateTracking = (args) => {
 };
 
 const getZumaPartneredCompanies = (callback) => {
-  db.execute(queries.dashboard.getCompanies, (err, result) => {
+  db(queries.dashboard.getCompanies, (err, result) => {
     if (err) {
       console.log(err);
     }
@@ -76,13 +76,16 @@ const getZumaPartneredCompanies = (callback) => {
 };
 
 const getProductInventory = (callback) => {
-  db.execute(queries.dashboard.getInventory, (err, result) => {
+  db(queries.dashboard.getInventory, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
     return callback(result);
   });
 };
 
 const addProduct = (args, callback) => {
-  db.execute(queries.development.add_product, args.to_arr(), (err) => {
+  db(queries.development.add_product, args.to_arr(), (err) => {
     if (err) {
       console.log(err);
       return callback({ status: false, status_mes: "Error adding product" });
@@ -92,186 +95,175 @@ const addProduct = (args, callback) => {
 };
 
 const deleteProduct = (args, callback) => {
-  db.execute(queries.development.delete_product, args.to_arr(), (err) => {
+  db(queries.development.delete_product, args.to_arr(), (err) => {
     if (err) {
       console.log(err);
       return callback({ status: false, status_mes: "Error deleting product" });
     }
-    db.execute(
-      queries.development.delete_product_inventory,
-      args.to_arr(),
-      (err) => {
-        if (err) {
-          console.log(err);
-          return callback({
-            status: false,
-            status_mes: "Error deleting product",
-          });
-        }
+    db(queries.development.delete_product_inventory, args.to_arr(), (err) => {
+      if (err) {
+        console.log(err);
         return callback({
-          status: true,
-          status_mes: "Successfully deleted product",
+          status: false,
+          status_mes: "Error deleting product",
         });
       }
-    );
+      return callback({
+        status: true,
+        status_mes: "Successfully deleted product",
+      });
+    });
   });
 };
 
 const modifyStockGivenID = (args, action, callback) => {
   if (action == "active") {
-    db.execute(
-      queries.dashboard.get_active_stock,
-      args.to_arr(),
-      (err, result) => {
-        if (err) {
-          console.log(err);
-          return callback({
-            status: false,
-            status_mes: "Error modifying database",
-          });
-        }
-        if (result.length == 0) {
-          return callback({
-            status: false,
-            status_mes: "Error modifying database",
-          });
-        }
-        db.execute(queries.dashboard.transform_active_product, [
-          parseInt(args.quantity + result[0].ACTIVE_STOCK),
-          args.productID,
-        ]);
+    db(queries.dashboard.get_active_stock, args.to_arr(), (err, result) => {
+      if (err) {
+        console.log(err);
         return callback({
-          status: true,
-          status_mes: "Successfully modified database",
+          status: false,
+          status_mes: "Error modifying database",
         });
       }
-    );
+      if (result.length == 0) {
+        return callback({
+          status: false,
+          status_mes: "Error modifying database",
+        });
+      }
+      db(queries.dashboard.transform_active_product, [
+        parseInt(args.quantity + result[0].ACTIVE_STOCK),
+        args.productID,
+      ]);
+      return callback({
+        status: true,
+        status_mes: "Successfully modified database",
+      });
+    });
   }
   if (action == "stored") {
-    db.execute(
-      queries.dashboard.get_stored_stock,
-      args.to_arr(),
-      (err, result) => {
-        if (err) {
-          console.log(err);
-          return callback({
-            status: false,
-            status_mes: "Error modifying database",
-          });
-        }
-        if (result.length == 0) {
-          return callback({
-            status: false,
-            status_mes: "Error modifying database",
-          });
-        }
-        db.execute(queries.dashboard.transform_stored_product, [
-          parseInt(args.quantity + result[0].STORED_STOCK),
-          args.productID,
-        ]);
+    db(queries.dashboard.get_stored_stock, args.to_arr(), (err, result) => {
+      if (err) {
+        console.log(err);
         return callback({
-          status: true,
-          status_mes: "Successfully modified database",
+          status: false,
+          status_mes: "Error modifying database",
         });
       }
-    );
+      if (result.length == 0) {
+        return callback({
+          status: false,
+          status_mes: "Error modifying database",
+        });
+      }
+      db(queries.dashboard.transform_stored_product, [
+        parseInt(args.quantity + result[0].STORED_STOCK),
+        args.productID,
+      ]);
+      return callback({
+        status: true,
+        status_mes: "Successfully modified database",
+      });
+    });
   }
 };
 
 const getActivationByDate = (args, callback) => {
-  db.execute(
-    queries.dashboard.activationByDate,
-    args.to_arr(),
-    (err, result) => {
-      if (err) {
-        console.log(err);
-      }
-      return callback(result);
+  db(queries.dashboard.activationByDate, args.to_arr(), (err, result) => {
+    if (err) {
+      console.log(err);
     }
-  );
+    return callback(result);
+  });
 };
 
 const getReductionByDate = (args, callback) => {
-  db.execute(
-    queries.dashboard.reductionByDate,
-    args.to_arr(),
+  db(queries.dashboard.reductionByDate, args.to_arr(), (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getShipmentLog = (args, callback) => {
+  db(queries.shipment.get_shipment_log_byDate, args.to_arr(), (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getBarcodeData = (args, callback) => {
+  db(queries.tools.get_barcode_data, [args.BARCODE_ID], (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getProductStock = (args, callback) => {
+  db(queries.dashboard.get_product_stock, [args.PRODUCT_ID], (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getProductReductionRecent = (args, callback) => {
+  db(
+    queries.dashboard.get_product_reduction_recent,
+    [args.PRODUCT_ID],
     (err, result) => {
       if (err) {
         console.log(err);
       }
-      return callback(result);
-    }
-  );
-};
-
-const getShipmentLog = (args, callback) => {
-  db.execute(
-    queries.shipment.get_shipment_log_byDate,
-    [args.date],
-    (err, result) => {
-      return callback(result);
-    }
-  );
-};
-
-const getBarcodeData = (args, callback) => {
-  db.execute(
-    queries.tools.get_barcode_data,
-    [args.BARCODE_ID],
-    (err, result) => {
-      return callback(result);
-    }
-  );
-};
-
-const getProductStock = (args, callback) => {
-  db.execute(
-    queries.dashboard.get_product_stock,
-    [args.PRODUCT_ID],
-    (err, result) => {
-      return callback(result);
-    }
-  );
-};
-
-const getProductReductionRecent = (args, callback) => {
-  db.execute(
-    queries.dashboard.get_product_reduction_recent,
-    [args.PRODUCT_ID],
-    (err, result) => {
       return callback(result);
     }
   );
 };
 
 const getProductActivationRecent = (args, callback) => {
-  db.execute(
+  db(
     queries.dashboard.get_product_activation_recent,
     [args.PRODUCT_ID],
     (err, result) => {
+      if (err) {
+        console.log(err);
+      }
       return callback(result);
     }
   );
 };
 
 const getProductShipmentRecent = (args, callback) => {
-  db.execute(
+  db(
     queries.dashboard.get_product_shipment_recent,
     [args.PRODUCT_ID],
     (err, result) => {
+      if (err) {
+        console.log(err);
+      }
       return callback(result);
     }
   );
 };
 
 const getProductById = (args, callback) => {
-  db.execute(queries.tools.get_product_by_id, args.to_arr(), (err, result) => {
+  db(queries.tools.get_product_by_id, args.to_arr(), (err, result) => {
+    if (err) {
+      console.log(err);
+    }
     return callback(result);
   });
 };
 
 const insertShipmentLog = (args) => {
-  db.execute(queries.shipment_log.insert, args.to_arr(), (err) => {
+  db(queries.shipment_log.insert, args.to_arr(), (err) => {
     if (err) {
       console.log(err);
     }
@@ -279,13 +271,16 @@ const insertShipmentLog = (args) => {
 };
 
 const selectAllShipmentLog = (callback) => {
-  db.execute(queries.shipment_log.select_all, (err, result) => {
+  db(queries.shipment_log.select_all, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
     return callback(result);
   });
 };
 
 const updateShipmentLog = (args) => {
-  db.execute(queries.shipment_log.update, args.to_arr(), (err) => {
+  db(queries.shipment_log.update, args.to_arr(), (err) => {
     if (err) {
       console.log(err);
     }
@@ -293,7 +288,7 @@ const updateShipmentLog = (args) => {
 };
 
 const deleteShipmentLog = (args) => {
-  db.execute(queries.shipment_log.delete, args.to_arr(), (err) => {
+  db(queries.shipment_log.delete, args.to_arr(), (err) => {
     if (err) {
       console.log(err);
     }
@@ -301,57 +296,81 @@ const deleteShipmentLog = (args) => {
 };
 
 const getActivationProduct = (args, callback) => {
-  db.execute(
+  db(
     queries.activation_product.get_product_by_type,
     args.to_arr(),
     (err, result) => {
+      if (err) {
+        console.log(err);
+      }
       return callback(result);
     }
   );
 };
 
 const getEmployeeInfo = (callback) => {
-  db.execute(queries.activation_product.get_employee_info, (err, result) => {
+  db(queries.activation_product.get_employee_info, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
     return callback(result);
   });
 };
 
 const getProductsInfo = (callback) => {
-  db.execute(queries.label_print.get_products_info, (err, result) => {
+  db(queries.label_print.get_products_info, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
     return callback(result);
   });
 };
 
 const getProductsByCompany = (args, callback) => {
-  db.execute(
+  db(
     queries.shipment.get_product_by_company,
     [args.COMPANY_ID],
     (err, result) => {
+      if (err) {
+        console.log(err);
+      }
       return callback(result);
     }
   );
 };
 
 const get_company_info = (callback) => {
-  db.execute(queries.shipment.get_company_info, (err, result) => {
+  db(queries.shipment.get_company_info, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
     return callback(result);
   });
 };
 
 const get_shipment_log = (callback) => {
-  db.execute(queries.tools.shipment_log, (err, result) => {
+  db(queries.tools.shipment_log, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
     return callback(result);
   });
 };
 
 const get_activation_log = (callback) => {
-  db.execute(queries.tools.activation_log, (err, result) => {
+  db(queries.tools.activation_log, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
     return callback(result);
   });
 };
 
 const get_consumption_log = (callback) => {
-  db.execute(queries.tools.consumption_log, (err, result) => {
+  db(queries.tools.consumption_log, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
     return callback(result);
   });
 };
@@ -360,7 +379,7 @@ class db_interface {
   setBarcodeEmployee = (args) => {
     setBarcodeEmployee(args);
   };
-  
+
   checkBarcodeStatus = (args, callback) => {
     checkBarcodeStatus(args, (data) => {
       return callback(data);
