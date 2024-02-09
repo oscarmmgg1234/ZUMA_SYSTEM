@@ -194,7 +194,7 @@ const generate_barcode = (args, callback) => {
 };
 
 const product_reduction = (args, callback) => {
-  db_api.checkBarcodeStatus([args.BARCODE_ID], (data) => {
+  db_api.checkBarcodeStatus(args, (data) => {
     if (
       data[0].Status === "Active/Passive" ||
       data[0].Status === "Manually Printed"
