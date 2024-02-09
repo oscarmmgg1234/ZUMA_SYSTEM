@@ -31,21 +31,21 @@ const productConsumption30ml = (productQuantity) => {
 const glycerinException = (args) => {
   args.product_components.forEach((component) => {
     if (engineHelper.productType(component.NAME) == 0) {
-      db.query(queries.activation_product.product_activation_liquid, [
+      db(queries.activation_product.product_activation_liquid, [
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
       ]);
-      db.query(
-        queries.product_release.get_quantity_by_stored_id_active,
+      db(
+        queries.product_release.get_quantity_by_stored_id_storage,
         [component.PRODUCT_ID],
         (err, result) => {
           if (err) {
             console.log(err);
           } else {
             //update product inventory base
-            db.query(queries.product_inventory.update_activation, [
-              result[0].ACTIVE_STOCK + args.quantity,
+            db(queries.product_inventory.update_activation, [
+              result[0].STORED_STOCK - args.quantity,
               component.PRODUCT_ID,
             ]);
           }
@@ -53,21 +53,22 @@ const glycerinException = (args) => {
       );
     }
     if (engineHelper.productType(component.NAME) == 1) {
-      db.query(
+      db(
         queries.product_release.insert_product_release,
         [component.PRODUCT_ID, args.quantity, args.employee_id],
         (err) => {
-          console.log(err);
+          if (err) console.log(err);
         }
       );
-      db.query(
+      db(
         queries.product_release.get_quantity_by_stored_id_storage,
         [component.PRODUCT_ID],
         (err, result) => {
           if (err) {
+            console.log(err);
           } else {
             //update product inventory base
-            db.query(queries.product_inventory.update_consumption_stored, [
+            db(queries.product_inventory.update_consumption_stored, [
               result[0].STORED_STOCK - args.quantity,
               component.PRODUCT_ID,
             ]);
@@ -78,8 +79,8 @@ const glycerinException = (args) => {
     if (engineHelper.productType(component.NAME) == 2) {
       const glycerinComsump50ml = glycerinConsumption50ml(args.quantity);
       const glycerinComsump30ml = glycerinConsumption30ml(args.quantity);
-      //base
-      db.query(
+
+      db(
         queries.product_release.get_quantity_by_stored_id_storage,
         [component.PRODUCT_ID],
         (err, result) => {
@@ -87,41 +88,38 @@ const glycerinException = (args) => {
             console.log(err);
           } else {
             //update product inventory base
-            db.query(
+            db(
               queries.product_inventory.update_consumption_stored,
               [
                 result[0].STORED_STOCK -
-                  ((engineHelper.productMLType(args.product_name) == 1
-                    ? 30
-                    : 50) *
-                    args.quantity) /
-                    ml_to_gallon,
+                  (engineHelper.productMLType(args.product_name) == 1
+                    ? productConsumption30ml(args.quantity)
+                    : productConsumption50ml(args.quantity)),
                 component.PRODUCT_ID,
               ],
-              (err) => {}
+              (err) => {
+                if (err) console.log(err);
+              }
             );
           }
         }
       );
 
-      //insert log for product release
-      db.query(
+      db(
         queries.product_release.insert_product_release,
         [
           component.PRODUCT_ID,
-          (engineHelper.productMLType(args.product_name) == 1
-            ? 30
-            : 50 * args.quantity) / ml_to_gallon,
+          engineHelper.productMLType(args.product_name) == 1
+            ? productConsumption30ml(args.quantity)
+            : productConsumption50ml(args.quantity),
           args.employee_id,
         ],
         (err) => {
-          if (err) {
-          }
+          if (err) console.log(err);
         }
       );
 
-      //glycerin
-      db.query(
+      db(
         queries.product_release.get_quantity_by_stored_id_storage,
         ["14aa3aba"],
         (err, result) => {
@@ -129,7 +127,7 @@ const glycerinException = (args) => {
             console.log(err);
           } else {
             //update product inventory base
-            db.query(
+            db(
               queries.product_inventory.update_consumption_stored,
               [
                 result[0].STORED_STOCK -
@@ -138,14 +136,15 @@ const glycerinException = (args) => {
                     : glycerinComsump50ml),
                 "14aa3aba",
               ],
-              (err) => {}
+              (err) => {
+                if (err) console.log(err);
+              }
             );
           }
         }
       );
 
-      //insert log for product release
-      db.query(
+      db(
         queries.product_release.insert_product_release,
         [
           "14aa3aba",
@@ -155,8 +154,7 @@ const glycerinException = (args) => {
           args.employee_id,
         ],
         (err) => {
-          if (err) {
-          }
+          if (err) console.log(err);
         }
       );
     }

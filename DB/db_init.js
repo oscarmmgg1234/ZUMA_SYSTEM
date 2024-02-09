@@ -24,7 +24,7 @@ const pool = mysql.createPool({
   database: process.argv[2] == "dev" ? "zuma_development" : "zuma_main",
   ssl: sslOptions,
   waitForConnections: true, // Whether to wait for connections or immediately throw an error
-  connectionLimit: 15, // The maximum number of connections to create at once
+  connectionLimit: 30, // The maximum number of connections to create at once
   queueLimit: 5, // The maximum number of connection requests the pool will queue before returning an error
 });
 
