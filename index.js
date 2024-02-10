@@ -1,14 +1,13 @@
 const express = require("express");
 const server = express();
-const reflect = require("reflect-metadata");
 const cors = require("cors");
 const unit_test = require("./Test/engine_unit_test");
 
-const originalConsoleLog = console.log;
-console.log = function(...args) {
-    console.trace('Console.log called from:');
-    originalConsoleLog.apply(console, args);
-}
+// const originalConsoleLog = console.log;
+// console.log = function(...args) {
+//     console.trace('Console.log called from:');
+//     originalConsoleLog.apply(console, args);
+// }
 
 const engineTest = new unit_test.engine_unit_test();
 
