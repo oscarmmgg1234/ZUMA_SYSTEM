@@ -9,7 +9,7 @@ const barcode_builder = (args, callback) => {
     let id = args.id;
     if (i > 0) {
       id = Math.floor(Math.random() * 1000000000);
-      db.query(
+      db(
         queries.tools.barcode_log,
         [
           id,
