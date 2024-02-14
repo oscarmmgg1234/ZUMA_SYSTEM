@@ -42,6 +42,8 @@ const exeptions = [
   "3ae608b6",
   "d5c06e4f",
   "403933d3",
+  "342fr32e",
+  "236gh33j",
 ];
 
 //detergent //pet-shampoo //Zeolite

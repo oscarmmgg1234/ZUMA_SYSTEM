@@ -316,7 +316,133 @@ const Type2_Protocol = (args, exceptions) => {
       });
     } else {
       // For specified exceptions, use glycerinException
-      glycerinException(args);
+      if (args.product_id == "236gh33j") {
+        // pet canine
+        //activate pet canine
+        db(queries.activation_product.product_activation_liquid, [
+          args.product_id,
+          args.quantity,
+          args.employee_id,
+        ]);
+        db(
+          queries.product_release.get_quantity_by_stored_id_active,
+          [args.product_id],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              db(queries.product_inventory.update_activation, [
+                result[0].ACTIVE_STOCK + args.quantity,
+                args.product_id,
+              ]);
+            }
+          }
+        );
+        //label
+        db(queries.product_release.insert_product_release, [
+          "rdg43qgy",
+          args.quantity,
+          args.employee_id,
+        ]);
+        db(
+          queries.product_release.get_quantity_by_stored_id_storage,
+          ["rdg43qgy"],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              db(queries.product_inventory.update_consumption_stored, [
+                result[0].STORED_STOCK - args.quantity,
+                "rdg43qgy",
+              ]);
+            }
+          }
+        );
+        //pet canine gal
+        db(
+          queries.product_release.get_quantity_by_stored_id_storage,
+          ["c8b7621f"],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              db(queries.product_inventory.update_consumption_stored, [
+                result[0].STORED_STOCK - productConsumption30ml(args.quantity),
+                "c8b7621f",
+              ]);
+            }
+          }
+        );
+        db(queries.product_release.insert_product_release, [
+          "c8b7621f",
+          productConsumption30ml(args.quantity),
+          args.employee_id,
+        ]);
+      } else if (args.product_id == "342fr32e") {
+        db(queries.activation_product.product_activation_liquid, [
+          args.product_id,
+          args.quantity,
+          args.employee_id,
+        ]);
+        db(
+          queries.product_release.get_quantity_by_stored_id_active,
+          [args.product_id],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              db(queries.product_inventory.update_activation, [
+                result[0].ACTIVE_STOCK + args.quantity,
+                args.product_id,
+              ]);
+            }
+          }
+        );
+        //label
+        db(queries.product_release.insert_product_release, [
+          "23dwsg5h",
+          args.quantity,
+          args.employee_id,
+        ]);
+        db(
+          queries.product_release.get_quantity_by_stored_id_storage,
+          ["23dwsg5h"],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              db(queries.product_inventory.update_consumption_stored, [
+                result[0].STORED_STOCK - args.quantity,
+                "23dwsg5h",
+              ]);
+            }
+          }
+        );
+        //pet canine gal
+        db(
+          queries.product_release.get_quantity_by_stored_id_storage,
+          ["c8b7621f"],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              db(queries.product_inventory.update_consumption_stored, [
+                result[0].STORED_STOCK - productConsumption30ml(args.quantity),
+                "c8b7621f",
+              ]);
+            }
+          }
+        );
+        db(queries.product_release.insert_product_release, [
+          "c8b7621f",
+          productConsumption30ml(args.quantity),
+          args.employee_id,
+        ]);
+
+        // pet feline
+      } else {
+        glycerinException(args);
+      }
     }
   } catch (err) {
     console.log(err);
@@ -535,7 +661,6 @@ const Type5_Protocol = (args, exceptions) => {
     }
   });
 };
-
 
 exports.activationProtocols = () => {
   return [
