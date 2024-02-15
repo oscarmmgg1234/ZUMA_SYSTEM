@@ -128,6 +128,14 @@ const development = {
     "SELECT * FROM inventory_consumption WHERE DATETIME = (SELECT MAX(DATETIME) FROM inventory_consumption)",
   getShipmentStack:
     "SELECT * FROM shipment_log WHERE SHIPMENT_DATE = (SELECT MAX(SHIPMENT_DATE) FROM shipment_log)",
+  deleteShipmentEntry: "DELETE FROM shipment_log WHERE SHIPMENT_ID = ?",
+  deleteActivationEntry:
+    "DELETE FROM inventory_activation WHERE ACTIVATION_ID = ?",
+  deleteConsumptionEntry:
+    "DELETE FROM inventory_consumption WHERE CONSUMP_ID = ?",
+  setTransactionReversed:
+    "UPDATE transaction_log SET REVERSED = true WHERE TRANSACTIONID = ?",
+  getTransactionLog: "SELECT * FROM transaction_log",
 };
 
 exports.queries = {

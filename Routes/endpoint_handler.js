@@ -238,6 +238,26 @@ class http_handler {
   };
 
   dashboard = {
+    getTransactionLog: (req, res) => {
+      controller.services.getTransactionLog((data) => {
+        const err = new ErrorHandling(data, "Error getting transaction log");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Transaction Log").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+
+    revertTransaction: (req, res) => {
+      controller.dashboard_controller.revert_transaction(req.req_data);
+
+      res.send(
+        new success_handling(req.req_data, "Transaction Reverted").getSuccess()
+      );
+    },
     getTopEmployee: (req, res) => {
       controller.dashboard_controller.getTopEmployee((data) => {
         const err = new ErrorHandling(data, "Error getting top employee");

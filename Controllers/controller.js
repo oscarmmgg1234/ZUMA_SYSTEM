@@ -8,6 +8,16 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const getTransactionLog = (callback) => {
+  db_api.getTransactionLog((data) => {
+    return callback(data);
+  });
+};
+
+const transaction_engine = (args) => {
+  helper.transaction_engine(args);
+};
+
 const getTopEmployee = (callback) => {
   db_api.getTopEmployee((data) => {
     return callback(data);
@@ -312,6 +322,11 @@ class controller {
     },
   };
   services = {
+    getTransactionLog: (callback) => {
+      getTransactionLog((data) => {
+        return callback(data);
+      });
+    },
     barcode_gen: (args, callback) => {
       generate_barcode(args, (data) => {
         return callback(data);
@@ -347,6 +362,9 @@ class controller {
   };
 
   dashboard_controller = {
+    revert_transaction: (args) => {
+      transaction_engine(args);
+    },
     getTopEmployee: (callback) => {
       getTopEmployee((data) => {
         return callback(data);

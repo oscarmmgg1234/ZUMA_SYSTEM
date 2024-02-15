@@ -17,8 +17,14 @@ const deleteProduct = require("../../req/Dashboard/deleteProduct");
 const tracking = require("../../req/Update/productTracking.js");
 const addCompany = require("../../req/Update/addCompany");
 const deleteCompany = require("../../req/Update/deleteCompany");
+const reverseTransaction = require("../../req/Update/revertTransaction");
 
 class req_interface {
+  reverseTransaction = (args, callback) => {
+    reverseTransaction.reverseTransaction(args, (data) => {
+      return callback(data);
+    });
+  };
   deleteCompany = (args, callback) => {
     deleteCompany.deleteCompany(args, (status) => {
       return callback(status);

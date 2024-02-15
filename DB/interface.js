@@ -5,6 +5,15 @@ const { queries } = require("./queries.js");
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+function getTransactionLog(callback) {
+  db(queries.development.getTransactionLog, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+}
+
 const addTransaction = (args) => {
   if (args.src == "shipment") {
     db(queries.development.getShipmentStack, (err, result) => {
@@ -446,6 +455,11 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  getTransactionLog = (callback) => {
+    getTransactionLog((data) => {
+      return callback(data);
+    });
+  };
   addTransaction = (args) => {
     addTransaction(args);
   };

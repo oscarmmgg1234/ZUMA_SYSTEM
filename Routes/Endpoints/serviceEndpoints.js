@@ -36,4 +36,11 @@ service_router.post("/get_barcode_data", (req, res) => {
   endpoint_handler.services.get_barcode_data(req, res);
 });
 
+service_router.post("/revertTransaction", (req, res) => {
+  endpoint_handler.dashboard.revertTransaction(req, res);
+});
+
+service_router.post("/getTransactionLog", (req, res) => {
+  endpoint_handler.dashboard.getTransactionLog(req, res);
+});
 module.exports = service_router;
