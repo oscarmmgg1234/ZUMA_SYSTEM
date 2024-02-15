@@ -5,6 +5,67 @@ const { queries } = require("./queries.js");
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const addTransaction = (args) => {
+  if (args.src == "shipment") {
+    db(queries.development.getShipmentTransaction, (err, result) => {
+      db(
+        queries.development.addTransactionLog,
+        [
+          JSON.stringify([]),
+          JSON.stringify([]),
+          JSON.stringify(result),
+          "shipment",
+          false,
+          args.EMPLOYEE_ID,
+        ],
+        (err) => {
+          if (err) {
+          }
+        }
+      );
+    });
+  }
+  if (args.src == "activation") {
+    db(queries.development.getActivationTransaction, (err, result) => {
+      db(queries.development.getConsumptionTransaction, (err, result2) => {
+        const formattedConsumption = result2.map((item) => {
+          return item.CONSUMP_ID;
+        });
+        const formattedActivation = result.map((item) => {
+          return item.ACTIVATION_ID;
+        });
+        db(
+          queries.development.addTransactionLog,
+          [
+            JSON.stringify(formattedActivation),
+            JSON.stringify(formattedConsumption),
+            JSON.stringify([]),
+            "activation",
+            false,
+            args.EMPLOYEE_ID,
+          ],
+          (err) => {
+            if (err) {
+            }
+          }
+        );
+      });
+    });
+  }
+  if (args.src == "consumption") {
+    db(queries.development.getConsumptionTransaction, (err, result) => {
+      db(queries.development.addTransactionLog, [
+        JSON.stringify([]),
+        JSON.stringify(result),
+        JSON.stringify([]),
+        "consumption",
+        false,
+        args.EMPLOYEE_ID,
+      ]);
+    });
+  }
+};
+
 const setBarcodeEmployee = (args) => {
   db(queries.product_release.set_barcode_employee, args, (err) => {
     if (err) {
@@ -376,6 +437,9 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  addTransaction = (args) => {
+    addTransaction(args);
+  };
   setBarcodeEmployee = (args) => {
     setBarcodeEmployee(args);
   };

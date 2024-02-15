@@ -1,5 +1,6 @@
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
+const { db_interface } = require("../DB/db_interface.js");
 const {
   product_analytics,
 } = require("../Models/req/Dashboard/getProductAnalytics.js");
@@ -16,6 +17,7 @@ const {
 const engineHelper = activationEngineComponents;
 const protocols = activationProtocols();
 const subProtocols = activationSubProtocols();
+const db_api = db_interface();
 
 //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
 //think about this a bit more => maintanance, add products, remove product, tweaks to products
@@ -155,6 +157,9 @@ const main_activation = (args) => {
       }
     }
   );
+  setTimeout(() => {
+    db_api.addTransaction();
+  }, 500);
 };
 
 exports.activation_engine = main_activation;
