@@ -121,13 +121,13 @@ const development = {
   delete_product_inventory:
     "DELETE FROM product_inventory WHERE PRODUCT_ID = ?",
   addProductTransaction:
-    "INSERT INTO transaction_log (ACTIVATION_STACK, CONSUMPTION_STACK, SHIPMENT_STACK, DATE, REVERSED, ACTION, EMPLOYEE_ID, PRODUCT_ID) VALUES (?,?,?,?,?,?,?,?)",
+    "INSERT INTO transaction_log (ACTIVATION_STACK, RELEASE_STACK, SHIPMENT_STACK, REVERSED, ACTION, EMPLOYEE_ID, PRODUCT_ID) VALUES (?,?,?,?,?,?,?)",
   getActivationStack:
-    "SELECT * from inventory_activation where DATE = (SELECT MAX(DATE) FROM inventory_activation)",
+    "SELECT * FROM inventory_activation WHERE DATE = (SELECT MAX(DATE) FROM inventory_activation)",
   getConsumptionStack:
-    "SELECT * from inventory_consumption where DATETIME = (SELECT MAX(DATETIME) FROM inventory_consumption)",
+    "SELECT * FROM inventory_consumption WHERE DATETIME = (SELECT MAX(DATETIME) FROM inventory_consumption)",
   getShipmentStack:
-    "SELECT * from shipment_log where SHIPMENT_DATE = (SELECT MAX(SHIPMENT_DATE) FROM shipment_log)",
+    "SELECT * FROM shipment_log WHERE SHIPMENT_DATE = (SELECT MAX(SHIPMENT_DATE) FROM shipment_log)",
 };
 
 exports.queries = {

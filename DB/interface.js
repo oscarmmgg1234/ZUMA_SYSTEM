@@ -7,16 +7,17 @@ const { queries } = require("./queries.js");
 
 const addTransaction = (args) => {
   if (args.src == "shipment") {
-    db(queries.development.getShipmentTransaction, (err, result) => {
+    db(queries.development.getShipmentStack, (err, result) => {
       db(
-        queries.development.addTransactionLog,
+        queries.development.addProductTransaction,
         [
           JSON.stringify([]),
           JSON.stringify([]),
           JSON.stringify(result),
-          "shipment",
           false,
-          args.EMPLOYEE_ID,
+          "shipment",
+          args.args.EMPLOYEE_ID,
+          args.args.PRODUCT_ID,
         ],
         (err) => {
           if (err) {
@@ -26,8 +27,8 @@ const addTransaction = (args) => {
     });
   }
   if (args.src == "activation") {
-    db(queries.development.getActivationTransaction, (err, result) => {
-      db(queries.development.getConsumptionTransaction, (err, result2) => {
+    db(queries.development.getActivationStack, (err, result) => {
+      db(queries.development.getConsumptionStack, (err, result2) => {
         const formattedConsumption = result2.map((item) => {
           return item.CONSUMP_ID;
         });
@@ -35,14 +36,15 @@ const addTransaction = (args) => {
           return item.ACTIVATION_ID;
         });
         db(
-          queries.development.addTransactionLog,
+          queries.development.addProductTransaction,
           [
             JSON.stringify(formattedActivation),
             JSON.stringify(formattedConsumption),
             JSON.stringify([]),
-            "activation",
             false,
-            args.EMPLOYEE_ID,
+            "activation",
+            args.args.EMPLOYEE_ID,
+            args.args.PRODUCT_ID,
           ],
           (err) => {
             if (err) {
@@ -53,14 +55,15 @@ const addTransaction = (args) => {
     });
   }
   if (args.src == "consumption") {
-    db(queries.development.getConsumptionTransaction, (err, result) => {
-      db(queries.development.addTransactionLog, [
+    db(queries.development.getConsumptionStack, (err, result) => {
+      db(queries.development.addProductTransaction, [
         JSON.stringify([]),
         JSON.stringify(result),
         JSON.stringify([]),
-        "consumption",
         false,
-        args.EMPLOYEE_ID,
+        "consumption",
+        args.args.EMPLOYEE_ID,
+        args.args.PRODUCT_ID,
       ]);
     });
   }

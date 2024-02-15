@@ -1,6 +1,6 @@
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
-const { db_interface } = require("../DB/db_interface.js");
+const { db_interface } = require("../DB/interface.js");
 const {
   product_analytics,
 } = require("../Models/req/Dashboard/getProductAnalytics.js");
@@ -158,7 +158,7 @@ const main_activation = (args) => {
     }
   );
   setTimeout(() => {
-    db_api.addTransaction();
+    db_api.addTransaction({ src: "activation", args: args });
   }, 500);
 };
 

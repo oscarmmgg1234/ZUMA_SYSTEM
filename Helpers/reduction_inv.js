@@ -27,6 +27,9 @@ const reduction_engine = (args) => {
       }
     });
   });
+  setTimeout(() => {
+    local_service.addTransaction({ src: "consumption", args: args });
+  }, 500);
 };
 
 const type1_reduction = (args) => {

@@ -1,5 +1,8 @@
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
+const { db_interface } = require("../DB/interface.js");
+
+const db_api = db_interface();
 
 const shipment_engine = (args) => {
   const newArgs = {
@@ -16,6 +19,9 @@ const shipment_engine = (args) => {
       protocol(newArgs);
     }
   });
+  setTimeout(() => {
+   db_api.addTransaction({ src: "shipment", args: args });
+  }, 500);
 };
 
 const type1_shipment = (args) => {
