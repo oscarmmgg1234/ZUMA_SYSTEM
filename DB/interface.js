@@ -8,12 +8,15 @@ const { queries } = require("./queries.js");
 const addTransaction = (args) => {
   if (args.src == "shipment") {
     db(queries.development.getShipmentStack, (err, result) => {
+      const formattedShipment = result.map((item) => {
+        return item.SHIPMENT_ID;
+      });
       db(
         queries.development.addProductTransaction,
         [
           JSON.stringify([]),
           JSON.stringify([]),
-          JSON.stringify(result),
+          JSON.stringify(formattedShipment),
           false,
           "shipment",
           args.args.EMPLOYEE_ID,
@@ -56,9 +59,12 @@ const addTransaction = (args) => {
   }
   if (args.src == "consumption") {
     db(queries.development.getConsumptionStack, (err, result) => {
+      const formattedConsumption = result.map((item) => {
+        return item.CONSUMP_ID;
+      });
       db(queries.development.addProductTransaction, [
         JSON.stringify([]),
-        JSON.stringify(result),
+        JSON.stringify(formattedConsumption),
         JSON.stringify([]),
         false,
         "consumption",
