@@ -61,11 +61,11 @@ const label_print = {
 const tools = {
   get_product_by_id: "SELECT * FROM product WHERE PRODUCT_ID = ?",
   shipment_log:
-    "SELECT * FROM shipment_history_log WHERE DATE(DATE) = DATE(NOW()) ORDER BY DATE DESC",
+    "SELECT * FROM shipment_log WHERE DATE(SHIPMENT_DATE) = DATE(NOW()) ORDER BY SHIPMENT_DATE DESC",
   activation_log:
-    "SELECT * FROM inv_activation_history_log WHERE DATE(DATE) = DATE(NOW()) ORDER BY DATE DESC",
+    "SELECT * FROM inventory_activation WHERE DATE(DATE) = DATE(NOW()) ORDER BY DATE DESC",
   consumption_log:
-    "SELECT * FROM inv_consumption_history_log WHERE DATE(DATE) = DATE(NOW()) ORDER BY DATE DESC",
+    "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = DATE(NOW()) ORDER BY DATETIME DESC",
   barcode_log:
     "INSERT INTO barcode_log (BarcodeID, Employee,Product,Quantity,Status) VALUES (?,?,?,?,?)",
   get_barcode_data: "SELECT * FROM barcode_log WHERE BarcodeID = ?",
@@ -74,11 +74,11 @@ const tools = {
 const dashboard = {
   get_product_stock: "SELECT * from product_inventory where PRODUCT_ID = ?",
   get_product_reduction_recent:
-    "SELECT * from inv_consumption_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+    "SELECT * from inventory_consumption where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
   get_product_activation_recent:
-    "SELECT * from inv_activation_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+    "SELECT * from inventory_activation where PRODUCT_ID = ? ORDER BY DATETIME DESC LIMIT 1",
   get_product_shipment_recent:
-    "SELECT * from shipment_history_log where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+    "SELECT * from shipment_log where PRODUCT_ID = ? ORDER BY SHIPMNENT_DATE DESC LIMIT 1",
   get_active_stock:
     "SELECT ACTIVE_STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
   get_stored_stock:
@@ -134,7 +134,7 @@ const development = {
   deleteConsumptionEntry:
     "DELETE FROM inventory_consumption WHERE CONSUMP_ID = ?",
   setTransactionReversed:
-    "UPDATE transaction_log SET REVERSED = true WHERE TRANSACTIONID = ?",
+    "UPDATE transaction_log SET REVERSED = 1 WHERE TRANSACTIONID = ?",
   getTransactionLog: "SELECT * FROM transaction_log ORDER BY DATE DESC",
 };
 

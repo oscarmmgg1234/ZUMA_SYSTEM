@@ -188,6 +188,11 @@ const Type1_Protocol = (args, exceptions) => {
               }
             }
           );
+          db(queries.product_release.insert_product_release, [
+            component.PRODUCT_ID,
+            args.quantity,
+            args.employee_id,
+          ]);
           db(
             queries.product_release.get_quantity_by_stored_id_storage,
             [component.PRODUCT_ID],
