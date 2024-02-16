@@ -135,7 +135,7 @@ const development = {
     "DELETE FROM inventory_consumption WHERE CONSUMP_ID = ?",
   setTransactionReversed:
     "UPDATE transaction_log SET REVERSED = true WHERE TRANSACTIONID = ?",
-  getTransactionLog: "SELECT * FROM transaction_log",
+  getTransactionLog: "SELECT * FROM transaction_log ORDER BY DATE DESC",
 };
 
 exports.queries = {
