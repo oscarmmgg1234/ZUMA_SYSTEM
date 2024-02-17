@@ -5,6 +5,7 @@ const { db_interface } = require("../DB/interface.js");
 const db_api = db_interface();
 
 const shipment_engine = (args) => {
+  db_api.addTransaction({ src: "shipment", args: args });
   const newArgs = {
     quantity: args.QUANTITY,
     company_id: args.COMPANY_ID,
@@ -13,15 +14,16 @@ const shipment_engine = (args) => {
     product_id: args.PRODUCT_ID,
     shipment_type: args.SHIPMENT_TYPE,
     arr: args.to_arr(),
+    TRANSACTIONID: args.TRANACTIONID,
   };
   shipment_protocol.forEach((protocol, index) => {
     if (args.SHIPMENT_TYPE == index + 1) {
       protocol(newArgs);
     }
   });
-  setTimeout(() => {
-   db_api.addTransaction({ src: "shipment", args: args });
-  }, 500);
+  // setTimeout(() => {
+  
+  // }, 1500);
 };
 
 const type1_shipment = (args) => {

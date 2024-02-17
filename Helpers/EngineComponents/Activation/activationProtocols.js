@@ -35,6 +35,7 @@ const glycerinException = (args) => {
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
+        args.TRANSACTIONID,
       ]);
       db(
         queries.product_release.get_quantity_by_stored_id_storage,
@@ -55,7 +56,7 @@ const glycerinException = (args) => {
     if (engineHelper.productType(component.NAME) == 1) {
       db(
         queries.product_release.insert_product_release,
-        [component.PRODUCT_ID, args.quantity, args.employee_id],
+        [component.PRODUCT_ID, args.quantity, args.employee_id, args.TRANSACTIONID],
         (err) => {
           if (err) console.log(err);
         }
@@ -113,6 +114,7 @@ const glycerinException = (args) => {
             ? productConsumption30ml(args.quantity)
             : productConsumption50ml(args.quantity),
           args.employee_id,
+          args.TRANSACTIONID,
         ],
         (err) => {
           if (err) console.log(err);
@@ -152,6 +154,7 @@ const glycerinException = (args) => {
             ? glycerinComsump30ml
             : glycerinComsump50ml,
           args.employee_id,
+          args.TRANSACTIONID 
         ],
         (err) => {
           if (err) console.log(err);
@@ -173,6 +176,7 @@ const Type1_Protocol = (args, exceptions) => {
             component.PRODUCT_ID,
             args.quantity,
             args.employee_id,
+            args.TRANSACTIONID,
           ]);
           db(
             queries.product_release.get_quantity_by_stored_id_active,
@@ -192,6 +196,7 @@ const Type1_Protocol = (args, exceptions) => {
             component.PRODUCT_ID,
             args.quantity,
             args.employee_id,
+            args.TRANSACTIONID,
           ]);
           db(
             queries.product_release.get_quantity_by_stored_id_storage,
@@ -212,6 +217,7 @@ const Type1_Protocol = (args, exceptions) => {
             component.PRODUCT_ID,
             args.quantity,
             args.employee_id,
+            args.TRANSACTIONID,
           ]);
           db(
             queries.product_release.get_quantity_by_stored_id_storage,
@@ -251,6 +257,7 @@ const Type2_Protocol = (args, exceptions) => {
             component.PRODUCT_ID,
             args.quantity,
             args.employee_id,
+            args.TRANSACTIONID,
           ]);
           db(
             queries.product_release.get_quantity_by_stored_id_active,
@@ -274,6 +281,7 @@ const Type2_Protocol = (args, exceptions) => {
             component.PRODUCT_ID,
             args.quantity,
             args.employee_id,
+            args.TRANSACTIONID,
           ]);
           db(
             queries.product_release.get_quantity_by_stored_id_storage,
@@ -316,6 +324,7 @@ const Type2_Protocol = (args, exceptions) => {
               ? productConsumption30ml(args.quantity)
               : productConsumption50ml(args.quantity),
             args.employee_id,
+            args.TRANSACTIONID,
           ]);
         }
       });
@@ -348,6 +357,7 @@ const Type2_Protocol = (args, exceptions) => {
           "rdg43qgy",
           args.quantity,
           args.employee_id,
+          args.TRANSACTIONID
         ]);
         db(
           queries.product_release.get_quantity_by_stored_id_storage,
@@ -382,6 +392,7 @@ const Type2_Protocol = (args, exceptions) => {
           "c8b7621f",
           productConsumption30ml(args.quantity),
           args.employee_id,
+          args.TRANSACTIONID
         ]);
       } else if (args.product_id == "342fr32e") {
         db(queries.activation_product.product_activation_liquid, [
@@ -408,6 +419,7 @@ const Type2_Protocol = (args, exceptions) => {
           "23dwsg5h",
           args.quantity,
           args.employee_id,
+          args.TRANSACTIONID
         ]);
         db(
           queries.product_release.get_quantity_by_stored_id_storage,
@@ -442,6 +454,7 @@ const Type2_Protocol = (args, exceptions) => {
           "c8b7621f",
           productConsumption30ml(args.quantity),
           args.employee_id,
+          args.TRANSACTIONID
         ]);
 
         // pet feline
@@ -465,6 +478,7 @@ const Type3_Protocol = (args, exceptions) => {
           component.PRODUCT_ID,
           args.quantity,
           args.employee_id,
+          args.TRANSACTIONID,
         ]);
         db(
           queries.product_release.get_quantity_by_stored_id_active,
@@ -501,6 +515,7 @@ const Type3_Protocol = (args, exceptions) => {
           component.PRODUCT_ID,
           args.quantity,
           args.employee_id,
+          args.TRANSACTIONID,
         ]);
         db(
           queries.product_release.get_quantity_by_stored_id_storage,
@@ -532,6 +547,7 @@ const Type4_Protocol = (args, exceptions) => {
             component.PRODUCT_ID,
             args.quantity,
             args.employee_id,
+            args.TRANSACTIONID,
           ]);
           db(
             queries.product_release.get_quantity_by_stored_id_active,
@@ -561,6 +577,7 @@ const Type4_Protocol = (args, exceptions) => {
             component.PRODUCT_ID,
             args.quantity * amount,
             args.employee_id,
+            args.TRANSACTIONID,     
           ]);
         } else if (engineHelper.productType(component.NAME) == 1) {
           db(
@@ -576,6 +593,7 @@ const Type4_Protocol = (args, exceptions) => {
                   component.PRODUCT_ID,
                   args.quantity,
                   args.employee_id,
+                  args.TRANSACTIONID
                 ]);
               }
             }
@@ -601,6 +619,7 @@ const Type5_Protocol = (args, exceptions) => {
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
+        args.TRANSACTIONID
       ]);
       db(
         queries.product_release.get_quantity_by_stored_id_active,
@@ -624,6 +643,7 @@ const Type5_Protocol = (args, exceptions) => {
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
+        args.TRANSACTIONID
       ]);
       db(
         queries.product_release.get_quantity_by_stored_id_storage,
@@ -662,6 +682,7 @@ const Type5_Protocol = (args, exceptions) => {
         component.PRODUCT_ID,
         productConsumption50ml(args.quantity),
         args.employee_id,
+        args.TRANSACTIONID
       ]);
     }
   });

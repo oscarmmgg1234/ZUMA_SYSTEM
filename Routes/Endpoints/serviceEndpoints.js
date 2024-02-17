@@ -37,8 +37,6 @@ service_router.post("/get_barcode_data", (req, res) => {
 });
 
 service_router.post("/revertTransaction", (req, res) => {
-  console.log("revertTransaction");
-  console.log(req.body);
   endpoint_handler.dashboard.revertTransaction(req, res);
 });
 

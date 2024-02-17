@@ -9,6 +9,7 @@ const Type1_Component_Protocol = (args, exceptions) => {
     "f8f8d895",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
   db(
     queries.product_release.get_quantity_by_stored_id_storage,
@@ -30,6 +31,7 @@ const Type1_Component_Protocol = (args, exceptions) => {
     "70a2b315",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
   db(
     queries.product_release.get_quantity_by_stored_id_storage,
@@ -52,6 +54,7 @@ const Type2_Component_Protocol = (args, exceptions) => {
     "1b09f3dd",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   // Get quantity by stored ID for "1b09f3dd" and update product inventory
@@ -76,6 +79,7 @@ const Type2_Component_Protocol = (args, exceptions) => {
     "d588ca27",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   // Get quantity by stored ID for "d588ca27" and update product inventory
@@ -103,6 +107,7 @@ const Type4_Component_Protocol = (args, exceptions) => {
     "d588ca27",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -127,6 +132,7 @@ const Type7_Component_Protocol = (args, exceptions) => {
     "2a531d63",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -149,6 +155,7 @@ const Type7_Component_Protocol = (args, exceptions) => {
     "55230435",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -171,6 +178,7 @@ const Type7_Component_Protocol = (args, exceptions) => {
     "c7e573b6",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -195,6 +203,7 @@ const Type8_Component_Protocol = (args, exceptions) => {
     "a14d05dd",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -217,6 +226,7 @@ const Type8_Component_Protocol = (args, exceptions) => {
     "2098a61d",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -239,6 +249,7 @@ const Type8_Component_Protocol = (args, exceptions) => {
     "40a1fbc3",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -262,6 +273,7 @@ const Type9_Component_Protocol = (args, exceptions) => {
     "234grddd",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -284,6 +296,7 @@ const Type9_Component_Protocol = (args, exceptions) => {
     "dr33esdg",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -306,6 +319,7 @@ const Type9_Component_Protocol = (args, exceptions) => {
     "40a1fbc3",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -330,6 +344,7 @@ const Type10_Component_Protocol = (args, exceptions) => {
     "fb3b898d",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -352,6 +367,7 @@ const Type10_Component_Protocol = (args, exceptions) => {
     "ddc96cda",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -375,6 +391,7 @@ const Type11_Component_Protocol = (args, exceptions) => {
     "70a2b315",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(
@@ -398,6 +415,7 @@ const Type12_Component_Protocol = (args, exceptions) => {
     "398bddd5",
     args.quantity,
     args.employee_id,
+    args.TRANSACTIONID,
   ]);
 
   db(

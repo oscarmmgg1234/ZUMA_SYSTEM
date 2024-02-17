@@ -29,7 +29,6 @@ const transaction_engine = (args) => {
           }
         );
       });
-     
     }
     if (transaction.ACTION === "shipment") {
       transaction.SHIPMENT_STACK.forEach((item) => {
@@ -37,7 +36,6 @@ const transaction_engine = (args) => {
           if (err) console.log(err);
         });
       });
-      
     }
     if (transaction.ACTION === "comsumption") {
       transaction.RELEASE_STACK.forEach((item) => {

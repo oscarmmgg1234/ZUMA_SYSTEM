@@ -122,6 +122,7 @@ const getProductProccessInfo = (args, callback) => {
 
 //main function driver
 const main_activation = (args) => {
+  db_api.addTransaction({ src: "activation", args: args });
   //main function that chooses type of activation and type component of activation
   getProductProccessInfo(
     args,
@@ -134,6 +135,7 @@ const main_activation = (args) => {
       quantity,
       employee_id,
     }) => {
+      const TRANSACTIONID = args.TRANSACTIONID;
       protocols.forEach((protocol, index) => {
         if (index + 1 == process_type) {
           protocol(
@@ -143,6 +145,7 @@ const main_activation = (args) => {
               product_components,
               quantity,
               employee_id,
+              TRANSACTIONID,
             },
             exeptions
           );
@@ -151,15 +154,15 @@ const main_activation = (args) => {
       if (process_component != null) {
         subProtocols.forEach((protocol, index) => {
           if (index + 1 === process_component) {
-            protocol({ process_component, quantity, employee_id }, exeptions);
+            protocol(
+              { process_component, quantity, employee_id, TRANSACTIONID },
+              exeptions
+            );
           }
         });
       }
     }
   );
-  setTimeout(() => {
-    db_api.addTransaction({ src: "activation", args: args });
-  }, 500);
 };
 
 exports.activation_engine = main_activation;

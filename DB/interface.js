@@ -15,73 +15,24 @@ function getTransactionLog(callback) {
 }
 
 const addTransaction = (args) => {
-  if (args.src == "shipment") {
-    db(queries.development.getShipmentStack, (err, result) => {
-      const formattedShipment = result.map((item) => {
-        return item.SHIPMENT_ID;
-      });
-      db(
-        queries.development.addProductTransaction,
-        [
-          JSON.stringify([]),
-          JSON.stringify([]),
-          JSON.stringify(formattedShipment),
-          0,
-          "shipment",
-          args.args.EMPLOYEE_ID,
-          args.args.PRODUCT_ID,
-        ],
-        (err) => {
-          if (err) {
-          }
-        }
-      );
-    });
-  }
-  if (args.src == "activation") {
-    db(queries.development.getActivationStack, (err, result) => {
-      db(queries.development.getConsumptionStack, (err, result2) => {
-        const formattedConsumption = result2.map((item) => {
-          return item.CONSUMP_ID;
-        });
-        const formattedActivation = result.map((item) => {
-          return item.ACTIVATION_ID;
-        });
-        db(
-          queries.development.addProductTransaction,
-          [
-            JSON.stringify(formattedActivation),
-            JSON.stringify(formattedConsumption),
-            JSON.stringify([]),
-            0,
-            "activation",
-            args.args.EMPLOYEE_ID,
-            args.args.PRODUCT_ID,
-          ],
-          (err) => {
-            if (err) {
-            }
-          }
-        );
-      });
-    });
-  }
-  if (args.src == "consumption") {
-    db(queries.development.getConsumptionStack, (err, result) => {
-      const formattedConsumption = result.map((item) => {
-        return item.CONSUMP_ID;
-      });
-      db(queries.development.addProductTransaction, [
-        JSON.stringify([]),
-        JSON.stringify(formattedConsumption),
-        JSON.stringify([]),
-        0,
-        "consumption",
-        args.args.EMPLOYEE_ID,
-        args.args.PRODUCT_ID,
-      ]);
-    });
-  }
+  db(
+    queries.development.addProductTransaction,
+    [
+      args.args.TRANSACTIONID,
+      JSON.stringify([]),
+      JSON.stringify([]),
+      JSON.stringify([]),
+      0,
+      args.src,
+      args.args.EMPLOYEE_ID,
+      args.args.PRODUCT_ID,
+      args.args.QUANTITY,
+    ],
+    (err) => {
+      if (err) {
+      }
+    }
+  );
 };
 
 const setBarcodeEmployee = (args) => {

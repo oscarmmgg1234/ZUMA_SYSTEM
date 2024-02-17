@@ -11,10 +11,12 @@ const reduction_type = (args, callback) => {
 };
 
 const reduction_engine = (args) => {
+  local_service.addTransaction({ src: "consumption", args: args });
   local_service.setBarcodeEmployee([
     args.EMPLOYEE_RESPONSIBLE,
     args.BARCODE_ID,
   ]);
+  const TRANSACTIONID = args.TRANSACTIONID;
   reduction_protocol.forEach((protocol, index) => {
     reduction_type(args, (type) => {
       if (index + 1 == type) {
@@ -23,13 +25,13 @@ const reduction_engine = (args) => {
           product_id: args.PRODUCT_ID,
           employee_id: args.EMPLOYEE_RESPONSIBLE,
           BARCODE_ID: args.BARCODE_ID,
+          TRANSACTIONID: TRANSACTIONID,
         });
       }
     });
   });
-  setTimeout(() => {
-    local_service.addTransaction({ src: "consumption", args: args });
-  }, 500);
+  // setTimeout(() => {
+  // }, 1500);
 };
 
 const type1_reduction = (args) => {
@@ -40,7 +42,7 @@ const type1_reduction = (args) => {
 
   db(
     queries.product_release.insert_product_release,
-    [args.product_id, args.quantity, args.employee_id],
+    [args.product_id, args.quantity, args.employee_id, args.TRANSACTIONID],
     (err) => {
       if (err) {
         console.log(err);
@@ -72,7 +74,7 @@ const type2_reduction = (args) => {
 
   db(
     queries.product_release.insert_product_release,
-    [args.product_id, args.quantity, args.employee_id],
+    [args.product_id, args.quantity, args.employee_id, args.TRANSACTIONID],
     (err) => {
       if (err) {
         console.log(err);

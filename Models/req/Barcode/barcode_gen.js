@@ -6,7 +6,7 @@ class Barcode {
     this.multiplier = args.MULTIPLIER;
     this.product_name = args.PRODUCT_NAME;
     this.employee_id = args.EMPLOYEE_ID != "" ? args.EMPLOYEE_ID : "NULL";
-    this.id = Math.floor(Math.random() * 1000000000);
+    this.id = 0
     this.src = args.SRC;
   }
   validate() {

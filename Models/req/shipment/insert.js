@@ -1,3 +1,18 @@
+
+function generateRandomID(length) {
+  // Create a random ID with a specified length
+  let result = "";
+  // Define the characters that can be included in the ID
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    // Append a random character from the characters string
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 class insert_shipment {
   constructor(args) {
     this.QUANTITY = args.QUANTITY;
@@ -6,6 +21,7 @@ class insert_shipment {
     this.EMPLOYEE_ID = args.EMPLOYEE_ID;
     this.PRODUCT_ID = args.PRODUCT_ID;
     this.SHIPMENT_TYPE = args.SHIPMENT_TYPE;
+    this.TRANSACTIONID = generateRandomID(12);
   }
   to_arr() {
     return [
@@ -14,6 +30,7 @@ class insert_shipment {
       this.TYPE,
       this.EMPLOYEE_ID,
       this.PRODUCT_ID,
+      this.TRANSACTIONID
     ];
   }
 }

@@ -1,6 +1,6 @@
 const shipment_log = {
   insert:
-    "INSERT INTO shipment_log ( QUANTITY, COMPANY_ID, TYPE, EMPLOYEE_ID, PRODUCT_ID) VALUES ( ?, ?, ?, ?, ?)",
+    "INSERT INTO shipment_log ( QUANTITY, COMPANY_ID, TYPE, EMPLOYEE_ID, PRODUCT_ID, TRANSACTIONID) VALUES ( ?, ?, ?, ?, ?, ?)",
   select_all: "SELECT * FROM shipment_log",
   update:
     "UPDATE shipment_log SET QUANTITY = ?, EMPLOYEE_ID = ? WHERE SHIPMENT_ID = ?",
@@ -10,13 +10,13 @@ const activation_product = {
   get_product_by_type: "SELECT PRODUCT_ID, NAME FROM product WHERE TYPE = ?",
   get_employee_info: "SELECT EMPLOYEE_ID, NAME FROM employee",
   product_activation_liquid:
-    "INSERT INTO inventory_activation (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
+    "INSERT INTO inventory_activation (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
   product_activation_capsule:
-    "INSERT INTO inventory_activation (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
+    "INSERT INTO inventory_activation (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
   product_consumption_label:
-    "INSERT INTO inventory_comsumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
+    "INSERT INTO inventory_comsumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
   product_consumption_product_base:
-    "INSERT INTO inventory_comsumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
+    "INSERT INTO inventory_comsumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
   // product_inv_update: "UPDATE PRODUCT SET QUANTITY = ? WHERE PRODUCT_ID = ?",
   get_products: "SELECT * FROM product",
 };
@@ -27,7 +27,7 @@ const product_release = {
   get_quantity_by_stored_id_active:
     "SELECT ACTIVE_STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
   insert_product_release:
-    "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID) VALUES (?, ?, ?)",
+    "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
   barcode_status_change:
     "UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?",
   checkBarcodeStatus: "SELECT * FROM barcode_log WHERE BarcodeID = ?",
@@ -121,7 +121,7 @@ const development = {
   delete_product_inventory:
     "DELETE FROM product_inventory WHERE PRODUCT_ID = ?",
   addProductTransaction:
-    "INSERT INTO transaction_log (ACTIVATION_STACK, RELEASE_STACK, SHIPMENT_STACK, REVERSED, ACTION, EMPLOYEE_ID, PRODUCT_ID) VALUES (?,?,?,?,?,?,?)",
+    "INSERT INTO transaction_log (TRANSACTIONID, ACTIVATION_STACK, RELEASE_STACK, SHIPMENT_STACK, REVERSED, ACTION, EMPLOYEE_ID, PRODUCT_ID, QUANTITY) VALUES (?,?,?,?,?,?,?,?,?)",
   getActivationStack:
     "SELECT * FROM inventory_activation WHERE DATE = (SELECT MAX(DATE) FROM inventory_activation)",
   getConsumptionStack:
