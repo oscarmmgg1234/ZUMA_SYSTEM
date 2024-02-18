@@ -12,7 +12,7 @@ filterProduct = async (products, inventoryMap) => {
           product.MIN_LIMIT !== null &&
           inventory.STORED_STOCK <= product.MIN_LIMIT
         ) {
-          output_product.push(product);
+          output_product.push({ ...product, stock: inventory });
         }
       }
     });

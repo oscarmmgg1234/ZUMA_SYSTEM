@@ -35,7 +35,10 @@ async function main() {
       <div style="font-family:Arial, sans-serif;padding:20px;">
         <p>The following Products require review and/or ordering to avoid stockout issues:</p>
         <ul>${products
-          .map((product) => `<li>${product.NAME}</li>`)
+          .map(
+            (product) =>
+              `<li>${product.NAME} => Stored: ${product.stock.STORED_STOCK} ${product.UNIT_TYPE}S, Active: ${product.stock.ACTIVE_STOCK} ${product.UNIT_TYPE}S </li>`
+          )
           .join("")}</ul>
       </div>
     `,
@@ -49,8 +52,6 @@ async function main() {
     if(products.length === 0) {return;}
     const poller = await client.beginSend(emailMessage);
     const result = await poller.pollUntilDone();
-
-    
   } catch (error) {
     console.error("Error sending email:", error);
   }
