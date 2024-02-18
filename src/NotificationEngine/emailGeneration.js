@@ -46,6 +46,7 @@ async function main() {
   };
 
   try {
+    if(products.length === 0) {return;}
     const poller = await client.beginSend(emailMessage);
     const result = await poller.pollUntilDone();
 
