@@ -16,13 +16,15 @@ const shipment_engine = (args) => {
     arr: args.to_arr(),
     TRANSACTIONID: args.TRANACTIONID,
   };
-  shipment_protocol.forEach((protocol, index) => {
-    if (args.SHIPMENT_TYPE == index + 1) {
-      protocol(newArgs);
-    }
-  });
+  setTimeout(() => {
+    shipment_protocol.forEach((protocol, index) => {
+      if (args.SHIPMENT_TYPE == index + 1) {
+        protocol(newArgs);
+      }
+    });
+  }, 300);
   // setTimeout(() => {
-  
+
   // }, 1500);
 };
 

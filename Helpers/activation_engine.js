@@ -124,6 +124,7 @@ const getProductProccessInfo = (args, callback) => {
 const main_activation = (args) => {
   db_api.addTransaction({ src: "activation", args: args });
   //main function that chooses type of activation and type component of activation
+  setTimeout(() => {
   getProductProccessInfo(
     args,
     ({
@@ -163,6 +164,7 @@ const main_activation = (args) => {
       }
     }
   );
+  }, 300);
 };
 
 exports.activation_engine = main_activation;

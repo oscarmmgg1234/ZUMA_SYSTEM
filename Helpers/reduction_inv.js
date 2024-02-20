@@ -17,19 +17,21 @@ const reduction_engine = (args) => {
     args.BARCODE_ID,
   ]);
   const TRANSACTIONID = args.TRANSACTIONID;
-  reduction_protocol.forEach((protocol, index) => {
-    reduction_type(args, (type) => {
-      if (index + 1 == type) {
-        protocol({
-          quantity: args.QUANTITY,
-          product_id: args.PRODUCT_ID,
-          employee_id: args.EMPLOYEE_RESPONSIBLE,
-          BARCODE_ID: args.BARCODE_ID,
-          TRANSACTIONID: TRANSACTIONID,
-        });
-      }
+  setTimeout(() => {
+    reduction_protocol.forEach((protocol, index) => {
+      reduction_type(args, (type) => {
+        if (index + 1 == type) {
+          protocol({
+            quantity: args.QUANTITY,
+            product_id: args.PRODUCT_ID,
+            employee_id: args.EMPLOYEE_RESPONSIBLE,
+            BARCODE_ID: args.BARCODE_ID,
+            TRANSACTIONID: TRANSACTIONID,
+          });
+        }
+      });
     });
-  });
+  }, 300);
   // setTimeout(() => {
   // }, 1500);
 };
