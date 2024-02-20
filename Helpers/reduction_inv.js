@@ -27,6 +27,7 @@ const reduction_engine = (args) => {
             employee_id: args.EMPLOYEE_RESPONSIBLE,
             BARCODE_ID: args.BARCODE_ID,
             TRANSACTIONID: TRANSACTIONID,
+            origin: "activation",
           });
         }
       });
@@ -43,8 +44,14 @@ const type1_reduction = (args) => {
   ]);
 
   db(
-    queries.product_release.insert_product_release,
-    [args.product_id, args.quantity, args.employee_id, args.TRANSACTIONID],
+    queries.product_release.insert_product_release_active,
+    [
+      args.product_id,
+      args.quantity,
+      args.employee_id,
+      args.TRANSACTIONID,
+      args.origin,
+    ],
     (err) => {
       if (err) {
         console.log(err);

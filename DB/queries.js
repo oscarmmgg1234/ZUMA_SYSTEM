@@ -33,6 +33,8 @@ const product_release = {
   checkBarcodeStatus: "SELECT * FROM barcode_log WHERE BarcodeID = ?",
   set_barcode_employee:
     "UPDATE barcode_log SET Employee = ? WHERE BarcodeID = ?",
+  insert_product_release_active:
+    "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID, ORIGIN) VALUES (?, ?, ?, ?, ?)",
 };
 
 const product_inventory = {
