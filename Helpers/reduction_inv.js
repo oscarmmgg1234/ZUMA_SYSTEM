@@ -11,6 +11,7 @@ const reduction_type = (args, callback) => {
 };
 
 const reduction_engine = (args) => {
+  console.log(args);
   local_service.addTransaction({ src: "consumption", args: args });
   local_service.setBarcodeEmployee([
     args.EMPLOYEE_RESPONSIBLE,
