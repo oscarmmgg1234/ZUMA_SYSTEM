@@ -176,6 +176,7 @@ const activate_product = (args) => {
     PRODUCT_NAME: args.PRODUCT_NAME,
     EMPLOYEE_ID: args.EMPLOYEE_ID,
     SRC: "Active/Passive",
+    TRANSACTIONID: args.TRANSACTIONID,
   });
 };
 

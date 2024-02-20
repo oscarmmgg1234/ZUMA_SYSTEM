@@ -19,6 +19,7 @@ const barcode_builder = (args, callback) => {
           args.src == "Manually Printed"
             ? "Manually Printed"
             : "Active/Passive",
+          args.TRANSACTIONID,
         ],
         (err, result) => {
           if (err) {
@@ -29,7 +30,15 @@ const barcode_builder = (args, callback) => {
     }
 
     const text =
-      args.employee_id + ">" + args.product_id + ">" + args.quantity + ">" + id;
+      args.employee_id +
+      ">" +
+      args.product_id +
+      ">" +
+      args.quantity +
+      ">" +
+      id +
+      ">" +
+      args.TRANSACTIONID;
 
     const promise = new Promise((resolve, reject) => {
       bwipjs.toBuffer(

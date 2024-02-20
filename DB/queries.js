@@ -69,7 +69,7 @@ const tools = {
   consumption_log:
     "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = DATE(NOW()) ORDER BY DATETIME DESC",
   barcode_log:
-    "INSERT INTO barcode_log (BarcodeID, Employee,Product,Quantity,Status) VALUES (?,?,?,?,?)",
+    "INSERT INTO barcode_log (BarcodeID, Employee,Product,Quantity,Status, TRANSACTIONID) VALUES (?,?,?,?,?, ?)",
   get_barcode_data: "SELECT * FROM barcode_log WHERE BarcodeID = ?",
 };
 
