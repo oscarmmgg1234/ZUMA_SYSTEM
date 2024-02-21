@@ -24,6 +24,9 @@ const transaction_engine = (args) => {
         if (err) console.log(err);
       });
     });
+    transaction.BARCODE_STACK?.forEach((item) => {
+      db(queries.dashboard.transform_barcode_product, ["Active/Passive", item]);
+    });
     db(
       queries.development.setTransactionReversed,
       args.to_arr(),

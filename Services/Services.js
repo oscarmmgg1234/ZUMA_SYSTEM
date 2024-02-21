@@ -11,7 +11,6 @@ class Services {
   }
 
   barcode_gen = (args, callback) => {
-    
     db(
       queries.tools.barcode_log,
       [

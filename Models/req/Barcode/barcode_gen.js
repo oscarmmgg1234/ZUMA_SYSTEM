@@ -22,7 +22,9 @@ class Barcode {
     this.employee_id = args.EMPLOYEE_ID != "" ? args.EMPLOYEE_ID : "NULL";
     this.id = Math.floor(Math.random() * 1000000000);
     this.src = args.SRC;
-    this.TRANSACTIONID = generateRandomID(12);
+    this.TRANSACTIONID = args.TRANSACTIONID
+      ? args.TRANSACTIONID
+      : generateRandomID(12);
   }
   validate() {
     return;
@@ -35,9 +37,6 @@ class parseBarcode {
     const arg_arr = args.barcode.split(">");
     this.BARCODE_ID = arg_arr[0] ? arg_arr[0] : 0;
     this.TRANSACTIONID = arg_arr[1] ? arg_arr[1] : 0;
-  }
-  to_arr() {
-    return [this.PRODUCT_ID];
   }
 }
 

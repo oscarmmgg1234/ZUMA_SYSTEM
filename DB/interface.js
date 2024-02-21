@@ -22,6 +22,7 @@ const addTransaction = (args) => {
       JSON.stringify([]),
       JSON.stringify([]),
       JSON.stringify([]),
+      JSON.stringify([]),
       0,
       args.src,
       args.args.EMPLOYEE_ID,
@@ -284,7 +285,7 @@ const getProductShipmentRecent = (args, callback) => {
 };
 
 const getProductById = (args, callback) => {
-  db(queries.tools.get_product_by_id, args.to_arr(), (err, result) => {
+  db(queries.tools.get_product_by_id, [args], (err, result) => {
     if (err) {
       console.log(err);
     }

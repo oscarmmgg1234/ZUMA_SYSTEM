@@ -126,7 +126,7 @@ const development = {
   delete_product_inventory:
     "DELETE FROM product_inventory WHERE PRODUCT_ID = ?",
   addProductTransaction:
-    "INSERT INTO transaction_log (TRANSACTIONID, ACTIVATION_STACK, RELEASE_STACK, SHIPMENT_STACK, REVERSED, ACTION, EMPLOYEE_ID, PRODUCT_ID, QUANTITY) VALUES (?,?,?,?,?,?,?,?,?)",
+    "INSERT INTO transaction_log (TRANSACTIONID, ACTIVATION_STACK, RELEASE_STACK,BARCODE_STACK, SHIPMENT_STACK, REVERSED, ACTION, EMPLOYEE_ID, PRODUCT_ID, QUANTITY) VALUES (?,?,?,?,?,?,?,?,?,?)",
   getActivationStack:
     "SELECT * FROM inventory_activation WHERE DATE = (SELECT MAX(DATE) FROM inventory_activation)",
   getConsumptionStack:
@@ -143,6 +143,8 @@ const development = {
   getTransactionLog:
     "SELECT * FROM transaction_log WHERE DATE(DATE) = CURDATE() ORDER BY DATE DESC",
   getTransactionByID: "SELECT * FROM transaction_log WHERE TRANSACTIONID = ?",
+  addBarcodeInfoToTransaction:
+    "UPDATE transaction_log SET BARCODE_STACK = JSON_ARRAY_APPEND(BARCODE_STACK, '$', ?) WHERE TRANSACTIONID = ?",
 };
 
 exports.queries = {
