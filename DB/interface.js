@@ -348,6 +348,15 @@ const getEmployeeInfo = (callback) => {
   });
 };
 
+const getEmployeeInfoByID = (args, callback) => {
+  db(queries.tools.get_employee_info, [args], (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
 const getProductsInfo = (callback) => {
   db(queries.label_print.get_products_info, (err, result) => {
     if (err) {
@@ -565,6 +574,11 @@ class db_interface {
   };
   getZumaPartneredCompanies = (callback) => {
     getZumaPartneredCompanies((data) => {
+      return callback(data);
+    });
+  };
+  getEmployeeInfoByID = (args, callback) => {
+    getEmployeeInfoByID(args, (data) => {
       return callback(data);
     });
   };
