@@ -1,37 +1,36 @@
-
 // const fixed_look_up = (productType, productSize) => {
 //   if(productType == 122){
-//     //liquid 
+//     //liquid
 //     if(productSize == 3 || 1){
-//       //50 ml fixed num  
-//       return 
+//       //50 ml fixed num
+//       return
 //     }
 //     if(productSize == 2 || 4) {
 //       //30 ml
-//       return 
+//       return
 //     }
 //     if(productSize == 9 || 10){
 //       //60 ml
-//       return 
+//       return
 //     }
 //     else{
 //       //fulvic foir example
 //       return null;
 //     }
-    
+
 //   }
 //   if(productType == 44){
 //     if(productSize == 5){
 //       //use subcomponenttype to get size
 //       //return fixed box value
-//       return 
+//       return
 //     }
 //     if(productSize == 6)
 //     {
 // return
 //     }
 //     if(productSize == 7){
-//       return 
+//       return
 //     }
 //     else{
 //       return null;
@@ -43,9 +42,10 @@
 
 function generateRandomID(length) {
   // Create a random ID with a specified length
-  let result = '';
+  let result = "";
   // Define the characters that can be included in the ID
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const charactersLength = characters.length;
   for (let i = 0; i < length; i++) {
     // Append a random character from the characters string

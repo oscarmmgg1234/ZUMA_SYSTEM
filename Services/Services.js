@@ -11,6 +11,7 @@ class Services {
   }
 
   barcode_gen = (args, callback) => {
+    
     db(
       queries.tools.barcode_log,
       [
@@ -19,6 +20,7 @@ class Services {
         args.product_name,
         args.quantity,
         args.src === "Manually Printed" ? "Manually Printed" : "Active/Passive",
+        args.TRANSACTIONID,
       ],
       (err, result) => {
         if (err) {

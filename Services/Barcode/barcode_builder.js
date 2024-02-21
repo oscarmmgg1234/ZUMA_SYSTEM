@@ -29,16 +29,7 @@ const barcode_builder = (args, callback) => {
       );
     }
 
-    const text =
-      args.employee_id +
-      ">" +
-      args.product_id +
-      ">" +
-      args.quantity +
-      ">" +
-      id +
-      ">" +
-      args.TRANSACTIONID;
+    const text = id + ">" + args.TRANSACTIONID;
 
     const promise = new Promise((resolve, reject) => {
       bwipjs.toBuffer(

@@ -33,11 +33,8 @@ class parseBarcode {
   constructor(args) {
     this.EMPLOYEE_RESPONSIBLE = args.employee;
     const arg_arr = args.barcode.split(">");
-    this.EMPLOYEE_ID = arg_arr[0];
-    this.PRODUCT_ID = arg_arr[1];
-    this.QUANTITY = arg_arr[2];
-    this.BARCODE_ID = arg_arr[3] ? arg_arr[3] : 0;
-    this.TRANSACTIONID = arg_arr[4] ? arg_arr[4] : 0;
+    this.BARCODE_ID = arg_arr[0] ? arg_arr[0] : 0;
+    this.TRANSACTIONID = arg_arr[1] ? arg_arr[1] : 0;
   }
   to_arr() {
     return [this.PRODUCT_ID];

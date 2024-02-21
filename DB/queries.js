@@ -35,6 +35,8 @@ const product_release = {
     "UPDATE barcode_log SET Employee = ? WHERE BarcodeID = ?",
   insert_product_release_active:
     "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID, ORIGIN) VALUES (?, ?, ?, ?, ?)",
+  getReleaseInfoByTransID:
+    "SELECT transaction_log.*, barcode_log,* FROM transaction_log INNER JOIN barcode_log ON transaction_log.TRANSACTIONID = barcode_log.TRANSACTIONID WHERE transaction_log.TRANSACTIONID = ?",
 };
 
 const product_inventory = {
@@ -69,8 +71,9 @@ const tools = {
   consumption_log:
     "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = DATE(NOW()) ORDER BY DATETIME DESC",
   barcode_log:
-    "INSERT INTO barcode_log (BarcodeID, Employee,Product,Quantity,Status, TRANSACTIONID) VALUES (?,?,?,?,?, ?)",
+    "INSERT INTO barcode_log (BarcodeID, Employee,Product,Quantity,Status,TRANSACTIONID) VALUES (?,?,?,?,?,?)",
   get_barcode_data: "SELECT * FROM barcode_log WHERE BarcodeID = ?",
+  get_employee_info: "SELECT * from employee WHERE EMPLOYEE_ID = ?",
 };
 
 const dashboard = {

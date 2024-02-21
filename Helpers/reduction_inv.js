@@ -11,29 +11,32 @@ const reduction_type = (args, callback) => {
 };
 
 const reduction_engine = (args) => {
-  console.log(args);
   local_service.addTransaction({ src: "consumption", args: args });
   local_service.setBarcodeEmployee([
     args.EMPLOYEE_RESPONSIBLE,
     args.BARCODE_ID,
   ]);
   const TRANSACTIONID = args.TRANSACTIONID;
-  setTimeout(() => {
-    reduction_protocol.forEach((protocol, index) => {
-      reduction_type(args, (type) => {
-        if (index + 1 == type) {
-          protocol({
-            quantity: args.QUANTITY,
-            product_id: args.PRODUCT_ID,
-            employee_id: args.EMPLOYEE_RESPONSIBLE,
-            BARCODE_ID: args.BARCODE_ID,
-            TRANSACTIONID: TRANSACTIONID,
-            origin: "activation",
-          });
-        }
+
+  db(queries.development.getTransactionByID, [TRANSACTIONID], (err, result) => {
+    setTimeout(() => {
+      reduction_protocol.forEach((protocol, index) => {
+        reduction_type(args, (type) => {
+          if (index + 1 == type) {
+            protocol({
+              quantity: result[0].QUANTITY,
+              product_id: result[0].PRODUCT_ID,
+              employee_id: args.EMPLOYEE_RESPONSIBLE,
+              BARCODE_ID: args.BARCODE_ID,
+              TRANSACTIONID: TRANSACTIONID,
+              origin: "activation",
+            });
+          }
+        });
       });
-    });
-  }, 300);
+    }, 300);
+  });
+
   // setTimeout(() => {
   // }, 1500);
 };
