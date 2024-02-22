@@ -44,7 +44,7 @@ const setBarcodeEmployee = (args) => {
   });
 };
 
-checkBarcodeStatus = (args, callback) => {
+const checkBarcodeStatus = (args, callback) => {
   db(
     queries.product_release.checkBarcodeStatus,
     [args.BARCODE_ID],
