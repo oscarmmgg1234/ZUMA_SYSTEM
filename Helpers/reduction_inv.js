@@ -29,38 +29,45 @@ const reduction_engine = (args) => {
     args.BARCODE_ID,
   ]);
   const TRANSACTIONID = args.TRANSACTIONID;
-
-  db(queries.development.getTransactionByID, [TRANSACTIONID], (err, result) => {
-    const newTransactionID = generateRandomID(12);
-    const argsReinit = {
-      EMPLOYEE_ID: args.EMPLOYEE_RESPONSIBLE,
-      PRODUCT_ID: result[0].PRODUCT_ID,
-      QUANTITY: result[0].QUANTITY,
-      TRANSACTIONID: newTransactionID,
-    };
-    local_service.addTransaction({ src: "consumption", args: argsReinit });
-    db(queries.development.addBarcodeInfoToTransaction, [
-      args.BARCODE_ID,
-      newTransactionID,
-    ]);
-    setTimeout(() => {
-      reduction_protocol.forEach((protocol, index) => {
-        reduction_type(result[0].QUANTITY, (type) => {
-          if (index + 1 == type) {
-            protocol({
-              quantity: result[0].QUANTITY,
-              product_id: result[0].PRODUCT_ID,
-              employee_id: args.EMPLOYEE_RESPONSIBLE,
-              BARCODE_ID: args.BARCODE_ID,
-              TRANSACTIONID: newTransactionID,
-              origin: "activation",
-            });
-          }
-        });
-      });
-    }, 300);
+  db(queries.tools.get_barcode_data, [args.BARCODE_ID], (err, result2) => {
+    db(
+      queries.development.getTransactionByID,
+      [TRANSACTIONID],
+      (err, result) => {
+        const newTransactionID = generateRandomID(12);
+        const argsReinit = {
+          EMPLOYEE_ID: args.EMPLOYEE_RESPONSIBLE,
+          PRODUCT_ID: result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
+          QUANTITY: result[0]?.QUANTITY ?? result2[0]?.Quantity,
+          TRANSACTIONID: newTransactionID,
+        };
+        local_service.addTransaction({ src: "consumption", args: argsReinit });
+        db(queries.development.addBarcodeInfoToTransaction, [
+          args.BARCODE_ID,
+          newTransactionID,
+        ]);
+        setTimeout(() => {
+          reduction_protocol.forEach((protocol, index) => {
+            reduction_type(
+              result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
+              (type) => {
+                if (index + 1 == type) {
+                  protocol({
+                    quantity: result[0]?.QUANTITY ?? result2[0]?.quantity,
+                    product_id: result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
+                    employee_id: args.EMPLOYEE_RESPONSIBLE,
+                    BARCODE_ID: args.BARCODE_ID,
+                    TRANSACTIONID: newTransactionID,
+                    origin: "activation",
+                  });
+                }
+              }
+            );
+          });
+        }, 300);
+      }
+    );
   });
-
   // setTimeout(() => {
   // }, 1500);
 };
@@ -70,7 +77,6 @@ const type1_reduction = (args) => {
     "Deducted",
     args.BARCODE_ID,
   ]);
-
   db(
     queries.product_release.insert_product_release_active,
     [

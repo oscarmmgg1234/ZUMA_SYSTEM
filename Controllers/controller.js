@@ -223,15 +223,17 @@ const shipment_add = (args, callback) => {
     helper.shipment_engine(element, (data) => {});
     if ((element.TYPE = "33")) {
       db_api.getEmployeeInfoByID(element.EMPLOYEE_ID, (data) => {
-        services.http_print_barcode({
-          PRODUCT_ID: args.PRODUCT_ID,
-          NAME: data[0].NAME,
-          QUANTITY: 1,
-          MULTIPLIER: `${element.QUANTITY}`,
-          PRODUCT_NAME: args.PRODUCT_NAME,
-          EMPLOYEE_ID: args.EMPLOYEE_ID,
-          SRC: "Active/Passive",
-          TRANSACTIONID: args.TRANSACTIONID,
+        db_api.get_product_by_id(element.PRODUCT_ID, (product) => {
+          services.http_print_barcode({
+            PRODUCT_ID: args.PRODUCT_ID,
+            NAME: data[0].NAME,
+            QUANTITY: 1,
+            MULTIPLIER: `${element.QUANTITY}`,
+            PRODUCT_NAME: product[0].NAME,
+            EMPLOYEE_ID: args.EMPLOYEE_ID,
+            SRC: "Active/Passive",
+            TRANSACTIONID: args.TRANSACTIONID,
+          });
         });
       });
     }
