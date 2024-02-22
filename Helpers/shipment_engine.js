@@ -14,7 +14,7 @@ const shipment_engine = (args) => {
     product_id: args.PRODUCT_ID,
     shipment_type: args.SHIPMENT_TYPE,
     arr: args.to_arr(),
-    TRANSACTIONID: args.TRANACTIONID,
+    TRANSACTIONID: args.TRANSACTIONID,
   };
   setTimeout(() => {
     shipment_protocol.forEach((protocol, index) => {

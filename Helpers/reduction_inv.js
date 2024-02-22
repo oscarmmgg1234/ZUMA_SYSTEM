@@ -53,7 +53,7 @@ const reduction_engine = (args) => {
               (type) => {
                 if (index + 1 == type) {
                   protocol({
-                    quantity: result[0]?.QUANTITY ?? result2[0]?.quantity,
+                    quantity: result[0]?.QUANTITY ?? result2[0]?.Quantity,
                     product_id: result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
                     employee_id: args.EMPLOYEE_RESPONSIBLE,
                     BARCODE_ID: args.BARCODE_ID,
@@ -116,8 +116,14 @@ const type2_reduction = (args) => {
   ]);
 
   db(
-    queries.product_release.insert_product_release,
-    [args.product_id, args.quantity, args.employee_id, args.TRANSACTIONID],
+    queries.product_release.insert_product_release_active,
+    [
+      args.product_id,
+      args.quantity,
+      args.employee_id,
+      args.TRANSACTIONID,
+      args.origin,
+    ],
     (err) => {
       if (err) {
         console.log(err);

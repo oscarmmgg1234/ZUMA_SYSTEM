@@ -230,7 +230,7 @@ const shipment_add = (args, callback) => {
             QUANTITY: 1,
             MULTIPLIER: `${element.QUANTITY}`,
             PRODUCT_NAME: product[0].NAME,
-            EMPLOYEE_ID: args.EMPLOYEE_ID,
+            EMPLOYEE_ID: element.EMPLOYEE_ID,
             SRC: "Active/Passive",
             TRANSACTIONID: args.TRANSACTIONID,
           });
