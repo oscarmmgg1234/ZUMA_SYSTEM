@@ -38,7 +38,7 @@ const glycerinException = (args) => {
         args.TRANSACTIONID,
       ]);
       db(
-        queries.product_release.get_quantity_by_stored_id_active,
+        queries.product_release.get_quantity_by_stored_id_storage,
         [component.PRODUCT_ID],
         (err, result) => {
           if (err) {
@@ -46,7 +46,7 @@ const glycerinException = (args) => {
           } else {
             //update product inventory base
             db(queries.product_inventory.update_activation, [
-              result[0].ACTIVE_STOCK - args.quantity,
+              result[0].STORED_STOCK - args.quantity,
               component.PRODUCT_ID,
             ]);
           }
