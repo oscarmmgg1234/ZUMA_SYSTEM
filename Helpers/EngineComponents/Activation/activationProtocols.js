@@ -55,7 +55,12 @@ const glycerinException = (args) => {
     if (engineHelper.productType(component.NAME) == 1) {
       db(
         queries.product_release.insert_product_release,
-        [component.PRODUCT_ID, args.quantity, args.employee_id, args.TRANSACTIONID],
+        [
+          component.PRODUCT_ID,
+          args.quantity,
+          args.employee_id,
+          args.TRANSACTIONID,
+        ],
         (err) => {
           if (err) console.log(err);
         }
@@ -153,7 +158,7 @@ const glycerinException = (args) => {
             ? glycerinComsump30ml
             : glycerinComsump50ml,
           args.employee_id,
-          args.TRANSACTIONID 
+          args.TRANSACTIONID,
         ],
         (err) => {
           if (err) console.log(err);
@@ -336,6 +341,7 @@ const Type2_Protocol = (args, exceptions) => {
           args.product_id,
           args.quantity,
           args.employee_id,
+          args.TRANSACTIONID,
         ]);
         db(
           queries.product_release.get_quantity_by_stored_id_active,
@@ -356,7 +362,7 @@ const Type2_Protocol = (args, exceptions) => {
           "rdg43qgy",
           args.quantity,
           args.employee_id,
-          args.TRANSACTIONID
+          args.TRANSACTIONID,
         ]);
         db(
           queries.product_release.get_quantity_by_stored_id_storage,
@@ -391,13 +397,14 @@ const Type2_Protocol = (args, exceptions) => {
           "c8b7621f",
           productConsumption30ml(args.quantity),
           args.employee_id,
-          args.TRANSACTIONID
+          args.TRANSACTIONID,
         ]);
       } else if (args.product_id == "342fr32e") {
         db(queries.activation_product.product_activation_liquid, [
           args.product_id,
           args.quantity,
           args.employee_id,
+          args.TRANSACTIONID,
         ]);
         db(
           queries.product_release.get_quantity_by_stored_id_active,
@@ -418,7 +425,7 @@ const Type2_Protocol = (args, exceptions) => {
           "23dwsg5h",
           args.quantity,
           args.employee_id,
-          args.TRANSACTIONID
+          args.TRANSACTIONID,
         ]);
         db(
           queries.product_release.get_quantity_by_stored_id_storage,
@@ -453,7 +460,7 @@ const Type2_Protocol = (args, exceptions) => {
           "c8b7621f",
           productConsumption30ml(args.quantity),
           args.employee_id,
-          args.TRANSACTIONID
+          args.TRANSACTIONID,
         ]);
 
         // pet feline
@@ -576,7 +583,7 @@ const Type4_Protocol = (args, exceptions) => {
             component.PRODUCT_ID,
             args.quantity * amount,
             args.employee_id,
-            args.TRANSACTIONID,     
+            args.TRANSACTIONID,
           ]);
         } else if (engineHelper.productType(component.NAME) == 1) {
           db(
@@ -592,7 +599,7 @@ const Type4_Protocol = (args, exceptions) => {
                   component.PRODUCT_ID,
                   args.quantity,
                   args.employee_id,
-                  args.TRANSACTIONID
+                  args.TRANSACTIONID,
                 ]);
               }
             }
@@ -618,7 +625,7 @@ const Type5_Protocol = (args, exceptions) => {
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
-        args.TRANSACTIONID
+        args.TRANSACTIONID,
       ]);
       db(
         queries.product_release.get_quantity_by_stored_id_active,
@@ -642,7 +649,7 @@ const Type5_Protocol = (args, exceptions) => {
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
-        args.TRANSACTIONID
+        args.TRANSACTIONID,
       ]);
       db(
         queries.product_release.get_quantity_by_stored_id_storage,
@@ -681,7 +688,7 @@ const Type5_Protocol = (args, exceptions) => {
         component.PRODUCT_ID,
         productConsumption50ml(args.quantity),
         args.employee_id,
-        args.TRANSACTIONID
+        args.TRANSACTIONID,
       ]);
     }
   });
