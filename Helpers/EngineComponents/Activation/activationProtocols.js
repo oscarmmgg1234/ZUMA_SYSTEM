@@ -240,7 +240,165 @@ const Type1_Protocol = (args, exceptions) => {
         }
       });
     } else {
-      glycerinException(args); // Call glycerinException for exceptions
+      //laundry detergent-----------------------------------------------------
+      args.product_components.forEach((component) => {
+        if ("78c8da4d" == args.product_id) {
+          if (engineHelper.productType(component.NAME) == 0) {
+            //product protocol
+            db(queries.activation_product.product_activation_liquid, [
+              "78c8da4d",
+              args.quantity,
+              args.employee_id,
+              args.TRANSACTIONID,
+            ]);
+            db(
+              queries.product_release.get_quantity_by_stored_id_active,
+              ["78c8da4d"],
+              (err, result) => {
+                if (err) {
+                  console.log(err);
+                } else {
+                  //update product inventory base
+                  db(queries.product_inventory.update_activation, [
+                    result[0].ACTIVE_STOCK + args.quantity,
+                    "78c8da4d",
+                  ]);
+                }
+              }
+            );
+            ////---
+            db(
+              queries.product_release.get_quantity_by_stored_id_storage,
+              ["e65b9756"],
+              (err, result) => {
+                if (err) {
+                  console.log(err);
+                } else {
+                  //update product inventory base
+                  db(queries.product_inventory.update_activation_stored, [
+                    result[0].STORED_STOCK - args.quantity,
+                    "e65b9756",
+                  ]);
+                }
+              }
+            );
+
+            //insert log for product release body wash
+            db(
+              queries.product_release.insert_product_release,
+              ["e65b9756", args.quantity, args.employee_id, args.TRANSACTIONID],
+              (err) => {
+                if (err) {
+                  console.log(err);
+                }
+              }
+            );
+          }
+
+          //
+
+          if (engineHelper.productType(component.NAME) == 1) {
+            db(
+              queries.product_release.insert_product_release,
+              ["4f6d1af3", args.quantity, args.employee_id, args.TRANSACTIONID],
+              (err) => {}
+            );
+            db(
+              queries.product_release.get_quantity_by_stored_id_storage,
+              ["4f6d1af3"],
+              (err, result) => {
+                if (err) {
+                  console.log(err);
+                } else {
+                  //update product inventory base
+                  db(queries.product_inventory.update_consumption_stored, [
+                    result[0].STORED_STOCK - args.quantity,
+                    "4f6d1af3",
+                  ]);
+                }
+              }
+            );
+            //label protocol
+          }
+        }
+
+        if ("4d1f188e" == args.product_id) {
+          if (engineHelper.productType(component.NAME) == 0) {
+            db(queries.activation_product.product_activation_liquid, [
+              "4d1f188e",
+              args.quantity,
+              args.employee_id,
+              args.TRANSACTIONID,
+            ]);
+            db(
+              queries.product_release.get_quantity_by_stored_id_active,
+              ["4d1f188e"],
+              (err, result) => {
+                if (err) {
+                  console.log(err);
+                } else {
+                  //update product inventory base
+                  db(queries.product_inventory.update_activation, [
+                    result[0].ACTIVE_STOCK + args.quantity,
+                    "4d1f188e",
+                  ]);
+                }
+              }
+            );
+            db(
+              queries.product_release.get_quantity_by_stored_id_storage,
+              ["5f21a6fe"],
+              (err, result) => {
+                if (err) {
+                  console.log(err);
+                } else {
+                  //update product inventory base
+                  db(queries.product_inventory.update_activation_stored, [
+                    result[0].STORED_STOCK - args.quantity,
+                    "5f21a6fe",
+                  ]);
+                }
+              }
+            );
+
+            //insert log for product release body wash
+            db(
+              queries.product_release.insert_product_release,
+              ["5f21a6fe", args.quantity, args.employee_id, args.TRANSACTIONID],
+              (err) => {
+                if (err) {
+                  console.log(err);
+                }
+              }
+            );
+          }
+
+          if (engineHelper.productType(component.NAME) == 1) {
+            db(
+              queries.product_release.insert_product_release,
+              ["62c42a38", args.quantity, args.employee_id, args.TRANSACTIONID],
+              (err) => {}
+            );
+            db(
+              queries.product_release.get_quantity_by_stored_id_storage,
+              ["62c42a38"],
+              (err, result) => {
+                if (err) {
+                  console.log(err);
+                } else {
+                  //update product inventory base
+                  db(queries.product_inventory.update_consumption_stored, [
+                    result[0].STORED_STOCK - args.quantity,
+                    "62c42a38",
+                  ]);
+                }
+              }
+            );
+          }
+        }
+      });
+
+      //glycerinException(args); // Call glycerinException for exceptions
     }
   } catch (err) {
     console.log(err);
