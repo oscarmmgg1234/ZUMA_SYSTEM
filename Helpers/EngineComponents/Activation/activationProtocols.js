@@ -6,10 +6,7 @@ const { EngineProcessHandler } = require("./EngineProcessHandler.js");
 const engineProcessHandler = new EngineProcessHandler();
 const engineHelper = activationEngineComponents;
 
-const ml_to_gallon = 3785.41;
-const glycerin_in_mlperGal = 768.912;
-const productGallonGlyrcerin = ml_to_gallon + glycerin_in_mlperGal;
-const glycerinBottle = 9463.53;
+
 
 const glycerinConsumption50ml = (productQuantity) => {
   return (

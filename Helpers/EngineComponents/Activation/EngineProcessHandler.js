@@ -66,6 +66,7 @@ class EngineProcessHandler {
   };
 
   Activation = {
+    activation_kukista_proc: (args, component) => {},
     activation_type3_proc: (args, component) => {
       db(queries.activation_product.product_activation_liquid, [
         component.PRODUCT_ID,
