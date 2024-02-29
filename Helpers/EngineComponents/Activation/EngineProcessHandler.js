@@ -1,16 +1,13 @@
 const { db } = require("../../../DB/db_init.js");
+const { db_async } = require("../../../DB/db_init.js");
+const { db_pool } = require("../../../DB/db_init.js");
 const { queries } = require("../../../DB/queries.js");
 const { activationEngineComponents } = require("./activationEngine.js");
 const engineHelper = activationEngineComponents;
 
 class EngineProcessHandler {
-  constructor() {
-    this.queries_to_execute = new Array();
-  }
+  constructor() {}
 
-  clearQueries = () => {
-    this.queries_to_execute = new Array();
-  };
   //calculate the amount of glycerin used for the product amount
   glycerinCompsumption = (
     glycerinBottleAmountGALLONS,
@@ -39,296 +36,240 @@ class EngineProcessHandler {
     return (productBottleSize * productQuantity) / productBaseGallon_toMill;
   };
 
-  dbTransactionExecute = (callback) => {
-    db("BEGIN");
-    this.queries_to_execute.forEach((query) => {
-      query();
-    });
-    db("COMMIT", (err) => {
-      if (err) {
-        db("ROLLBACK");
-        this.clearQueries();
-        return callback({
-          status: false,
-          message: "Error executing queries...Rolling back",
-        });
-      }
-      this.clearQueries();
-      return callback({
-        status: true,
-        message: "Queries executed successfully",
-      });
-    });
-  };
-
-  addQuery = (query) => {
-    this.queries_to_execute.push(query);
-  };
-
   Activation = {
-    activation_kukista_proc: (args, component) => {},
-    activation_type3_proc: (args, component) => {
-      db(queries.activation_product.product_activation_liquid, [
+    activation_kukista_proc: async (args, component) => {},
+    activation_type3_proc: async (args, component) => {
+      await db_async(queries.activation_product.product_activation_liquid, [
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
         args.TRANSACTIONID,
       ]);
-      db(
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_active,
-        [component.PRODUCT_ID],
-        (err, result) => {
-          if (!err) {
-            db(queries.product_inventory.update_activation, [
-              result[0].ACTIVE_STOCK +
-                (engineHelper.productMLType(component.NAME) == 0
-                  ? args.quantity
-                  : 0.6 * args.quantity),
-              component.PRODUCT_ID,
-            ]);
-          }
-        }
+        [component.PRODUCT_ID]
       );
+
+      await db_async(queries.product_inventory.update_activation, [
+        result[0].ACTIVE_STOCK +
+          (engineHelper.productMLType(component.NAME) == 0
+            ? args.quantity
+            : 0.6 * args.quantity),
+        component.PRODUCT_ID,
+      ]);
     },
-    activation_main_proc: (args, component) => {
-      db(queries.activation_product.product_activation_liquid, [
+    activation_main_proc: async (args, component) => {
+      await db_async(queries.activation_product.product_activation_liquid, [
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
         args.TRANSACTIONID,
       ]);
-      db(
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_active,
-        [component.PRODUCT_ID],
-        (err, result) => {
-          if (err) {
-            console.log(err);
-          } else {
-            db(queries.product_inventory.update_activation, [
-              result[0].ACTIVE_STOCK + args.quantity,
-              component.PRODUCT_ID,
-            ]);
-          }
-        }
+        [component.PRODUCT_ID]
       );
+      await db_async(queries.product_inventory.update_activation, [
+        result[0].ACTIVE_STOCK + args.quantity,
+        component.PRODUCT_ID,
+      ]);
     },
-    activation_custom_product_proc: (args, product_id) => {
-      db(queries.activation_product.product_activation_liquid, [
+    activation_custom_product_proc: async (args, product_id) => {
+      await db_async(queries.activation_product.product_activation_liquid, [
         product_id,
         args.quantity,
         args.employee_id,
         args.TRANSACTIONID,
       ]);
-      db(
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_active,
-        [product_id],
-        (err, result) => {
-          if (err) {
-            console.log(err);
-          } else {
-            db(queries.product_inventory.update_activation, [
-              result[0].ACTIVE_STOCK + args.quantity,
-              product_id,
-            ]);
-          }
-        }
+        [product_id]
       );
+      await db_async(queries.product_inventory.update_activation, [
+        result[0].ACTIVE_STOCK + args.quantity,
+        product_id,
+      ]);
     },
   };
 
   Release = {
-    release_cream_proc: (args, component) => {
-      db(
+    release_cream_proc: async (args, component) => {
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_storage,
-        [component.PRODUCT_ID],
-        (err, result) => {
-          if (!err) {
-            db(queries.product_inventory.update_consumption_stored, [
-              result[0].STORED_STOCK -
-                this.productConsumption(50, args.quantity, 1),
-              component.PRODUCT_ID,
-            ]);
-          } else {
-            console.log(err);
-          }
-        }
+        [component.PRODUCT_ID]
       );
+      await db_async(queries.product_inventory.update_consumption_stored, [
+        result[0].STORED_STOCK - this.productConsumption(50, args.quantity, 1),
+        component.PRODUCT_ID,
+      ]);
 
-      db(queries.product_release.insert_product_release, [
+      await db_async(queries.product_release.insert_product_release, [
         component.PRODUCT_ID,
         productConsumption50ml(args.quantity),
         args.employee_id,
         args.TRANSACTIONID,
       ]);
     },
-    release_type3_proc: (args, component) => {
-      db(
+    release_type3_proc: async (args, component) => {
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_storage,
-        ["c064f810"],
-        (err, result) => {
-          if (!err) {
-            db(queries.product_inventory.update_activation_stored, [
-              result[0].STORED_STOCK -
-                (engineHelper.productMLType(component.NAME) == 0
-                  ? args.quantity
-                  : 0.6 * args.quantity),
-              "c064f810",
-            ]);
-          }
-        }
+        ["c064f810"]
       );
+      await db_async(queries.product_inventory.update_activation_stored, [
+        result[0].STORED_STOCK -
+          (engineHelper.productMLType(component.NAME) == 0
+            ? args.quantity
+            : 0.6 * args.quantity),
+        "c064f810",
+      ]);
     },
-    release_base_proc: (args, component) => {
-      db(queries.product_release.insert_product_release, [
+    release_base_proc: async (args, component) => {
+      await db_async(queries.product_release.insert_product_release, [
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
         args.TRANSACTIONID,
       ]);
-      db(
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_storage,
-        [component.PRODUCT_ID],
-        (err, result) => {
-          if (err) {
-            console.log(err);
-          } else {
-            db(queries.product_inventory.update_consumption_stored, [
-              result[0].STORED_STOCK - args.quantity,
-              component.PRODUCT_ID,
-            ]);
-          }
-        }
+        [component.PRODUCT_ID]
       );
+      await db_async(queries.product_inventory.update_consumption_stored, [
+        result[0].STORED_STOCK - args.quantity,
+        component.PRODUCT_ID,
+      ]);
     },
-    release_base_custom_product_proc: (args, product_id) => {
-      db(queries.product_release.insert_product_release, [
+    release_base_custom_product_proc: async (args, product_id) => {
+      await db_async(queries.product_release.insert_product_release, [
         product_id,
         args.quantity,
         args.employee_id,
         args.TRANSACTIONID,
       ]);
-      db(
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_storage,
-        [product_id],
-        (err, result) => {
-          if (err) {
-            console.log(err);
-          } else {
-            db(queries.product_inventory.update_consumption_stored, [
-              result[0].STORED_STOCK - args.quantity,
-              product_id,
-            ]);
-          }
-        }
+        [product_id]
       );
+      await db_async(queries.product_inventory.update_consumption_stored, [
+        result[0].STORED_STOCK - args.quantity,
+        product_id,
+      ]);
     },
 
-    release_label_proc: (args, component) => {
-      db(queries.product_release.insert_product_release, [
+    release_label_proc: async (args, component) => {
+      await db_async(queries.product_release.insert_product_release, [
         component.PRODUCT_ID,
         args.quantity,
         args.employee_id,
         args.TRANSACTIONID,
       ]);
-      db(
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_storage,
-        [component.PRODUCT_ID],
-        (err, result) => {
-          if (err) {
-            console.log(err);
-          } else {
-            db(queries.product_inventory.update_consumption_stored, [
-              result[0].STORED_STOCK - args.quantity,
-              component.PRODUCT_ID,
-            ]);
-          }
-        }
+        [component.PRODUCT_ID]
       );
+      console.log(result);
+      await db_async(queries.product_inventory.update_consumption_stored, [
+        result[0].STORED_STOCK - args.quantity,
+        component.PRODUCT_ID,
+      ]);
     },
-    release_label_custom_product_proc: (args, product_id) => {
-      db(queries.product_release.insert_product_release, [
+    release_label_custom_product_proc: async (args, product_id) => {
+      await db_async(queries.product_release.insert_product_release, [
         product_id,
         args.quantity,
         args.employee_id,
         args.TRANSACTIONID,
       ]);
-      db(
+      const result = db_async(
         queries.product_release.get_quantity_by_stored_id_storage,
-        [product_id],
-        (err, result) => {
-          if (err) {
-            console.log(err);
-          } else {
-            db(queries.product_inventory.update_consumption_stored, [
-              result[0].STORED_STOCK - args.quantity,
-              product_id,
-            ]);
-          }
-        }
+        [product_id]
       );
+      await db_async(queries.product_inventory.update_consumption_stored, [
+        result[0].STORED_STOCK - args.quantity,
+        product_id,
+      ]);
     },
-    release_pills_proc: (args, component, amount) => {
-      db(
+    release_pills_proc: async (args, component, amount) => {
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_storage,
-        [component.PRODUCT_ID],
-        (err, result) => {
-          if (!err) {
-            db(queries.product_inventory.update_activation_stored, [
-              result[0].STORED_STOCK - args.quantity * amount,
-              component.PRODUCT_ID,
-            ]);
-          }
-        }
+        [component.PRODUCT_ID]
       );
-      db(queries.product_release.insert_product_release, [
+      await db_async(queries.product_inventory.update_activation_stored, [
+        result[0].STORED_STOCK - args.quantity * amount,
+        component.PRODUCT_ID,
+      ]);
+      await db_async(queries.product_release.insert_product_release, [
         component.PRODUCT_ID,
         args.quantity * amount,
         args.employee_id,
         args.TRANSACTIONID,
       ]);
     },
-    release_glycerin_proc: (args, component) => {
-      db(
+    release_glycerin_proc: async (args, component) => {
+      const result = await db_async(
         queries.product_release.get_quantity_by_stored_id_storage,
-        ["14aa3aba"],
-        (err, result) => {
-          if (err) {
-            console.log(err);
-          } else {
-            //update product inventory base
-            db(
-              queries.product_inventory.update_consumption_stored,
-              [
-                result[0].STORED_STOCK -
-                  (engineHelper.productMLType(args.product_name) == 1
-                    ? this.glycerinCompsumption(1, 26, args.quantity, 30)
-                    : this.glycerinCompsumption(1, 26, args.quantity, 50)),
-                "14aa3aba",
-              ],
-              (err) => {
-                if (err) console.log(err);
-              }
-            );
-          }
-        }
+        ["14aa3aba"]
       );
-
-      db(
-        queries.product_release.insert_product_release,
-        [
-          "14aa3aba",
-          engineHelper.productMLType(args.product_name) == 1
+      await db_async(queries.product_inventory.update_consumption_stored, [
+        result[0].STORED_STOCK -
+          (engineHelper.productMLType(args.product_name) == 1
             ? this.glycerinCompsumption(1, 26, args.quantity, 30)
-            : this.glycerinCompsumption(1, 26, args.quantity, 50),
-          args.employee_id,
-          args.TRANSACTIONID,
-        ],
-        (err) => {
-          if (err) console.log(err);
-        }
-      );
+            : this.glycerinCompsumption(1, 26, args.quantity, 50)),
+        "14aa3aba",
+      ]);
+
+      await db_async(queries.product_release.insert_product_release, [
+        "14aa3aba",
+        engineHelper.productMLType(args.product_name) == 1
+          ? this.glycerinCompsumption(1, 26, args.quantity, 30)
+          : this.glycerinCompsumption(1, 26, args.quantity, 50),
+        args.employee_id,
+        args.TRANSACTIONID,
+      ]);
     },
   };
 }
+
+const beginTransaction = async () => {
+  return new Promise((resolve, reject) => {
+    db("BEGIN", (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
+const commitTransaction = async (callback) => {
+  db("COMMIT", (result, err) => {
+    if (err) {
+      db("ROLLBACK", (err) => {
+        if (err) {
+          return callback({
+            status: false,
+            message: "commit failed...rollback failed",
+          });
+        }
+      });
+    } else {
+      console.log(result);
+      return callback({ status: true, message: "commit was a sucess" });
+    }
+  });
+};
+
+const dbTransactionExecute = async (args, callback) => {
+  db_pool.getConnection(async (err, connection) => {
+    await beginTransaction(connection);
+    await args(connection);
+    commitTransaction((result) => {
+      return callback(result);
+    });
+  });
+};
+
+exports.dbTransactionExecute = dbTransactionExecute;
 
 exports.EngineProcessHandler = EngineProcessHandler;

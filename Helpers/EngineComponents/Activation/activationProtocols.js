@@ -2,155 +2,124 @@ const { db } = require("../../../DB/db_init.js");
 const { queries } = require("../../../DB/queries.js");
 const { activationEngineComponents } = require("./activationEngine.js");
 const { EngineProcessHandler } = require("./EngineProcessHandler.js");
+const { dbTransactionExecute } = require("./EngineProcessHandler.js");
 
 const engineProcessHandler = new EngineProcessHandler();
 const engineHelper = activationEngineComponents;
 
-
-
-const glycerinConsumption50ml = (productQuantity) => {
-  return (
-    (((50 * productQuantity) / productGallonGlyrcerin) * glycerin_in_mlperGal) /
-    glycerinBottle
-  );
-};
-const glycerinConsumption30ml = (productQuantity) => {
-  return (
-    (((30 * productQuantity) / productGallonGlyrcerin) * glycerin_in_mlperGal) /
-    glycerinBottle
-  );
-};
-
-const productConsumption50ml = (productQuantity) => {
-  return (50 * productQuantity) / ml_to_gallon;
-};
-const productConsumption30ml = (productQuantity) => {
-  return (30 * productQuantity) / ml_to_gallon;
-};
-
 const glycerinException = (args) => {
-  args.product_components.forEach((component) => {
-    if (engineHelper.productType(component.NAME) == 0) {
-      engineProcessHandler.addQuery(() =>
-        engineProcessHandler.Activation.activation_main_proc(args, component)
-      );
-    }
-    if (engineHelper.productType(component.NAME) == 1) {
-      engineProcessHandler.addQuery(() =>
-        engineProcessHandler.Release.release_label_proc(args, component)
-      );
-    }
-    if (engineHelper.productType(component.NAME) == 2) {
-      engineProcessHandler.addQuery(() =>
-        engineProcessHandler.Release.release_glycerin_proc(args, component)
-      );
-    }
-  });
-  setTimeout(() => {
-    engineProcessHandler.dbTransactionExecute((result) => {
-      console.log(result);
+  const proc = () => {
+    return new Promise((resolve, reject) => {
+      args.product_components.forEach((component, index) => {
+        if (engineHelper.productType(component.NAME) == 0) {
+          engineProcessHandler.Activation.activation_main_proc(args, component);
+        }
+        if (engineHelper.productType(component.NAME) == 1) {
+          engineProcessHandler.Release.release_label_proc(args, component);
+        }
+        if (engineHelper.productType(component.NAME) == 2) {
+          engineProcessHandler.Release.release_glycerin_proc(args, component);
+        }
+        if (index == args.product_components.length - 1) {
+          resolve();
+        }
+      });
     });
-  }, 200);
+  };
+  dbTransactionExecute(proc, (result) => {
+    console.log(result);
+  });
 };
 
 let success = { status: true, message: "success" };
 
 const Type1_Protocol = (args, exceptions) => {
-  try {
-    if (!exceptions.includes(args.product_id)) {
-      args.product_components.forEach((component) => {
-        const productType = engineHelper.productType(component.NAME);
-        if (productType === 0) {
-          engineProcessHandler.addQuery(() => {
-            engineProcessHandler.Activation.activation_main_proc(
-              args,
-              component
-            );
-          });
-          engineProcessHandler.addQuery(() => {
-            engineProcessHandler.Release.release_base_proc(args, component);
-          });
-        } else if (productType === 1) {
-          engineProcessHandler.addQuery(() => {
-            engineProcessHandler.Release.release_label_proc(args, component);
-          });
-        }
-      });
-      setTimeout(() => {
-        engineProcessHandler.dbTransactionExecute((result) => {
-          console.log(result);
-        });
-      }, 200);
-    } else {
-      //laundry detergent-----------------------------------------------------
-      args.product_components.forEach((component) => {
-        if ("78c8da4d" == args.product_id) {
-          if (engineHelper.productType(component.NAME) == 0) {
-            //product protocol
-            engineProcessHandler.addQuery(() => {
+  const proc = () => {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!exceptions.includes(args.product_id)) {
+          args.product_components.forEach((component, index) => {
+            const productType = engineHelper.productType(component.NAME);
+            if (productType === 0) {
               engineProcessHandler.Activation.activation_main_proc(
                 args,
                 component
               );
-            });
-            ////---
-            engineProcessHandler.addQuery(() => {
-              engineProcessHandler.Release.release_base_custom_product_proc(
-                args,
-                "e65b9756"
-              );
-            });
-            //
+
+              engineProcessHandler.Release.release_base_proc(args, component);
+            } else if (productType === 1) {
+              engineProcessHandler.Release.release_label_proc(args, component);
+            }
+          });
+          if (index == args.product_components.length - 1) {
+            resolve();
           }
-          if (engineHelper.productType(component.NAME) == 1) {
-            engineProcessHandler.Release.release_label_custom_product_proc(
-              args,
-              "4f6d1af3"
-            );
-            //label protocol
+        } else {
+          //laundry detergent-----------------------------------------------------
+          args.product_components.forEach((component) => {
+            if ("78c8da4d" == args.product_id) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                //product protocol
+
+                engineProcessHandler.Activation.activation_main_proc(
+                  args,
+                  component
+                );
+
+                ////---
+
+                engineProcessHandler.Release.release_base_custom_product_proc(
+                  args,
+                  "e65b9756"
+                );
+
+                //
+              }
+              if (engineHelper.productType(component.NAME) == 1) {
+                engineProcessHandler.Release.release_label_custom_product_proc(
+                  args,
+                  "4f6d1af3"
+                );
+                //label protocol
+              }
+            }
+
+            if ("4d1f188e" == args.product_id) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                engineProcessHandler.Activation.activation_custom_product_proc(
+                  args,
+                  "4d1f188e"
+                );
+
+                engineProcessHandler.Release.release_base_custom_product_proc(
+                  args,
+                  "5f21a6fe"
+                );
+              }
+
+              if (engineHelper.productType(component.NAME) == 1) {
+                engineProcessHandler.Release.release_label_custom_product_proc(
+                  args,
+                  "62c42a38"
+                );
+              }
+            }
+          });
+          if (index == args.product_components.length - 1) {
+            resolve();
           }
+          //glycerinException(args); // Call glycerinException for exceptions
         }
-
-        if ("4d1f188e" == args.product_id) {
-          if (engineHelper.productType(component.NAME) == 0) {
-            engineProcessHandler.addQuery(() => {
-              engineProcessHandler.Activation.activation_custom_product_proc(
-                args,
-                "4d1f188e"
-              );
-            });
-
-            engineProcessHandler.addQuery(() => {
-              engineProcessHandler.Release.release_base_custom_product_proc(
-                args,
-                "5f21a6fe"
-              );
-            });
-          }
-
-          if (engineHelper.productType(component.NAME) == 1) {
-            engineProcessHandler.addQuery(() => {
-              engineProcessHandler.Release.release_label_custom_product_proc(
-                args,
-                "62c42a38"
-              );
-            });
-          }
-        }
-      });
-      setTimeout(() => {
-        engineProcessHandler.dbTransactionExecute((result) => {
-          console.log(result);
-        });
-      }, 200);
-
-      //glycerinException(args); // Call glycerinException for exceptions
-    }
-  } catch (err) {
-    console.log(err);
-    success.status = false;
-    success.message = `error running type 1 protocol for product ${args.product_name}`;
-  }
+      } catch (err) {
+        console.log(err);
+        success.status = false;
+        success.message = `error running type 1 protocol for product ${args.product_name}`;
+      }
+    });
+  };
+  dbTransactionExecute(proc, (result) => {
+    console.log(result);
+  });
 };
 
 const Type2_Protocol = (args, exceptions) => {
@@ -161,19 +130,12 @@ const Type2_Protocol = (args, exceptions) => {
 
         // Product Type 0: Activation Liquid
         if (productType === 0) {
-          engineProcessHandler.addQuery(() =>
-            engineProcessHandler.Activation.activation_main_proc(
-              args,
-              component
-            )
-          );
+          engineProcessHandler.Activation.activation_main_proc(args, component);
         }
 
         // Product Type 1: Product Release
         else if (productType === 1) {
-          engineProcessHandler.addQuery(() =>
-            engineProcessHandler.Release.release_label_proc(args, component)
-          );
+          engineProcessHandler.Release.release_label_proc(args, component);
         }
 
         // Product Type 2: Custom Logic for Product Consumption
@@ -354,16 +316,10 @@ const Type3_Protocol = (args, exceptions) => {
   try {
     args.product_components.forEach((component) => {
       if (engineHelper.productType(component.NAME) == 0) {
-        engineProcessHandler.addQuery(() =>
-          engineProcessHandler.Activation.activation_type3_proc(args, component)
-        );
-        engineProcessHandler.addQuery(() =>
-          engineProcessHandler.Release.release_type3_proc(args, component)
-        );
+        engineProcessHandler.Activation.activation_type3_proc(args, component);
+        engineProcessHandler.Release.release_type3_proc(args, component);
       } else if (engineHelper.productType(component.NAME) == 1) {
-        engineProcessHandler.addQuery(() =>
-          engineProcessHandler.Release.release_label_proc(args, component)
-        );
+        engineProcessHandler.Release.release_label_proc(args, component);
       }
     });
     setTimeout(() => {
@@ -378,70 +334,64 @@ const Type3_Protocol = (args, exceptions) => {
 };
 // Type 4 Protocol
 const Type4_Protocol = (args, exceptions) => {
-  try {
+  const proc = async () => {
     engineHelper.pillBaseAmount(args.product_name, (amount) => {
-      args.product_components.forEach((component) => {
+      args.product_components.forEach(async (component, index) => {
         if (engineHelper.productType(component.NAME) == 0) {
-          engineProcessHandler.addQuery(() =>
-            engineProcessHandler.Activation.activation_main_proc(
-              args,
-              component
-            )
+          await engineProcessHandler.Activation.activation_main_proc(
+            args,
+            component
           );
-          engineProcessHandler.addQuery(() =>
-            engineProcessHandler.Release.release_pills_proc(
-              args,
-              component,
-              amount
-            )
+
+          await engineProcessHandler.Release.release_pills_proc(
+            args,
+            component,
+            amount
           );
         } else if (engineHelper.productType(component.NAME) == 1) {
-          engineProcessHandler.addQuery(() =>
-            engineProcessHandler.Release.release_label_proc(args, component)
+          await engineProcessHandler.Release.release_label_proc(
+            args,
+            component
           );
+        }
+        if (index == args.product_components.length - 1) {
+          console.log("resolve");
         }
       });
     });
-    setTimeout(() => {
-      engineProcessHandler.dbTransactionExecute((result) => {
-        console.log(result);
-      });
-    }, 200);
-  } catch (err) {
-    console.log(err);
-  }
+  };
+
+  dbTransactionExecute(proc, (result) => {
+    console.log(result);
+  });
 };
 
 const Type5_Protocol = (args, exceptions) => {
-  args.product_components.forEach((component) => {
-    const productType = engineHelper.productType(component.NAME);
-
-    // Product Type 0: Activation Liquid
-    if (productType === 0) {
-      engineProcessHandler.addQuery(() =>
-        engineProcessHandler.Activation.activation_main_proc(args, component)
-      );
-    }
-
-    // Product Type 1: Label
-    else if (productType === 1) {
-      engineProcessHandler.addQuery(() =>
-        engineProcessHandler.Release.release_label_proc(args, component)
-      );
-    }
-
-    // Product Type 2: Custom Logic
-    else if (productType === 2) {
-      engineProcessHandler.addQuery(() =>
-        engineProcessHandler.Release.release_cream_proc(args, component)
-      );
-    }
-  });
-  setTimeout(() => {
-    engineProcessHandler.dbTransactionExecute((result) => {
-      console.log(result);
+  const proc = () => {
+    return new Promise((resolve, reject) => {
+      args.product_components.forEach((component, index) => {
+        const productType = engineHelper.productType(component.NAME);
+        // Product Type 0: Activation Liquid
+        if (productType === 0) {
+          engineProcessHandler.Activation.activation_main_proc(args, component);
+        }
+        // Product Type 1: Label
+        else if (productType === 1) {
+          engineProcessHandler.Release.release_label_proc(args, component);
+        }
+        // Product Type 2: Custom Logic
+        else if (productType === 2) {
+          engineProcessHandler.Release.release_cream_proc(args, component);
+        }
+        if (index == args.product_components.length - 1) {
+          resolve();
+        }
+      });
     });
-  }, 200);
+  };
+  dbTransactionExecute(proc, (result) => {
+    console.log(result);
+  });
 };
 
 exports.activationProtocols = () => {

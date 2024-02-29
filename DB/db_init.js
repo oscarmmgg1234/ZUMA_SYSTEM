@@ -65,3 +65,72 @@ exports.db = (query, args, callback) => {
     }
   });
 };
+
+exports.db_async = async (query, args, con = null) => {
+  if (!con) {
+    return new Promise((resolve, reject) => {
+      pool.getConnection(async (err, connection) => {
+        if (err) {
+          console.error("Error getting database connection:", err.message);
+          reject(err);
+          return;
+        }
+
+        const handleQuery = (err, results) => {
+          connection.release();
+          if (err) {
+            console.error("Error executing query:", err.message);
+            reject(err);
+            return;
+          }
+          resolve(results);
+        };
+
+        try {
+          // Check if 'args' is defined and not an empty array, then pass it to the query
+          if (args && args.length > 0) {
+            connection.query(query, args, handleQuery);
+          } else {
+            // If 'args' is undefined or an empty array, execute the query without it
+            connection.query(query, handleQuery);
+          }
+        } catch (err) {
+          console.error("Error executing query:", err.message);
+          reject(err);
+        }
+      });
+    });
+  } else {
+    return new Promise((resolve, reject) => {
+      if (err) {
+        console.error("Error getting database connection:", err.message);
+        reject(err);
+        return;
+      }
+
+      const handleQuery = (err, results) => {
+        if (err) {
+          console.error("Error executing query:", err.message);
+          reject(err);
+          return;
+        }
+        resolve(results);
+      };
+
+      try {
+        // Check if 'args' is defined and not an empty array, then pass it to the query
+        if (args && args.length > 0) {
+          con.query(query, args, handleQuery);
+        } else {
+          // If 'args' is undefined or an empty array, execute the query without it
+          con.query(query, handleQuery);
+        }
+      } catch (err) {
+        console.error("Error executing query:", err.message);
+        reject(err);
+      }
+    });
+  }
+};
+
+exports.db_pool = pool;
