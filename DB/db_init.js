@@ -102,11 +102,7 @@ exports.db_async = async (query, args, con = null) => {
     });
   } else {
     return new Promise((resolve, reject) => {
-      if (err) {
-        console.error("Error getting database connection:", err.message);
-        reject(err);
-        return;
-      }
+    
 
       const handleQuery = (err, results) => {
         if (err) {

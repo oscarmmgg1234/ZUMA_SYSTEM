@@ -334,24 +334,27 @@ const Type3_Protocol = (args, exceptions) => {
 };
 // Type 4 Protocol
 const Type4_Protocol = (args, exceptions) => {
-  const proc = async () => {
+  const proc = async (connection) => {
     engineHelper.pillBaseAmount(args.product_name, (amount) => {
       args.product_components.forEach(async (component, index) => {
         if (engineHelper.productType(component.NAME) == 0) {
           await engineProcessHandler.Activation.activation_main_proc(
             args,
-            component
+            component,
+            connection
           );
 
           await engineProcessHandler.Release.release_pills_proc(
             args,
             component,
-            amount
+            amount,
+            connection
           );
         } else if (engineHelper.productType(component.NAME) == 1) {
           await engineProcessHandler.Release.release_label_proc(
             args,
-            component
+            component,
+            connection
           );
         }
         if (index == args.product_components.length - 1) {
