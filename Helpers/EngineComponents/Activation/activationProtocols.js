@@ -406,24 +406,57 @@ const Type2_Protocol = (args, exceptions) => {
 };
 
 const Type3_Protocol = (args, exceptions) => {
-  try {
-    args.product_components.forEach((component) => {
-      if (engineHelper.productType(component.NAME) == 0) {
-        engineProcessHandler.Activation.activation_type3_proc(args, component);
-        engineProcessHandler.Release.release_type3_proc(args, component);
-      } else if (engineHelper.productType(component.NAME) == 1) {
-        engineProcessHandler.Release.release_label_proc(args, component);
+  knex.transaction(async (trx) => {
+    try {
+      for (const component of args.product_components) {
+        if (engineHelper.productType(component.NAME) == 0) {
+          await trx.raw(queries.activation_product.product_activation_liquid, [
+            component.PRODUCT_ID,
+            args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          const result = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_active,
+            [component.PRODUCT_ID]
+          );
+          await trx.raw(queries.product_inventory.update_activation, [
+            result[0][0].ACTIVE_STOCK + args.quantity,
+            component.PRODUCT_ID,
+          ]);
+          const result2 = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            ["c064f810"]
+          );
+          await trx.raw(queries.product_inventory.update_activation_stored, [
+            result2[0][0].STORED_STOCK -
+              (engineHelper.productMLType(component.NAME) == 0
+                ? args.quantity
+                : 0.6 * args.quantity),
+            "c064f810",
+          ]);
+        } else if (engineHelper.productType(component.NAME) == 1) {
+          await trx.raw(queries.product_release.insert_product_release, [
+            component.PRODUCT_ID,
+            args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          const result = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            [component.PRODUCT_ID]
+          );
+          await trx.raw(queries.product_inventory.update_consumption_stored, [
+            result[0][0].STORED_STOCK - args.quantity,
+            component.PRODUCT_ID,
+          ]);
+        }
       }
-    });
-    setTimeout(() => {
-      engineProcessHandler.dbTransactionExecute((result) => {
-        console.log(result);
-      });
-    }, 200);
-  } catch (err) {
-    console.log(err);
-    // Assuming there is a mechanism outside of this snippet to handle success/failure
-  }
+    } catch (err) {
+      console.log(err);
+      // Assuming there is a mechanism outside of this snippet to handle success/failure
+    }
+  });
 };
 // Type 4 Protocol
 const Type4_Protocol = (args, exceptions) => {
