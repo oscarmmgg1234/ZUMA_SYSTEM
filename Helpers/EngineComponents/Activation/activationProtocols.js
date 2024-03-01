@@ -486,18 +486,54 @@ const Type5_Protocol = (args, exceptions) => {
       const productType = engineHelper.productType(component.NAME);
       // Product Type 0: Activation Liquid
       if (productType === 0) {
-        engineProcessHandler.Activation.activation_main_proc(args, component);
+        await trx.raw(queries.activation_product.product_activation_liquid, [
+          component.PRODUCT_ID,
+          args.quantity,
+          args.employee_id,
+          args.TRANSACTIONID,
+        ]);
+        const result = await trx.raw(
+          queries.product_release.get_quantity_by_stored_id_active,
+          [component.PRODUCT_ID]
+        );
+        await trx.raw(queries.product_inventory.update_activation, [
+          result[0][0].ACTIVE_STOCK + args.quantity,
+          component.PRODUCT_ID,
+        ]);
       }
       // Product Type 1: Label
       else if (productType === 1) {
-        engineProcessHandler.Release.release_label_proc(args, component);
+        await trx.raw(queries.product_release.insert_product_release, [
+          component.PRODUCT_ID,
+          args.quantity,
+          args.employee_id,
+          args.TRANSACTIONID,
+        ]);
+        const result = await trx.raw(
+          queries.product_release.get_quantity_by_stored_id_storage,
+          [component.PRODUCT_ID]
+        );
+        await trx.raw(queries.product_inventory.update_consumption_stored, [
+          result[0][0].STORED_STOCK - args.quantity,
+          component.PRODUCT_ID,
+        ]);
       }
       // Product Type 2: Custom Logic
       else if (productType === 2) {
-        engineProcessHandler.Release.release_cream_proc(args, component);
-      }
-      if (index == args.product_components.length - 1) {
-        resolve();
+        const result = await trx.raw(
+          queries.product_release.get_quantity_by_stored_id_storage,
+          [component.PRODUCT_ID]
+        );
+        await trx.raw(queries.product_inventory.update_consumption_stored, [
+          result[0][0].STORED_STOCK - productConsumption50ml(args.quantity),
+          component.PRODUCT_ID,
+        ]);
+        await trx.raw(queries.product_release.insert_product_release, [
+          component.PRODUCT_ID,
+          productConsumption50ml(args.quantity),
+          args.employee_id,
+          args.TRANSACTIONID,
+        ]);
       }
     }
   });
