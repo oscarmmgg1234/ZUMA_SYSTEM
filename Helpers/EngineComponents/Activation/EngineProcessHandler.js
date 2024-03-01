@@ -2,8 +2,11 @@ const { db } = require("../../../DB/db_init.js");
 const { db_async } = require("../../../DB/db_init.js");
 const { db_pool } = require("../../../DB/db_init.js");
 const { queries } = require("../../../DB/queries.js");
+const { query_manager } = require("../../../DB/query_manager.js");
 const { activationEngineComponents } = require("./activationEngine.js");
 const engineHelper = activationEngineComponents;
+
+const knex = query_manager;
 
 class EngineProcessHandler {
   constructor() {}
@@ -13,6 +16,7 @@ class EngineProcessHandler {
     glycerinBottleAmountGALLONS,
     productGlycerinAmountOZ,
     productQuantity,
+
     productBottleSize = 50
   ) => {
     const glycerinBottleAmountGALLONS_toMill =
@@ -291,32 +295,14 @@ class EngineProcessHandler {
   };
 }
 
-
-
-
-
 const dbTransactionExecute = async (args, callback) => {
-  db_pool.getConnection(async (err, connection) => {
+  knex.transaction(async (trx) => {
     try {
-      
-      connection.beginTransaction();
-      await args(connection).then((result) => {
-        connection.commit();
-      });
-      callback({ status: true, message: "commit was a success" });
-    } catch (error) {
-      console.log("hit");
-      connection.rollback();
-      callback({
-        status: false,
-        message: "Transaction failed, rolled back.",
-      });
-    } finally {
-      connection.release();
+    } catch (err) {
+      console.error(err);
     }
   });
 };
-
 
 exports.dbTransactionExecute = dbTransactionExecute;
 

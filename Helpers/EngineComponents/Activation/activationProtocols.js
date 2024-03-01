@@ -1,33 +1,126 @@
+const { query } = require("express");
 const { db } = require("../../../DB/db_init.js");
 const { queries } = require("../../../DB/queries.js");
+const { query_manager } = require("../../../DB/query_manager.js");
 const { activationEngineComponents } = require("./activationEngine.js");
 const { EngineProcessHandler } = require("./EngineProcessHandler.js");
 const { dbTransactionExecute } = require("./EngineProcessHandler.js");
 
 const engineProcessHandler = new EngineProcessHandler();
 const engineHelper = activationEngineComponents;
+const knex = query_manager;
+
+const glycerinCompsumption = (
+  glycerinBottleAmountGALLONS,
+  productGlycerinAmountOZ,
+  productQuantity,
+
+  productBottleSize = 50
+) => {
+  const glycerinBottleAmountGALLONS_toMill =
+    glycerinBottleAmountGALLONS * 3785.41;
+  const productGlycerinAmountOZ_toMill = productGlycerinAmountOZ * 29.5735;
+  const totalMillInMixture =
+    glycerinBottleAmountGALLONS_toMill + productGlycerinAmountOZ_toMill;
+  return (
+    (((productBottleSize * productQuantity) / totalMillInMixture) *
+      productGlycerinAmountOZ_toMill) /
+    glycerinBottleAmountGALLONS_toMill
+  );
+};
+
+const productConsumption = (
+  productBottleSize = 50,
+  productQuantity,
+  productBaseGallon
+) => {
+  const productBaseGallon_toMill = productBaseGallon * 3785.41;
+  return (productBottleSize * productQuantity) / productBaseGallon_toMill;
+};
 
 const glycerinException = (args) => {
-  const proc = () => {
-    return new Promise((resolve, reject) => {
-      args.product_components.forEach((component, index) => {
+  knex.transaction(async (trx) => {
+    try {
+      for (const component of args.product_components) {
         if (engineHelper.productType(component.NAME) == 0) {
-          engineProcessHandler.Activation.activation_main_proc(args, component);
+          await trx.raw(queries.activation_product.product_activation_liquid, [
+            component.PRODUCT_ID,
+            args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          const result = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_active,
+            [component.PRODUCT_ID]
+          );
+          await trx.raw(queries.product_inventory.update_activation, [
+            result[0].ACTIVE_STOCK + args.quantity,
+            component.PRODUCT_ID,
+          ]);
         }
         if (engineHelper.productType(component.NAME) == 1) {
-          engineProcessHandler.Release.release_label_proc(args, component);
+          await trx.raw(queries.product_release.insert_product_release, [
+            component.PRODUCT_ID,
+            args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          const result = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            [component.PRODUCT_ID]
+          );
+          await trx.raw(queries.product_inventory.update_consumption_stored, [
+            result[0].STORED_STOCK - args.quantity,
+            component.PRODUCT_ID,
+          ]);
         }
         if (engineHelper.productType(component.NAME) == 2) {
-          engineProcessHandler.Release.release_glycerin_proc(args, component);
+          const result = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            ["14aa3aba"]
+          );
+          await trx.raw(queries.product_inventory.update_consumption_stored, [
+            result[0].STORED_STOCK -
+              (engineHelper.productMLType(args.product_name) == 1
+                ? glycerinCompsumption(1, 26, args.quantity, 30)
+                : glycerinCompsumption(1, 26, args.quantity, 50)),
+            "14aa3aba",
+          ]);
+          await trx.raw(queries.product_release.insert_product_release, [
+            "14aa3aba",
+            engineHelper.productMLType(args.product_name) == 1
+              ? glycerinCompsumption(1, 26, args.quantity, 30)
+              : glycerinCompsumption(1, 26, args.quantity, 50),
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          //create a function for product consumption
+          const result2 = await trx.raw(
+            queries.get_quantity_by_stored_id_storage,
+            [component.PRODUCT_ID]
+          );
+
+          await trx.raw(queries.product_inventory.update_consumption_stored, [
+            result2[0].STORED_STOCK -
+              (engineHelper.productMLType(args.product_name) == 1
+                ? productConsumption(50, args.quantity, 1)
+                : productConsumption(30, args.quantity, 1)),
+            component.PRODUCT_ID,
+          ]);
+
+          await trx.raw(queries.product_release.insert_product_release, [
+            component.PRODUCT_ID,
+            engineHelper.productMLType(args.product_name) == 1
+              ? productConsumption(50, args.quantity, 1)
+              : productConsumption(30, args.quantity, 1),
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
         }
-        if (index == args.product_components.length - 1) {
-          resolve();
-        }
-      });
-    });
-  };
-  dbTransactionExecute(proc, (result) => {
-    console.log(result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   });
 };
 
@@ -334,66 +427,79 @@ const Type3_Protocol = (args, exceptions) => {
 };
 // Type 4 Protocol
 const Type4_Protocol = (args, exceptions) => {
-  const proc = async (connection) => {
-    engineHelper.pillBaseAmount(args.product_name, (amount) => {
-      args.product_components.forEach(async (component, index) => {
+  engineHelper.pillBaseAmount(args.product_name, (amount) => {
+    knex.transaction(async (trx) => {
+      for (const component of args.product_components) {
         if (engineHelper.productType(component.NAME) == 0) {
-          await engineProcessHandler.Activation.activation_main_proc(
-            args,
-            component,
-            connection
+          await trx.raw(queries.activation_product.product_activation_liquid, [
+            component.PRODUCT_ID,
+            args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          const result = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_active,
+            [component.PRODUCT_ID]
           );
-
-          await engineProcessHandler.Release.release_pills_proc(
-            args,
-            component,
-            amount,
-            connection
+          await trx.raw(queries.product_inventory.update_activation, [
+            result[0][0].ACTIVE_STOCK + args.quantity,
+            component.PRODUCT_ID,
+          ]);
+          const result2 = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            [component.PRODUCT_ID]
           );
+          await trx.raw(queries.product_inventory.update_activation_stored, [
+            result2[0][0].STORED_STOCK - args.quantity * amount,
+            component.PRODUCT_ID,
+          ]);
+          await trx.raw(queries.product_release.insert_product_release, [
+            component.PRODUCT_ID,
+            args.quantity * amount,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
         } else if (engineHelper.productType(component.NAME) == 1) {
-          await engineProcessHandler.Release.release_label_proc(
-            args,
-            component,
-            connection
+          await trx.raw(queries.product_release.insert_product_release, [
+            component.PRODUCT_ID,
+            args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          const result = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            [component.PRODUCT_ID]
           );
+          await trx.raw(queries.product_inventory.update_consumption_stored, [
+            result[0][0].STORED_STOCK - args.quantity,
+            component.PRODUCT_ID,
+          ]);
         }
-        if (index == args.product_components.length - 1) {
-          console.log("resolve");
-        }
-      });
+      }
     });
-  };
-
-  dbTransactionExecute(proc, (result) => {
-    console.log(result);
   });
 };
 
 const Type5_Protocol = (args, exceptions) => {
-  const proc = () => {
-    return new Promise((resolve, reject) => {
-      args.product_components.forEach((component, index) => {
-        const productType = engineHelper.productType(component.NAME);
-        // Product Type 0: Activation Liquid
-        if (productType === 0) {
-          engineProcessHandler.Activation.activation_main_proc(args, component);
-        }
-        // Product Type 1: Label
-        else if (productType === 1) {
-          engineProcessHandler.Release.release_label_proc(args, component);
-        }
-        // Product Type 2: Custom Logic
-        else if (productType === 2) {
-          engineProcessHandler.Release.release_cream_proc(args, component);
-        }
-        if (index == args.product_components.length - 1) {
-          resolve();
-        }
-      });
-    });
-  };
-  dbTransactionExecute(proc, (result) => {
-    console.log(result);
+  knex.transaction(async (trx) => {
+    for (const component of args.product_components) {
+      const productType = engineHelper.productType(component.NAME);
+      // Product Type 0: Activation Liquid
+      if (productType === 0) {
+        engineProcessHandler.Activation.activation_main_proc(args, component);
+      }
+      // Product Type 1: Label
+      else if (productType === 1) {
+        engineProcessHandler.Release.release_label_proc(args, component);
+      }
+      // Product Type 2: Custom Logic
+      else if (productType === 2) {
+        engineProcessHandler.Release.release_cream_proc(args, component);
+      }
+      if (index == args.product_components.length - 1) {
+        resolve();
+      }
+    }
   });
 };
 
