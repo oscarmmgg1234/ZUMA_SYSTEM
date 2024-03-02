@@ -1,22 +1,17 @@
 const { db } = require("../../../DB/db_init.js");
 const { queries } = require("../../../DB/queries.js");
+const { query_manager } = require("../../../DB/query_manager.js");
 
-const pill_base_amount = (product, callback) => {
-  db(queries.activation_product.get_products, (err, result) => {
-    if (err) {
-      console.log(err);
-      return; // Ensure the function exits in case of an error
+const knex = query_manager;
+
+const pill_base_amount = async (product) => {
+  const products = await knex.raw(queries.activation_product.get_products);
+  for (const item of products[0]) {
+    if (item.PILL_Ratio != null && product.match(item.NAME)) {
+      // Use the callback for the first match
+      return item.PILL_Ratio; // Exit after the first match to avoid calling the callback multiple times
     }
-    // Assuming `result` is an array of items as expected
-    for (const item of result) {
-      if (item.PILL_Ratio != null && product.match(item.NAME)) {
-        callback(item.PILL_Ratio); // Use the callback for the first match
-        return; // Exit after the first match to avoid calling the callback multiple times
-      }
-    }
-    // Call the callback with a default or error value if no match is found
-    callback(null); // Or you can choose to not call the callback at all
-  });
+  }
 };
 
 //product component regex

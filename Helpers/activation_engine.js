@@ -121,49 +121,53 @@ const getProductProccessInfo = (args, callback) => {
 };
 
 //main function driver
-const main_activation = (args) => {
+const main_activation = (args, callback) => {
   db_api.addTransaction({ src: "activation", args: args });
   //main function that chooses type of activation and type component of activation
   setTimeout(() => {
-  getProductProccessInfo(
-    args,
-    ({
-      process_type,
-      process_component,
-      product_id,
-      product_name,
-      product_components,
-      quantity,
-      employee_id,
-    }) => {
-      const TRANSACTIONID = args.TRANSACTIONID;
-      protocols.forEach((protocol, index) => {
-        if (index + 1 == process_type) {
-          protocol(
-            {
-              product_id,
-              product_name,
-              product_components,
-              quantity,
-              employee_id,
-              TRANSACTIONID,
-            },
-            exeptions
-          );
-        }
-      });
-      if (process_component != null) {
-        subProtocols.forEach((protocol, index) => {
-          if (index + 1 === process_component) {
+    getProductProccessInfo(
+      args,
+      ({
+        process_type,
+        process_component,
+        product_id,
+        product_name,
+        product_components,
+        quantity,
+        employee_id,
+      }) => {
+        const TRANSACTIONID = args.TRANSACTIONID;
+        protocols.forEach((protocol, index) => {
+          if (index + 1 == process_type) {
             protocol(
-              { process_component, quantity, employee_id, TRANSACTIONID },
-              exeptions
+              {
+                product_id,
+                product_name,
+                product_components,
+                quantity,
+                employee_id,
+                TRANSACTIONID,
+              },
+              exeptions,
+              (status) => {
+                // return callback(status);
+                console.log(status);
+              }
             );
           }
         });
+        if (process_component != null) {
+          subProtocols.forEach((protocol, index) => {
+            if (index + 1 === process_component) {
+              protocol(
+                { process_component, quantity, employee_id, TRANSACTIONID },
+                exeptions
+              );
+            }
+          });
+        }
       }
-    }
-  );
+    );
   }, 300);
 };
 
