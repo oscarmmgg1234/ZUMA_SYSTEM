@@ -13,11 +13,13 @@ const {
 const {
   activationSubProtocols,
 } = require("./EngineComponents/Activation/activationSubProtocols.js");
+const { query_manager } = require("../DB/query_manager.js");
 
 const engineHelper = activationEngineComponents;
 const protocols = activationProtocols();
 const subProtocols = activationSubProtocols();
 const db_api = db_interface();
+const knex = query_manager;
 
 //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
 //think about this a bit more => maintanance, add products, remove product, tweaks to products
@@ -153,6 +155,9 @@ const main_activation = (args, callback) => {
               process_component,
               (status) => {
                 // return callback(status);
+                if (status.status == false) {
+                  knex.raw("DELETE FROM transaction_log WHERE TRANSACTIONID = ?", [TRANSACTIONID]);
+                }
                 return callback(status);
               }
             );

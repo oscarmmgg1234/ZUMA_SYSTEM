@@ -1,40 +1,58 @@
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
+const { query_manager } = require("../DB/query_manager.js");
 
-const transaction_engine = (args) => {
-  db(queries.development.getTransactionByID, args.to_arr(), (err, result) => {
-    const transaction = result[0];
-    if (transaction.REVERSED === 1) {
-      return;
-    }
+const knex = query_manager;
 
-    transaction.ACTIVATION_STACK?.forEach((item) => {
-      db(queries.development.deleteActivationEntry, [item], (err, result) => {
-        if (err) console.log(err);
-      });
-    });
-    transaction.RELEASE_STACK?.forEach((item) => {
-      db(queries.development.deleteConsumptionEntry, [item], (err, result) => {
-        if (err) console.log(err);
-      });
-    });
+const transaction_engine = async (args) => {
+  const response = await trx.raw(
+    queries.development.getTransactionByID,
+    args.to_arr()
+  );
+  const transaction = response[0][0];
+  if (transaction.REVERSED === 1) {
+    return;
+  }
+  try {
+    await knex.transaction(async (trx) => {
+      try {
+        if (transaction.ACTIVATION_STACK.length > 0) {
+          for (const item of transaction.ACTIVATION_STACK) {
+            await trx.raw(queries.development.deleteActivationEntry, [item]);
+          }
+        }
+        if (transaction.CONSUMPTION_STACK.length > 0) {
+          for (const item of transaction.CONSUMPTION_STACK) {
+            await trx.raw(queries.development.deleteConsumptionEntry, [item]);
+          }
+        }
 
-    transaction.SHIPMENT_STACK?.forEach((item) => {
-      db(queries.development.deleteShipmentEntry, [item], (err, result) => {
-        if (err) console.log(err);
-      });
-    });
-    transaction.BARCODE_STACK?.forEach((item) => {
-      db(queries.dashboard.transform_barcode_product, ["Active/Passive", item]);
-    });
-    db(
-      queries.development.setTransactionReversed,
-      args.to_arr(),
-      (err, result) => {
-        if (err) console.log(err);
+        if (transaction.SHIPMENT_STACK.length > 0) {
+          for (const item of transaction.SHIPMENT_STACK) {
+            await trx.raw(queries.development.deleteShipmentEntry, [item]);
+          }
+        }
+
+        if (transaction.BARCODE_STACK.length > 0) {
+          for (const item of transaction.BARCODE_STACK) {
+            await trx.raw(queries.dashboard.transform_barcode_product, [
+              "Active/Passive",
+              item,
+            ]);
+          }
+        }
+
+        await trx.raw(
+          queries.development.setTransactionReversed,
+          args.to_arr()
+        );
+      } catch (err) {
+        throw err;
       }
-    );
-  });
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 exports.transaction_engine = transaction_engine;

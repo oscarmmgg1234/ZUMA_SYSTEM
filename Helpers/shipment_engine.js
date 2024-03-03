@@ -1,7 +1,9 @@
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 const { db_interface } = require("../DB/interface.js");
+const { query_manager } = require("../DB/query_manager.js");
 
+const knex = query_manager;
 const db_api = db_interface();
 
 const shipment_engine = (args) => {
@@ -28,30 +30,29 @@ const shipment_engine = (args) => {
   // }, 1500);
 };
 
-const type1_shipment = (args) => {
+const type1_shipment = async (args) => {
   // Update stored quantity
-  db(
-    queries.product_release.get_quantity_by_stored_id_storage,
-    [args.product_id],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        // Update product inventory base
-        db(queries.product_inventory.update_activation_stored, [
-          result[0].STORED_STOCK + args.quantity,
+  try {
+    await knex.transaction(async (trx) => {
+      try {
+        const result = await trx.raw(
+          queries.product_release.get_quantity_by_stored_id_storage,
+          [args.product_id]
+        );
+        await trx.raw(queries.product_inventory.update_activation_stored, [
+          result[0][0].STORED_STOCK + args.quantity,
           args.product_id,
         ]);
-      }
-    }
-  );
 
-  // Insert shipment log
-  db(queries.shipment_log.insert, args.arr, (err) => {
-    if (err) {
-      console.log(err);
-    }
-  });
+        // Insert shipment log
+        await trx.raw(queries.shipment_log.insert, args.arr);
+      } catch (err) {
+        throw err;
+      }
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const shipment_protocol = [type1_shipment];

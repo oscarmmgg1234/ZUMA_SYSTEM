@@ -1,7 +1,9 @@
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 const { db_interface } = require("../DB/interface.js");
+const { query_manager } = require("../DB/query_manager.js");
 
+const knex = query_manager;
 const local_service = db_interface();
 function generateRandomID(length) {
   // Create a random ID with a specified length
@@ -72,79 +74,71 @@ const reduction_engine = (args) => {
   // }, 1500);
 };
 
-const type1_reduction = (args) => {
-  db(queries.product_release.barcode_status_change, [
-    "Deducted",
-    args.BARCODE_ID,
-  ]);
-  db(
-    queries.product_release.insert_product_release_active,
-    [
-      args.product_id,
-      args.quantity,
-      args.employee_id,
-      args.TRANSACTIONID,
-      args.origin,
-    ],
-    (err) => {
-      if (err) {
-        console.log(err);
-      }
-    }
-  );
+const type1_reduction = async (args) => {
+  try {
+    await knex.transaction(async (trx) => {
+      try {
+        await trx.raw(queries.product_release.barcode_status_change, [
+          "Deducted",
+          args.BARCODE_ID,
+        ]);
+        await trx.raw(queries.product_release.insert_product_release_active, [
+          args.product_id,
+          args.quantity,
+          args.employee_id,
+          args.TRANSACTIONID,
+          args.origin,
+        ]);
 
-  db(
-    queries.product_release.get_quantity_by_stored_id_active,
-    [args.product_id],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        db(queries.product_inventory.update_consumption_active, [
-          parseInt(result[0].ACTIVE_STOCK) - args.quantity,
+        const result = await trx.raw(
+          queries.product_release.get_quantity_by_stored_id_active,
+          [args.product_id]
+        );
+        await trx.raw(queries.product_inventory.update_consumption_active, [
+          parseInt(result[0][0].ACTIVE_STOCK) - args.quantity,
           args.product_id,
         ]);
+      } catch (err) {
+        throw err;
       }
-    }
-  );
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-const type2_reduction = (args) => {
-  db(queries.product_release.barcode_status_change, [
-    "Deducted",
-    args.BARCODE_ID,
-  ]);
+const type2_reduction = async (args) => {
+  try {
+    await knex.transaction(async (trx) => {
+      try {
+        await trx.raw(queries.product_release.barcode_status_change, [
+          "Deducted",
+          args.BARCODE_ID,
+        ]);
 
-  db(
-    queries.product_release.insert_product_release_active,
-    [
-      args.product_id,
-      args.quantity,
-      args.employee_id,
-      args.TRANSACTIONID,
-      args.origin,
-    ],
-    (err) => {
-      if (err) {
-        console.log(err);
-      }
-    }
-  );
+        await trx.raw(queries.product_release.insert_product_release_active, [
+          args.product_id,
+          args.quantity,
+          args.employee_id,
+          args.TRANSACTIONID,
+          args.origin,
+        ]);
 
-  db(
-    queries.product_release.get_quantity_by_stored_id_storage,
-    [args.product_id],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        db(queries.product_inventory.update_consumption_stored, [
-          parseInt(result[0].STORED_STOCK) - args.quantity,
+        const result = await trx.raw(
+          queries.product_release.get_quantity_by_stored_id_storage,
+          [args.product_id]
+        );
+        await trx.raw(queries.product_inventory.update_consumption_stored, [
+          parseInt(result[0][0].STORED_STOCK) - args.quantity,
           args.product_id,
         ]);
+      } catch (err) {
+        throw err;
       }
-    }
-  );
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const reduction_protocol = [type1_reduction, type2_reduction];
