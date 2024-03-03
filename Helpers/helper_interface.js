@@ -4,8 +4,8 @@ const { shipment_engine } = require("./shipment_engine");
 const { transaction_engine } = require("./transaction_engine");
 
 class helper {
-  activation_engine(args) {
-    activation_engine(args);
+  activation_engine(args, callback) {
+    activation_engine(args, callback);
   }
   reduction_engine(args) {
     reduction_engine(args);

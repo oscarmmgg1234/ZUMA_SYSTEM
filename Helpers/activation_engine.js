@@ -153,7 +153,7 @@ const main_activation = (args, callback) => {
               process_component,
               (status) => {
                 // return callback(status);
-                console.log(status);
+                return callback(status);
               }
             );
           }

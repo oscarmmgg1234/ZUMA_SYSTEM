@@ -166,7 +166,20 @@ const get_product_by_id = (args, callback) => {
 //   }
 //
 const activate_product = (args) => {
-  helper.activation_engine(args);
+  helper.activation_engine(args, (data) => {
+    if (data.status) {
+      services.http_print_barcode({
+        PRODUCT_ID: args.PRODUCT_ID,
+        NAME: args.EMPLOYEE_NAME,
+        QUANTITY: args.QUANTITY,
+        MULTIPLIER: args.MULTIPLIER,
+        PRODUCT_NAME: args.PRODUCT_NAME,
+        EMPLOYEE_ID: args.EMPLOYEE_ID,
+        SRC: "Active/Passive",
+        TRANSACTIONID: args.TRANSACTIONID,
+      });
+    }
+  });
   // barcode generation
   // services.http_print_barcode({
   //   PRODUCT_ID: args.PRODUCT_ID,
