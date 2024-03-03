@@ -2,7 +2,9 @@ const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 const { db_interface } = require("../DB/interface.js");
 const { query_manager } = require("../DB/query_manager.js");
+const { TransactionHandler } = require("./transactionHandler.js");
 
+const transHandler = new TransactionHandler();
 const knex = query_manager;
 const local_service = db_interface();
 function generateRandomID(length) {
@@ -26,6 +28,7 @@ const reduction_type = (args, callback) => {
 };
 
 const reduction_engine = (args) => {
+  const newTransactionID = generateRandomID(12);
   local_service.setBarcodeEmployee([
     args.EMPLOYEE_RESPONSIBLE,
     args.BARCODE_ID,
@@ -36,7 +39,6 @@ const reduction_engine = (args) => {
       queries.development.getTransactionByID,
       [TRANSACTIONID],
       (err, result) => {
-        const newTransactionID = generateRandomID(12);
         const argsReinit = {
           EMPLOYEE_ID: args.EMPLOYEE_RESPONSIBLE,
           PRODUCT_ID: result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
@@ -54,14 +56,25 @@ const reduction_engine = (args) => {
               result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
               (type) => {
                 if (index + 1 == type) {
-                  protocol({
-                    quantity: result[0]?.QUANTITY ?? result2[0]?.Quantity,
-                    product_id: result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
-                    employee_id: args.EMPLOYEE_RESPONSIBLE,
-                    BARCODE_ID: args.BARCODE_ID,
-                    TRANSACTIONID: newTransactionID,
-                    origin: "activation",
-                  });
+                  protocol(
+                    {
+                      quantity: result[0]?.QUANTITY ?? result2[0]?.Quantity,
+                      product_id:
+                        result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
+                      employee_id: args.EMPLOYEE_RESPONSIBLE,
+                      BARCODE_ID: args.BARCODE_ID,
+                      TRANSACTIONID: newTransactionID,
+                      origin: "activation",
+                    },
+                    (status) => {
+                      if (status.status == false) {
+                        knex.raw(
+                          "DELETE FROM transaction_log WHERE TRANSACTIONID = ?",
+                          [newTransactionID]
+                        );
+                      }
+                    }
+                  );
                 }
               }
             );
@@ -74,7 +87,7 @@ const reduction_engine = (args) => {
   // }, 1500);
 };
 
-const type1_reduction = async (args) => {
+const type1_reduction = async (args, callback) => {
   try {
     await knex.transaction(async (trx) => {
       try {
@@ -102,12 +115,14 @@ const type1_reduction = async (args) => {
         throw err;
       }
     });
+    return callback(transHandler.sucessHandler());
   } catch (err) {
     console.log(err);
+    return callback(transHandler.errorHandler(err));
   }
 };
 
-const type2_reduction = async (args) => {
+const type2_reduction = async (args, callback) => {
   try {
     await knex.transaction(async (trx) => {
       try {
@@ -136,8 +151,10 @@ const type2_reduction = async (args) => {
         throw err;
       }
     });
+    return callback(transHandler.sucessHandler());
   } catch (err) {
     console.log(err);
+    return callback(transHandler.errorHandler(err));
   }
 };
 

@@ -2,7 +2,9 @@ const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 const { db_interface } = require("../DB/interface.js");
 const { query_manager } = require("../DB/query_manager.js");
+const { TransactionHandler } = require("./transactionHandler.js");
 
+const transHandler = new TransactionHandler();
 const knex = query_manager;
 const db_api = db_interface();
 
@@ -21,7 +23,13 @@ const shipment_engine = (args) => {
   setTimeout(() => {
     shipment_protocol.forEach((protocol, index) => {
       if (args.SHIPMENT_TYPE == index + 1) {
-        protocol(newArgs);
+        protocol(newArgs, (status) => {
+          if (status.status == false) {
+            knex.raw("DELETE FROM transaction_log WHERE TRANSACTIONID = ?", [
+              args.TRANSACTIONID,
+            ]);
+          }
+        });
       }
     });
   }, 300);
@@ -30,7 +38,7 @@ const shipment_engine = (args) => {
   // }, 1500);
 };
 
-const type1_shipment = async (args) => {
+const type1_shipment = async (args, callback) => {
   // Update stored quantity
   try {
     await knex.transaction(async (trx) => {
@@ -50,8 +58,10 @@ const type1_shipment = async (args) => {
         throw err;
       }
     });
+    return callback(transHandler.sucessHandler());
   } catch (err) {
     console.log(err);
+    return callback(transHandler.errorHandler(err));
   }
 };
 
