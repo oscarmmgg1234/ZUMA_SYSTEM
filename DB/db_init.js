@@ -102,8 +102,6 @@ exports.db_async = async (query, args, con = null) => {
     });
   } else {
     return new Promise((resolve, reject) => {
-    
-
       const handleQuery = (err, results) => {
         if (err) {
           console.error("Error executing query:", err.message);

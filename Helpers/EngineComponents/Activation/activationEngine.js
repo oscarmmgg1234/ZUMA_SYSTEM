@@ -1,4 +1,3 @@
-const { db } = require("../../../DB/db_init.js");
 const { queries } = require("../../../DB/queries.js");
 const { query_manager } = require("../../../DB/query_manager.js");
 

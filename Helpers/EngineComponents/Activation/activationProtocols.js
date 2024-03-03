@@ -1,15 +1,9 @@
-const { query } = require("express");
-const { db } = require("../../../DB/db_init.js");
 const { queries } = require("../../../DB/queries.js");
 const { query_manager } = require("../../../DB/query_manager.js");
 const { activationEngineComponents } = require("./activationEngine.js");
-const { EngineProcessHandler } = require("./EngineProcessHandler.js");
-const { dbTransactionExecute } = require("./EngineProcessHandler.js");
 const { TransactionHandler } = require("../transactionErrorHandler.js");
 
 const transHandler = new TransactionHandler();
-
-const engineProcessHandler = new EngineProcessHandler();
 const engineHelper = activationEngineComponents;
 const knex = query_manager;
 
