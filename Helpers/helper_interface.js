@@ -10,8 +10,8 @@ class helper {
   reduction_engine(args) {
     reduction_engine(args);
   }
-  shipment_engine(args) {
-    shipment_engine(args);
+  shipment_engine(args, callback) {
+    shipment_engine(args, callback);
   }
   transaction_engine(args) {
     transaction_engine(args);

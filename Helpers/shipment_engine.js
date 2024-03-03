@@ -8,7 +8,7 @@ const transHandler = new TransactionHandler();
 const knex = query_manager;
 const db_api = db_interface();
 
-const shipment_engine = (args) => {
+const shipment_engine = (args, callback) => {
   db_api.addTransaction({ src: "shipment", args: args });
   const newArgs = {
     quantity: args.QUANTITY,
@@ -29,6 +29,7 @@ const shipment_engine = (args) => {
               args.TRANSACTIONID,
             ]);
           }
+          return callback(status);
         });
       }
     });
