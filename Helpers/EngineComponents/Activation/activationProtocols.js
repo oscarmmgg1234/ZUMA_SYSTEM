@@ -13,6 +13,31 @@ const engineProcessHandler = new EngineProcessHandler();
 const engineHelper = activationEngineComponents;
 const knex = query_manager;
 
+const subProtocolHandler = async (
+  args,
+  exceptions,
+  subProtocol,
+  subprocess_comp_id,
+  trx
+) => {
+  if (subprocess_comp_id != null) {
+    for (var i = 0; i < subProtocol.length; i++) {
+      if (i + 1 == subprocess_comp_id) {
+        await subProtocol[i](
+          {
+            process_component: subprocess_comp_id,
+            quantity: args.quantity,
+            employee_id: args.employee_id,
+            TRANSACTIONID: args.TRANSACTIONID,
+          },
+          exceptions,
+          trx
+        );
+      }
+    }
+  }
+};
+
 const glycerinCompsumption = (
   glycerinBottleAmountGALLONS,
   productGlycerinAmountOZ,
@@ -41,100 +66,17 @@ const productConsumption = (
   return (productBottleSize * productQuantity) / productBaseGallon_toMill;
 };
 
-const glycerinException = async (args, callback) => {
+const glycerinException = async (
+  args,
+  subProtocol,
+  subprocess_comp_id,
+  callback
+) => {
   try {
     await knex.transaction(async (trx) => {
-      for (const component of args.product_components) {
-        if (engineHelper.productType(component.NAME) == 0) {
-          await trx.raw(queries.activation_product.product_activation_liquid, [
-            component.PRODUCT_ID,
-            args.quantity,
-            args.employee_id,
-            args.TRANSACTIONID,
-          ]);
-          const result = await trx.raw(
-            queries.product_release.get_quantity_by_stored_id_active,
-            [component.PRODUCT_ID]
-          );
-          await trx.raw(queries.product_inventory.update_activation, [
-            result[0][0].ACTIVE_STOCK + args.quantity,
-            component.PRODUCT_ID,
-          ]);
-        }
-        if (engineHelper.productType(component.NAME) == 1) {
-          await trx.raw(queries.product_release.insert_product_release, [
-            component.PRODUCT_ID,
-            args.quantity,
-            args.employee_id,
-            args.TRANSACTIONID,
-          ]);
-          const result = await trx.raw(
-            queries.product_release.get_quantity_by_stored_id_storage,
-            [component.PRODUCT_ID]
-          );
-          await trx.raw(queries.product_inventory.update_consumption_stored, [
-            result[0][0].STORED_STOCK - args.quantity,
-            component.PRODUCT_ID,
-          ]);
-        }
-        if (engineHelper.productType(component.NAME) == 2) {
-          const result = await trx.raw(
-            queries.product_release.get_quantity_by_stored_id_storage,
-            ["14aa3aba"]
-          );
-          await trx.raw(queries.product_inventory.update_consumption_stored, [
-            result[0][0].STORED_STOCK -
-              (engineHelper.productMLType(args.product_name) == 1
-                ? glycerinCompsumption(1, 26, args.quantity, 30)
-                : glycerinCompsumption(1, 26, args.quantity, 50)),
-            "14aa3aba",
-          ]);
-          await trx.raw(queries.product_release.insert_product_release, [
-            "14aa3aba",
-            engineHelper.productMLType(args.product_name) == 1
-              ? glycerinCompsumption(1, 26, args.quantity, 30)
-              : glycerinCompsumption(1, 26, args.quantity, 50),
-            args.employee_id,
-            args.TRANSACTIONID,
-          ]);
-          //create a function for product consumption
-          const result2 = await trx.raw(
-            queries.get_quantity_by_stored_id_storage,
-            [component.PRODUCT_ID]
-          );
-
-          await trx.raw(queries.product_inventory.update_consumption_stored, [
-            result2[0][0].STORED_STOCK -
-              (engineHelper.productMLType(args.product_name) == 1
-                ? productConsumption(50, args.quantity, 1)
-                : productConsumption(30, args.quantity, 1)),
-            component.PRODUCT_ID,
-          ]);
-
-          await trx.raw(queries.product_release.insert_product_release, [
-            component.PRODUCT_ID,
-            engineHelper.productMLType(args.product_name) == 1
-              ? productConsumption(50, args.quantity, 1)
-              : productConsumption(30, args.quantity, 1),
-            args.employee_id,
-            args.TRANSACTIONID,
-          ]);
-        }
-      }
-    });
-    return callback(transHandler.sucessHandler());
-  } catch (err) {
-    return callback(transHandler.errorHandler(err));
-  }
-};
-
-const Type1_Protocol = async (args, exceptions, callback) => {
-  try {
-    if (!exceptions.includes(args.product_id)) {
-      await knex.transaction(async (trx) => {
+      try {
         for (const component of args.product_components) {
-          const productType = engineHelper.productType(component.NAME);
-          if (productType === 0) {
+          if (engineHelper.productType(component.NAME) == 0) {
             await trx.raw(
               queries.activation_product.product_activation_liquid,
               [
@@ -152,22 +94,8 @@ const Type1_Protocol = async (args, exceptions, callback) => {
               result[0][0].ACTIVE_STOCK + args.quantity,
               component.PRODUCT_ID,
             ]);
-
-            await trx.raw(queries.product_release.insert_product_release, [
-              component.PRODUCT_ID,
-              args.quantity,
-              args.employee_id,
-              args.TRANSACTIONID,
-            ]);
-            const result2 = await trx.raw(
-              queries.product_release.get_quantity_by_stored_id_storage,
-              [component.PRODUCT_ID]
-            );
-            await trx.raw(queries.product_inventory.update_consumption_stored, [
-              result2[0][0].STORED_STOCK - args.quantity,
-              component.PRODUCT_ID,
-            ]);
-          } else if (productType === 1) {
+          }
+          if (engineHelper.productType(component.NAME) == 1) {
             await trx.raw(queries.product_release.insert_product_release, [
               component.PRODUCT_ID,
               args.quantity,
@@ -183,15 +111,82 @@ const Type1_Protocol = async (args, exceptions, callback) => {
               component.PRODUCT_ID,
             ]);
           }
+          if (engineHelper.productType(component.NAME) == 2) {
+            const result = await trx.raw(
+              queries.product_release.get_quantity_by_stored_id_storage,
+              ["14aa3aba"]
+            );
+            await trx.raw(queries.product_inventory.update_consumption_stored, [
+              result[0][0].STORED_STOCK -
+                (engineHelper.productMLType(args.product_name) == 1
+                  ? glycerinCompsumption(1, 26, args.quantity, 30)
+                  : glycerinCompsumption(1, 26, args.quantity, 50)),
+              "14aa3aba",
+            ]);
+            await trx.raw(queries.product_release.insert_product_release, [
+              "14aa3aba",
+              engineHelper.productMLType(args.product_name) == 1
+                ? glycerinCompsumption(1, 26, args.quantity, 30)
+                : glycerinCompsumption(1, 26, args.quantity, 50),
+              args.employee_id,
+              args.TRANSACTIONID,
+            ]);
+            //create a function for product consumption
+            const result2 = await trx.raw(
+              queries.get_quantity_by_stored_id_storage,
+              [component.PRODUCT_ID]
+            );
+
+            await trx.raw(queries.product_inventory.update_consumption_stored, [
+              result2[0][0].STORED_STOCK -
+                (engineHelper.productMLType(args.product_name) == 1
+                  ? productConsumption(50, args.quantity, 1)
+                  : productConsumption(30, args.quantity, 1)),
+              component.PRODUCT_ID,
+            ]);
+
+            await trx.raw(queries.product_release.insert_product_release, [
+              component.PRODUCT_ID,
+              engineHelper.productMLType(args.product_name) == 1
+                ? productConsumption(50, args.quantity, 1)
+                : productConsumption(30, args.quantity, 1),
+              args.employee_id,
+              args.TRANSACTIONID,
+            ]);
+          }
         }
-      });
-      return callback(transHandler.sucessHandler());
-    } else {
-      //laundry detergent-----------------------------------------------------
+        await subProtocolHandler(
+          args,
+          exceptions,
+          subProtocol,
+          subprocess_comp_id,
+          trx
+        );
+        return callback(transHandler.sucessHandler());
+      } catch (err) {
+        throw err;
+      }
+    });
+    return callback(transHandler.sucessHandler());
+  } catch (err) {
+    return callback(transHandler.errorHandler(err));
+  }
+};
+
+const Type1_Protocol = async (
+  args,
+  exceptions,
+  subProtocol,
+  subprocess_comp_id,
+  callback
+) => {
+  try {
+    if (!exceptions.includes(args.product_id)) {
       await knex.transaction(async (trx) => {
-        for (const component of args.product_components) {
-          if ("78c8da4d" == args.product_id) {
-            if (engineHelper.productType(component.NAME) == 0) {
+        try {
+          for (const component of args.product_components) {
+            const productType = engineHelper.productType(component.NAME);
+            if (productType === 0) {
               await trx.raw(
                 queries.activation_product.product_activation_liquid,
                 [
@@ -211,91 +206,182 @@ const Type1_Protocol = async (args, exceptions, callback) => {
               ]);
 
               await trx.raw(queries.product_release.insert_product_release, [
-                "e65b9756",
+                component.PRODUCT_ID,
                 args.quantity,
                 args.employee_id,
                 args.TRANSACTIONID,
               ]);
               const result2 = await trx.raw(
                 queries.product_release.get_quantity_by_stored_id_storage,
-                ["e65b9756"]
+                [component.PRODUCT_ID]
               );
               await trx.raw(
                 queries.product_inventory.update_consumption_stored,
-                [result2[0][0].STORED_STOCK - args.quantity, "e65b9756"]
+                [
+                  result2[0][0].STORED_STOCK - args.quantity,
+                  component.PRODUCT_ID,
+                ]
               );
-            }
-            if (engineHelper.productType(component.NAME) == 1) {
+            } else if (productType === 1) {
               await trx.raw(queries.product_release.insert_product_release, [
-                "4f6d1af3",
+                component.PRODUCT_ID,
                 args.quantity,
                 args.employee_id,
                 args.TRANSACTIONID,
               ]);
               const result = await trx.raw(
                 queries.product_release.get_quantity_by_stored_id_storage,
-                ["4f6d1af3"]
+                [component.PRODUCT_ID]
               );
               await trx.raw(
                 queries.product_inventory.update_consumption_stored,
-                [result[0][0].STORED_STOCK - args.quantity, "4f6d1af3"]
+                [
+                  result[0][0].STORED_STOCK - args.quantity,
+                  component.PRODUCT_ID,
+                ]
               );
             }
           }
+          await subProtocolHandler(
+            args,
+            exceptions,
+            subProtocol,
+            subprocess_comp_id,
+            trx
+          );
+        } catch (err) {
+          throw err;
+        }
+      });
+      return callback(transHandler.sucessHandler());
+    } else {
+      //laundry detergent-----------------------------------------------------
+      await knex.transaction(async (trx) => {
+        try {
+          for (const component of args.product_components) {
+            if ("78c8da4d" == args.product_id) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                await trx.raw(
+                  queries.activation_product.product_activation_liquid,
+                  [
+                    component.PRODUCT_ID,
+                    args.quantity,
+                    args.employee_id,
+                    args.TRANSACTIONID,
+                  ]
+                );
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_active,
+                  [component.PRODUCT_ID]
+                );
+                await trx.raw(queries.product_inventory.update_activation, [
+                  result[0][0].ACTIVE_STOCK + args.quantity,
+                  component.PRODUCT_ID,
+                ]);
 
-          if ("4d1f188e" == args.product_id) {
-            if (engineHelper.productType(component.NAME) == 0) {
-              await trx.raw(
-                queries.activation_product.product_activation_liquid,
-                [
-                  "4d1f188e",
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "e65b9756",
                   args.quantity,
                   args.employee_id,
                   args.TRANSACTIONID,
-                ]
-              );
-              const result = await trx.raw(
-                queries.product_release.get_quantity_by_stored_id_active,
-                ["4d1f188e"]
-              );
-              await trx.raw(queries.product_inventory.update_activation, [
-                result[0][0].ACTIVE_STOCK + args.quantity,
-                "4d1f188e",
-              ]);
-
-              await trx.raw(queries.product_release.insert_product_release, [
-                "5f21a6fe",
-                args.quantity,
-                args.employee_id,
-                args.TRANSACTIONID,
-              ]);
-              const result2 = await trx.raw(
-                queries.product_release.get_quantity_by_stored_id_storage,
-                ["5f21a6fe"]
-              );
-              await trx.raw(
-                queries.product_inventory.update_consumption_stored,
-                [result2[0][0].STORED_STOCK - args.quantity, "5f21a6fe"]
+                ]);
+                const result2 = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["e65b9756"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result2[0][0].STORED_STOCK - args.quantity, "e65b9756"]
+                );
+              }
+              if (engineHelper.productType(component.NAME) == 1) {
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "4f6d1af3",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["4f6d1af3"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result[0][0].STORED_STOCK - args.quantity, "4f6d1af3"]
+                );
+              }
+              await subProtocolHandler(
+                args,
+                exceptions,
+                subProtocol,
+                subprocess_comp_id,
+                trx
               );
             }
 
-            if (engineHelper.productType(component.NAME) == 1) {
-              await trx.raw(queries.product_release.insert_product_release, [
-                "62c42a38",
-                args.quantity,
-                args.employee_id,
-                args.TRANSACTIONID,
-              ]);
-              const result = await trx.raw(
-                queries.product_release.get_quantity_by_stored_id_storage,
-                ["62c42a38"]
-              );
-              await trx.raw(
-                queries.product_inventory.update_consumption_stored,
-                [result[0][0].STORED_STOCK - args.quantity, "62c42a38"]
+            if ("4d1f188e" == args.product_id) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                await trx.raw(
+                  queries.activation_product.product_activation_liquid,
+                  [
+                    "4d1f188e",
+                    args.quantity,
+                    args.employee_id,
+                    args.TRANSACTIONID,
+                  ]
+                );
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_active,
+                  ["4d1f188e"]
+                );
+                await trx.raw(queries.product_inventory.update_activation, [
+                  result[0][0].ACTIVE_STOCK + args.quantity,
+                  "4d1f188e",
+                ]);
+
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "5f21a6fe",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result2 = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["5f21a6fe"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result2[0][0].STORED_STOCK - args.quantity, "5f21a6fe"]
+                );
+              }
+
+              if (engineHelper.productType(component.NAME) == 1) {
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "62c42a38",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["62c42a38"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result[0][0].STORED_STOCK - args.quantity, "62c42a38"]
+                );
+              }
+              await subProtocolHandler(
+                args,
+                exceptions,
+                subProtocol,
+                subprocess_comp_id,
+                trx
               );
             }
           }
+        } catch (err) {
+          throw err;
         }
       });
       return callback(transHandler.sucessHandler());
@@ -305,76 +391,100 @@ const Type1_Protocol = async (args, exceptions, callback) => {
   }
 };
 
-const Type2_Protocol = async (args, exceptions, callback) => {
+const Type2_Protocol = async (
+  args,
+  exceptions,
+  subProtocol,
+  subprocess_comp_id,
+  callback
+) => {
   try {
     if (!exceptions.includes(args.product_id)) {
       await knex.transaction(async (trx) => {
-        for (const component of args.product_components) {
-          const productType = engineHelper.productType(component.NAME);
+        try {
+          for (const component of args.product_components) {
+            const productType = engineHelper.productType(component.NAME);
 
-          // Product Type 0: Activation Liquid
-          if (productType === 0) {
-            await trx.raw(
-              queries.activation_product.product_activation_liquid,
-              [
+            // Product Type 0: Activation Liquid
+            if (productType === 0) {
+              await trx.raw(
+                queries.activation_product.product_activation_liquid,
+                [
+                  component.PRODUCT_ID,
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]
+              );
+              const result = await trx.raw(
+                queries.product_release.get_quantity_by_stored_id_active,
+                [component.PRODUCT_ID]
+              );
+              await trx.raw(queries.product_inventory.update_activation, [
+                result[0][0].ACTIVE_STOCK + args.quantity,
+                component.PRODUCT_ID,
+              ]);
+            }
+
+            // Product Type 1: Product Release
+            else if (productType === 1) {
+              await trx.raw(queries.product_release.insert_product_release, [
                 component.PRODUCT_ID,
                 args.quantity,
                 args.employee_id,
                 args.TRANSACTIONID,
-              ]
-            );
-            const result = await trx.raw(
-              queries.product_release.get_quantity_by_stored_id_active,
-              [component.PRODUCT_ID]
-            );
-            await trx.raw(queries.product_inventory.update_activation, [
-              result[0][0].ACTIVE_STOCK + args.quantity,
-              component.PRODUCT_ID,
-            ]);
-          }
+              ]);
+              const result = await trx.raw(
+                queries.product_release.get_quantity_by_stored_id_storage,
+                [component.PRODUCT_ID]
+              );
+              await trx.raw(
+                queries.product_inventory.update_consumption_stored,
+                [
+                  result[0][0].STORED_STOCK - args.quantity,
+                  component.PRODUCT_ID,
+                ]
+              );
+            }
 
-          // Product Type 1: Product Release
-          else if (productType === 1) {
-            await trx.raw(queries.product_release.insert_product_release, [
-              component.PRODUCT_ID,
-              args.quantity,
-              args.employee_id,
-              args.TRANSACTIONID,
-            ]);
-            const result = await trx.raw(
-              queries.product_release.get_quantity_by_stored_id_storage,
-              [component.PRODUCT_ID]
-            );
-            await trx.raw(queries.product_inventory.update_consumption_stored, [
-              result[0][0].STORED_STOCK - args.quantity,
-              component.PRODUCT_ID,
-            ]);
-          }
-
-          // Product Type 2: Custom Logic for Product Consumption
-          else if (productType === 2) {
-            await trx.raw(
-              queries.product_release.get_quantity_by_stored_id_storage,
-              [component.PRODUCT_ID]
-            );
-            await trx.raw(queries.product_inventory.update_consumption_stored, [
-              result[0].STORED_STOCK -
-                (engineHelper.productMLType(args.product_name) === 1
+            // Product Type 2: Custom Logic for Product Consumption
+            else if (productType === 2) {
+              const result = await trx.raw(
+                queries.product_release.get_quantity_by_stored_id_storage,
+                [component.PRODUCT_ID]
+              );
+              await trx.raw(
+                queries.product_inventory.update_consumption_stored,
+                [
+                  result[0][0].STORED_STOCK -
+                    (engineHelper.productMLType(args.product_name) === 1
+                      ? productConsumption(30, args.quantity, 1)
+                      : productConsumption(50, args.quantity, 1)),
+                  component.PRODUCT_ID,
+                ]
+              );
+              await trx.raw(queries.product_release.insert_product_release, [
+                component.PRODUCT_ID,
+                engineHelper.productMLType(args.product_name) === 1
                   ? productConsumption(30, args.quantity, 1)
-                  : productConsumption(50, args.quantity, 1)),
-              component.PRODUCT_ID,
-            ]);
-            await trx.raw(queries.product_release.insert_product_release, [
-              component.PRODUCT_ID,
-              engineHelper.productMLType(args.product_name) === 1
-                ? productConsumption(30, args.quantity, 1)
-                : productConsumption(50, args.quantity, 1),
-              args.employee_id,
-              args.TRANSACTIONID,
-            ]);
+                  : productConsumption(50, args.quantity, 1),
+                args.employee_id,
+                args.TRANSACTIONID,
+              ]);
+            }
           }
+          await subProtocolHandler(
+            args,
+            exceptions,
+            subProtocol,
+            subprocess_comp_id,
+            trx
+          );
+        } catch (err) {
+          throw err;
         }
       });
+
       return callback(transHandler.sucessHandler());
     } else {
       // For specified exceptions, use glycerinException
@@ -475,79 +585,124 @@ const Type2_Protocol = async (args, exceptions, callback) => {
           args.employee_id,
           args.TRANSACTIONID,
         ]);
-
+        return callback(transHandler.sucessHandler());
         // pet feline
       } else {
-        glycerinException(args);
+        glycerinException(args, subProtocol, subprocess_comp_i, (status) => {
+          return callback(status);
+        });
       }
     }
+    await subProtocolHandler(
+      args,
+      exceptions,
+      subProtocol,
+      subprocess_comp_id,
+      trx
+    );
   } catch (err) {
     console.log(err);
-    // Assuming there's a mechanism to track success/failure outside this snippet
-    success.status = false;
-    success.message = `Error running type 2 protocol for product ${args.product_name}`;
+    return callback(transHandler.errorHandler(err));
   }
 };
 
-const Type3_Protocol = async (args, exceptions, callback) => {
+const Type3_Protocol = async (
+  args,
+  exceptions,
+  subProtocol,
+  subprocess_comp_id,
+  callback
+) => {
   try {
     await knex.transaction(async (trx) => {
-      for (const component of args.product_components) {
-        if (engineHelper.productType(component.NAME) == 0) {
-          await trx.raw(queries.activation_product.product_activation_liquid, [
-            component.PRODUCT_ID,
-            args.quantity,
-            args.employee_id,
-            args.TRANSACTIONID,
-          ]);
-          const result = await trx.raw(
-            queries.product_release.get_quantity_by_stored_id_active,
-            [component.PRODUCT_ID]
-          );
-          await trx.raw(queries.product_inventory.update_activation, [
-            result[0][0].ACTIVE_STOCK + args.quantity,
-            component.PRODUCT_ID,
-          ]);
-          const result2 = await trx.raw(
-            queries.product_release.get_quantity_by_stored_id_storage,
-            ["c064f810"]
-          );
-          await trx.raw(queries.product_inventory.update_activation_stored, [
-            result2[0][0].STORED_STOCK -
-              (engineHelper.productMLType(component.NAME) == 0
+      try {
+        for (const component of args.product_components) {
+          if (engineHelper.productType(component.NAME) == 0) {
+            await trx.raw(
+              queries.activation_product.product_activation_liquid,
+              [
+                component.PRODUCT_ID,
+                args.quantity,
+                args.employee_id,
+                args.TRANSACTIONID,
+              ]
+            );
+            const result = await trx.raw(
+              queries.product_release.get_quantity_by_stored_id_active,
+              [component.PRODUCT_ID]
+            );
+            await trx.raw(queries.product_inventory.update_activation, [
+              result[0][0].ACTIVE_STOCK + args.quantity,
+              component.PRODUCT_ID,
+            ]);
+            const result2 = await trx.raw(
+              queries.product_release.get_quantity_by_stored_id_storage,
+              ["c064f810"]
+            );
+            await trx.raw(queries.product_inventory.update_activation_stored, [
+              result2[0][0].STORED_STOCK -
+                (engineHelper.productMLType(component.NAME) == 0
+                  ? args.quantity
+                  : 0.6 * args.quantity),
+              "c064f810",
+            ]);
+            await trx.raw(queries.product_release.insert_product_release, [
+              "c064f810",
+              engineHelper.productMLType(component.NAME) == 0
                 ? args.quantity
-                : 0.6 * args.quantity),
-            "c064f810",
-          ]);
-        } else if (engineHelper.productType(component.NAME) == 1) {
-          await trx.raw(queries.product_release.insert_product_release, [
-            component.PRODUCT_ID,
-            args.quantity,
-            args.employee_id,
-            args.TRANSACTIONID,
-          ]);
-          const result = await trx.raw(
-            queries.product_release.get_quantity_by_stored_id_storage,
-            [component.PRODUCT_ID]
-          );
-          await trx.raw(queries.product_inventory.update_consumption_stored, [
-            result[0][0].STORED_STOCK - args.quantity,
-            component.PRODUCT_ID,
-          ]);
+                : 0.6 * args.quantity,
+              args.employee_id,
+              args.TRANSACTIONID,
+            ]);
+          } else if (engineHelper.productType(component.NAME) == 1) {
+            await trx.raw(queries.product_release.insert_product_release, [
+              component.PRODUCT_ID,
+              args.quantity,
+              args.employee_id,
+              args.TRANSACTIONID,
+            ]);
+            const result = await trx.raw(
+              queries.product_release.get_quantity_by_stored_id_storage,
+              [component.PRODUCT_ID]
+            );
+            await trx.raw(queries.product_inventory.update_consumption_stored, [
+              result[0][0].STORED_STOCK - args.quantity,
+              component.PRODUCT_ID,
+            ]);
+          }
         }
+        await subProtocolHandler(
+          args,
+          exceptions,
+          subProtocol,
+          subprocess_comp_id,
+          trx
+        );
+        return callback(transHandler.sucessHandler());
+      } catch (err) {
+        throw err;
       }
-      return callback(transHandler.sucessHandler());
     });
   } catch (err) {
     return callback(transHandler.errorHandler(err));
   }
 };
 // Type 4 Protocol
-const Type4_Protocol = async (args, exceptions, callback) => {
+const Type4_Protocol = async (
+  args,
+  exceptions,
+  subProtocol,
+  subprocess_comp_id,
+  callback
+) => {
   const amount = await engineHelper.pillBaseAmount(args.product_name);
   try {
     await knex.transaction(async (trx) => {
       try {
+        // const processComponents = await engineProcessHandler.processComponents(trx);
+        //can i inject this instance of trx into a seperate array in the application
+        // inject subcomponent process into this to create a single transaction(db)
+
         for (const component of args.product_components) {
           if (engineHelper.productType(component.NAME) == 0) {
             await trx.raw(
@@ -598,6 +753,13 @@ const Type4_Protocol = async (args, exceptions, callback) => {
             ]);
           }
         }
+        await subProtocolHandler(
+          args,
+          exceptions,
+          subProtocol,
+          subprocess_comp_id,
+          trx
+        );
       } catch (err) {
         throw err;
       }
@@ -608,62 +770,82 @@ const Type4_Protocol = async (args, exceptions, callback) => {
   }
 };
 
-const Type5_Protocol = async (args, exceptions, callback) => {
+const Type5_Protocol = async (
+  args,
+  exceptions,
+  subProtocol,
+  subprocess_comp_id,
+  callback
+) => {
   try {
     await knex.transaction(async (trx) => {
-      for (const component of args.product_components) {
-        const productType = engineHelper.productType(component.NAME);
-        // Product Type 0: Activation Liquid
-        if (productType === 0) {
-          await trx.raw(queries.activation_product.product_activation_liquid, [
-            component.PRODUCT_ID,
-            args.quantity,
-            args.employee_id,
-            args.TRANSACTIONID,
-          ]);
-          const result = await trx.raw(
-            queries.product_release.get_quantity_by_stored_id_active,
-            [component.PRODUCT_ID]
-          );
-          await trx.raw(queries.product_inventory.update_activation, [
-            result[0][0].ACTIVE_STOCK + args.quantity,
-            component.PRODUCT_ID,
-          ]);
+      try {
+        for (const component of args.product_components) {
+          const productType = engineHelper.productType(component.NAME);
+          // Product Type 0: Activation Liquid
+          if (productType === 0) {
+            await trx.raw(
+              queries.activation_product.product_activation_liquid,
+              [
+                component.PRODUCT_ID,
+                args.quantity,
+                args.employee_id,
+                args.TRANSACTIONID,
+              ]
+            );
+            const result = await trx.raw(
+              queries.product_release.get_quantity_by_stored_id_active,
+              [component.PRODUCT_ID]
+            );
+            await trx.raw(queries.product_inventory.update_activation, [
+              result[0][0].ACTIVE_STOCK + args.quantity,
+              component.PRODUCT_ID,
+            ]);
+          }
+          // Product Type 1: Label
+          else if (productType === 1) {
+            await trx.raw(queries.product_release.insert_product_release, [
+              component.PRODUCT_ID,
+              args.quantity,
+              args.employee_id,
+              args.TRANSACTIONID,
+            ]);
+            const result = await trx.raw(
+              queries.product_release.get_quantity_by_stored_id_storage,
+              [component.PRODUCT_ID]
+            );
+            await trx.raw(queries.product_inventory.update_consumption_stored, [
+              result[0][0].STORED_STOCK - args.quantity,
+              component.PRODUCT_ID,
+            ]);
+          }
+          // Product Type 2: Custom Logic
+          else if (productType === 2) {
+            const result = await trx.raw(
+              queries.product_release.get_quantity_by_stored_id_storage,
+              [component.PRODUCT_ID]
+            );
+            await trx.raw(queries.product_inventory.update_consumption_stored, [
+              result[0][0].STORED_STOCK - productConsumption50ml(args.quantity),
+              component.PRODUCT_ID,
+            ]);
+            await trx.raw(queries.product_release.insert_product_release, [
+              component.PRODUCT_ID,
+              productConsumption50ml(args.quantity),
+              args.employee_id,
+              args.TRANSACTIONID,
+            ]);
+          }
         }
-        // Product Type 1: Label
-        else if (productType === 1) {
-          await trx.raw(queries.product_release.insert_product_release, [
-            component.PRODUCT_ID,
-            args.quantity,
-            args.employee_id,
-            args.TRANSACTIONID,
-          ]);
-          const result = await trx.raw(
-            queries.product_release.get_quantity_by_stored_id_storage,
-            [component.PRODUCT_ID]
-          );
-          await trx.raw(queries.product_inventory.update_consumption_stored, [
-            result[0][0].STORED_STOCK - args.quantity,
-            component.PRODUCT_ID,
-          ]);
-        }
-        // Product Type 2: Custom Logic
-        else if (productType === 2) {
-          const result = await trx.raw(
-            queries.product_release.get_quantity_by_stored_id_storage,
-            [component.PRODUCT_ID]
-          );
-          await trx.raw(queries.product_inventory.update_consumption_stored, [
-            result[0][0].STORED_STOCK - productConsumption50ml(args.quantity),
-            component.PRODUCT_ID,
-          ]);
-          await trx.raw(queries.product_release.insert_product_release, [
-            component.PRODUCT_ID,
-            productConsumption50ml(args.quantity),
-            args.employee_id,
-            args.TRANSACTIONID,
-          ]);
-        }
+        await subProtocolHandler(
+          args,
+          exceptions,
+          subProtocol,
+          subprocess_comp_id,
+          trx
+        );
+      } catch (err) {
+        throw err;
       }
     });
     return callback(transHandler.sucessHandler());

@@ -149,6 +149,8 @@ const main_activation = (args, callback) => {
                 TRANSACTIONID,
               },
               exeptions,
+              subProtocols,
+              process_component,
               (status) => {
                 // return callback(status);
                 console.log(status);
@@ -156,16 +158,16 @@ const main_activation = (args, callback) => {
             );
           }
         });
-        if (process_component != null) {
-          subProtocols.forEach((protocol, index) => {
-            if (index + 1 === process_component) {
-              protocol(
-                { process_component, quantity, employee_id, TRANSACTIONID },
-                exeptions
-              );
-            }
-          });
-        }
+        // if (process_component != null) {
+        //   subProtocols.forEach((protocol, index) => {
+        //     if (index + 1 === process_component) {
+        //       protocol(
+        //         { process_component, quantity, employee_id, TRANSACTIONID },
+        //         exeptions
+        //       );
+        //     }
+        //   });
+        // }
       }
     );
   }, 300);
