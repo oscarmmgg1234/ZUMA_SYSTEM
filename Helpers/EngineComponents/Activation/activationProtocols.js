@@ -539,52 +539,69 @@ const Type2_Protocol = async (
             args.employee_id,
             args.TRANSACTIONID,
           ]);
+          await subProtocolHandler(
+            args,
+            exceptions,
+            subProtocol,
+            subprocess_comp_id,
+            trx
+          );
         });
       } else if (args.product_id == "342fr32e") {
-        await trx.raw(queries.activation_product.product_activation_liquid, [
-          args.product_id,
-          args.quantity,
-          args.employee_id,
-          args.TRANSACTIONID,
-        ]);
-        const result = await trx.raw(
-          queries.product_release.get_quantity_by_stored_id_active,
-          [args.product_id]
-        );
-        await trx.raw(queries.product_inventory.update_activation, [
-          result[0][0].ACTIVE_STOCK + args.quantity,
-          args.product_id,
-        ]);
-        //label
-        await trx.raw(queries.product_release.insert_product_release, [
-          "23dwsg5h",
-          args.quantity,
-          args.employee_id,
-          args.TRANSACTIONID,
-        ]);
-        const result2 = await trx.raw(
-          queries.product_release.get_quantity_by_stored_id_storage,
-          ["23dwsg5h"]
-        );
-        await trx.raw(queries.product_inventory.update_consumption_stored, [
-          result2[0][0].STORED_STOCK - args.quantity,
-          "23dwsg5h",
-        ]);
-        //pet canine gal
-        const result3 = await trx.raw(
-          queries.product_release.get_quantity_by_stored_id_storage,
-          ["c8b7621f"]
-        );
-        await trx.raw(queries.product_inventory.update_consumption_stored, [
-          result3[0][0].STORED_STOCK - productConsumption(30, args.quantity, 1),
-          "c8b7621f",
-        ]);
-        await trx.raw(queries.product_release.insert_product_release, [
-          "c8b7621f",
-          productConsumption(30, args.quantity, 1),
-          args.employee_id,
-          args.TRANSACTIONID,
-        ]);
+        await trx.transaction(async (trx) => {
+          await trx.raw(queries.activation_product.product_activation_liquid, [
+            args.product_id,
+            args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          const result = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_active,
+            [args.product_id]
+          );
+          await trx.raw(queries.product_inventory.update_activation, [
+            result[0][0].ACTIVE_STOCK + args.quantity,
+            args.product_id,
+          ]);
+          //label
+          await trx.raw(queries.product_release.insert_product_release, [
+            "23dwsg5h",
+            args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          const result2 = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            ["23dwsg5h"]
+          );
+          await trx.raw(queries.product_inventory.update_consumption_stored, [
+            result2[0][0].STORED_STOCK - args.quantity,
+            "23dwsg5h",
+          ]);
+          //pet canine gal
+          const result3 = await trx.raw(
+            queries.product_release.get_quantity_by_stored_id_storage,
+            ["c8b7621f"]
+          );
+          await trx.raw(queries.product_inventory.update_consumption_stored, [
+            result3[0][0].STORED_STOCK -
+              productConsumption(30, args.quantity, 1),
+            "c8b7621f",
+          ]);
+          await trx.raw(queries.product_release.insert_product_release, [
+            "c8b7621f",
+            productConsumption(30, args.quantity, 1),
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]);
+          await subProtocolHandler(
+            args,
+            exceptions,
+            subProtocol,
+            subprocess_comp_id,
+            trx
+          );
+        });
         return callback(transHandler.sucessHandler());
         // pet feline
       } else {
