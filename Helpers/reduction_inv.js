@@ -2,7 +2,7 @@ const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 const { db_interface } = require("../DB/interface.js");
 const { query_manager } = require("../DB/query_manager.js");
-const { TransactionHandler } = require("./transactionHandler.js");
+const { TransactionHandler } = require("./EngineComponents/transactionErrorHandler.js");
 
 const transHandler = new TransactionHandler();
 const knex = query_manager;
