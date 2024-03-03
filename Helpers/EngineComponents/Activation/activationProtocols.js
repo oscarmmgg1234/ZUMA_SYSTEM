@@ -32,18 +32,21 @@ const subProtocolHandler = async (
   }
 };
 
-const glycerinCompsumption = (
+const glycerinCompsumption = async (
   glycerinBottleAmountGALLONS,
   productGlycerinAmountOZ,
   productQuantity,
 
   productBottleSize = 50
 ) => {
+   const glycerinBottleSize = await trx.raw("SELECT GlycerinGallonUnitConstant FROM system_cofig WHERE index = 1");
   const glycerinBottleAmountGALLONS_toMill =
-    glycerinBottleAmountGALLONS * 3785.41;
+    glycerinBottleSize[0][0] * 3785.41;
   const productGlycerinAmountOZ_toMill = productGlycerinAmountOZ * 29.5735;
   const totalMillInMixture =
     glycerinBottleAmountGALLONS_toMill + productGlycerinAmountOZ_toMill;
+ 
+
   return (
     (((productBottleSize * productQuantity) / totalMillInMixture) *
       productGlycerinAmountOZ_toMill) /
