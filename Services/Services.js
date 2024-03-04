@@ -33,8 +33,9 @@ class Services {
     });
   };
 
-  http_print_barcode = (args) => {
+  http_print_barcode = (args, callback) => {
     req_model.barcode_build(args, (data) => {
+      callback(data.id);
       this.barcode_gen(data, (buffer_arr) => {
         const return_buffer_arr = buffer_arr.map((buffer) => {
           return { png_buffer: buffer };

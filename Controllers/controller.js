@@ -170,22 +170,25 @@ const get_product_by_id = (args, callback) => {
 //
 const activate_product = (args) => {
   helper.activation_engine(args, (data) => {
+    //going to create a barcode callback to be able to add the barcode to the transaction log
     if (data.status) {
-      services.http_print_barcode({
-        PRODUCT_ID: args.PRODUCT_ID,
-        NAME: args.EMPLOYEE_NAME,
-        QUANTITY: args.QUANTITY,
-        MULTIPLIER: args.MULTIPLIER,
-        PRODUCT_NAME: args.PRODUCT_NAME,
-        EMPLOYEE_ID: args.EMPLOYEE_ID,
-        SRC: "Active/Passive",
-        TRANSACTIONID: args.TRANSACTIONID,
-      });
-      setTimeout(() => {
-        knex.raw(queries.development.addBarcodeInfoToTransaction, [
-          args.TRANSACTIONID,
-        ]);
-      }, 200);
+      services.http_print_barcode(
+        {
+          PRODUCT_ID: args.PRODUCT_ID,
+          NAME: args.EMPLOYEE_NAME,
+          QUANTITY: args.QUANTITY,
+          MULTIPLIER: args.MULTIPLIER,
+          PRODUCT_NAME: args.PRODUCT_NAME,
+          EMPLOYEE_ID: args.EMPLOYEE_ID,
+          SRC: "Active/Passive",
+          TRANSACTIONID: args.TRANSACTIONID,
+        },
+        (barcode_id) => {
+          knex.raw(queries.development.addBarcodeInfoToTransaction, [
+            barcode_id,
+          ]);
+        }
+      );
     }
   });
 };
@@ -235,16 +238,23 @@ const shipment_add = (args, callback) => {
         if ((element.TYPE = "33")) {
           db_api.getEmployeeInfoByID(element.EMPLOYEE_ID, (data) => {
             db_api.get_product_by_id(element.PRODUCT_ID, (product) => {
-              services.http_print_barcode({
-                PRODUCT_ID: args.PRODUCT_ID,
-                NAME: data[0].NAME,
-                QUANTITY: 1,
-                MULTIPLIER: `${element.QUANTITY}`,
-                PRODUCT_NAME: product[0].NAME,
-                EMPLOYEE_ID: element.EMPLOYEE_ID,
-                SRC: "Active/Passive",
-                TRANSACTIONID: args.TRANSACTIONID,
-              });
+              services.http_print_barcode(
+                {
+                  PRODUCT_ID: args.PRODUCT_ID,
+                  NAME: data[0].NAME,
+                  QUANTITY: 1,
+                  MULTIPLIER: `${element.QUANTITY}`,
+                  PRODUCT_NAME: product[0].NAME,
+                  EMPLOYEE_ID: element.EMPLOYEE_ID,
+                  SRC: "Active/Passive",
+                  TRANSACTIONID: args.TRANSACTIONID,
+                },
+                (barcode_id) => {
+                  knex.raw(queries.development.addBarcodeInfoToTransaction, [
+                    barcode_id,
+                  ]);
+                }
+              );
               setTimeout(() => {
                 knex.raw(queries.development.addBarcodeInfoToTransaction, [
                   args.TRANSACTIONID,
