@@ -39,13 +39,15 @@ const glycerinCompsumption = async (
 
   productBottleSize = 50
 ) => {
-   const glycerinBottleSize = await trx.raw("SELECT GlycerinGallonUnitConstant FROM system_cofig WHERE index = 1");
+  const glycerinBottleSize = await knex.raw(
+    "SELECT GlycerinGallonUnitConstant FROM system_config WHERE system_config.Index = 1"
+  );
+
   const glycerinBottleAmountGALLONS_toMill =
-    glycerinBottleSize[0][0] * 3785.41;
+    glycerinBottleSize[0][0].GlycerinGallonUnitConstant * 3785.41;
   const productGlycerinAmountOZ_toMill = productGlycerinAmountOZ * 29.5735;
   const totalMillInMixture =
     glycerinBottleAmountGALLONS_toMill + productGlycerinAmountOZ_toMill;
- 
 
   return (
     (((productBottleSize * productQuantity) / totalMillInMixture) *
@@ -65,6 +67,7 @@ const productConsumption = (
 
 const glycerinException = async (
   args,
+  exceptions,
   subProtocol,
   subprocess_comp_id,
   callback
@@ -113,27 +116,31 @@ const glycerinException = async (
               queries.product_release.get_quantity_by_stored_id_storage,
               ["14aa3aba"]
             );
+
             await trx.raw(queries.product_inventory.update_consumption_stored, [
               result[0][0].STORED_STOCK -
                 (engineHelper.productMLType(args.product_name) == 1
-                  ? glycerinCompsumption(1, 26, args.quantity, 30)
-                  : glycerinCompsumption(1, 26, args.quantity, 50)),
+                  ? await glycerinCompsumption(1, 26, args.quantity, 30)
+                  : await glycerinCompsumption(1, 26, args.quantity, 50)),
               "14aa3aba",
             ]);
+
             await trx.raw(queries.product_release.insert_product_release, [
               "14aa3aba",
               engineHelper.productMLType(args.product_name) == 1
-                ? glycerinCompsumption(1, 26, args.quantity, 30)
-                : glycerinCompsumption(1, 26, args.quantity, 50),
+                ? await glycerinCompsumption(1, 26, args.quantity, 30)
+                : await glycerinCompsumption(1, 26, args.quantity, 50),
               args.employee_id,
               args.TRANSACTIONID,
             ]);
+
             //create a function for product consumption
             const result2 = await trx.raw(
-              queries.get_quantity_by_stored_id_storage,
+              queries.product_release.get_quantity_by_stored_id_storage,
               [component.PRODUCT_ID]
             );
-
+            console.log(result2[0][0].STORED_STOCK);
+            //cannot execute product consumption function
             await trx.raw(queries.product_inventory.update_consumption_stored, [
               result2[0][0].STORED_STOCK -
                 (engineHelper.productMLType(args.product_name) == 1
@@ -159,7 +166,6 @@ const glycerinException = async (
           subprocess_comp_id,
           trx
         );
-        return callback(transHandler.sucessHandler());
       } catch (err) {
         throw err;
       }
@@ -602,18 +608,18 @@ const Type2_Protocol = async (
         return callback(transHandler.sucessHandler());
         // pet feline
       } else {
-        glycerinException(args, subProtocol, subprocess_comp_i, (status) => {
-          return callback(status);
-        });
+        await glycerinException(
+          args,
+          exceptions,
+          subProtocol,
+          subprocess_comp_id,
+          (status) => {
+            console.log(status);
+            return callback(status);
+          }
+        );
       }
     }
-    await subProtocolHandler(
-      args,
-      exceptions,
-      subProtocol,
-      subprocess_comp_id,
-      trx
-    );
   } catch (err) {
     console.log(err);
     return callback(transHandler.errorHandler(err));
