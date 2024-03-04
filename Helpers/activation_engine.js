@@ -156,7 +156,10 @@ const main_activation = (args, callback) => {
               (status) => {
                 // return callback(status);
                 if (status.status == false) {
-                  knex.raw("DELETE FROM transaction_log WHERE TRANSACTIONID = ?", [TRANSACTIONID]);
+                  knex.raw(
+                    "DELETE FROM transaction_log WHERE TRANSACTIONID = ?",
+                    [TRANSACTIONID]
+                  );
                 }
                 return callback(status);
               }

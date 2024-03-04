@@ -2,11 +2,14 @@ const { db_interface } = require("../DB/interface.js");
 const { res_interface } = require("../Models/INTERFACE/res/res_interface.js");
 const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
+const { query_manager } = require("../DB/query_manager.js");
+const { queries } = require("../DB/queries.js");
 
 const helper = Helper();
 const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
+const knex = query_manager;
 
 const getTransactionLog = (callback) => {
   db_api.getTransactionLog((data) => {
@@ -178,6 +181,11 @@ const activate_product = (args) => {
         SRC: "Active/Passive",
         TRANSACTIONID: args.TRANSACTIONID,
       });
+      setTimeout(() => {
+        knex.raw(queries.development.addBarcodeInfoToTransaction, [
+          args.TRANSACTIONID,
+        ]);
+      }, 200);
     }
   });
 };
@@ -237,6 +245,11 @@ const shipment_add = (args, callback) => {
                 SRC: "Active/Passive",
                 TRANSACTIONID: args.TRANSACTIONID,
               });
+              setTimeout(() => {
+                knex.raw(queries.development.addBarcodeInfoToTransaction, [
+                  args.TRANSACTIONID,
+                ]);
+              }, 200);
             });
           });
         }
