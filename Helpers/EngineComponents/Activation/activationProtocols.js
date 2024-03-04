@@ -36,16 +36,21 @@ const glycerinCompsumption = async (
   glycerinBottleAmountGALLONS,
   productGlycerinAmountOZ,
   productQuantity,
-
-  productBottleSize = 50
+  productBottleSize = 50,
+  product_id
 ) => {
   const glycerinBottleSize = await knex.raw(
     "SELECT GlycerinGallonUnitConstant FROM system_config WHERE system_config.Index = 1"
   );
+  const glycerinRatioOZ = await knex.raw(
+    "SELECT GLYCERIN_RATIO_OZ FROM product WHERE product.ID = ?",
+    [product_id]
+  );
 
   const glycerinBottleAmountGALLONS_toMill =
     glycerinBottleSize[0][0].GlycerinGallonUnitConstant * 3785.41;
-  const productGlycerinAmountOZ_toMill = productGlycerinAmountOZ * 29.5735;
+  const productGlycerinAmountOZ_toMill =
+    glycerinRatioOZ[0][0].GLYCERIN_RATIO_OZ * 29.5735;
   const totalMillInMixture =
     glycerinBottleAmountGALLONS_toMill + productGlycerinAmountOZ_toMill;
 
@@ -120,16 +125,40 @@ const glycerinException = async (
             await trx.raw(queries.product_inventory.update_consumption_stored, [
               result[0][0].STORED_STOCK -
                 (engineHelper.productMLType(args.product_name) == 1
-                  ? await glycerinCompsumption(1, 26, args.quantity, 30)
-                  : await glycerinCompsumption(1, 26, args.quantity, 50)),
+                  ? await glycerinCompsumption(
+                      1,
+                      26,
+                      args.quantity,
+                      30,
+                      args.product_id
+                    )
+                  : await glycerinCompsumption(
+                      1,
+                      26,
+                      args.quantity,
+                      50,
+                      args.product_id
+                    )),
               "14aa3aba",
             ]);
 
             await trx.raw(queries.product_release.insert_product_release, [
               "14aa3aba",
               engineHelper.productMLType(args.product_name) == 1
-                ? await glycerinCompsumption(1, 26, args.quantity, 30)
-                : await glycerinCompsumption(1, 26, args.quantity, 50),
+                ? await glycerinCompsumption(
+                    1,
+                    26,
+                    args.quantity,
+                    30,
+                    args.product_id
+                  )
+                : await glycerinCompsumption(
+                    1,
+                    26,
+                    args.quantity,
+                    50,
+                    args.product_id
+                  ),
               args.employee_id,
               args.TRANSACTIONID,
             ]);
@@ -139,7 +168,6 @@ const glycerinException = async (
               queries.product_release.get_quantity_by_stored_id_storage,
               [component.PRODUCT_ID]
             );
-            console.log(result2[0][0].STORED_STOCK);
             //cannot execute product consumption function
             await trx.raw(queries.product_inventory.update_consumption_stored, [
               result2[0][0].STORED_STOCK -
@@ -614,7 +642,6 @@ const Type2_Protocol = async (
           subProtocol,
           subprocess_comp_id,
           (status) => {
-            console.log(status);
             return callback(status);
           }
         );

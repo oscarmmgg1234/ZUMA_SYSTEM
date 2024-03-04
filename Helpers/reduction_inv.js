@@ -2,7 +2,9 @@ const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 const { db_interface } = require("../DB/interface.js");
 const { query_manager } = require("../DB/query_manager.js");
-const { TransactionHandler } = require("./EngineComponents/transactionErrorHandler.js");
+const {
+  TransactionHandler,
+} = require("./EngineComponents/transactionErrorHandler.js");
 
 const transHandler = new TransactionHandler();
 const knex = query_manager;
@@ -38,18 +40,24 @@ const reduction_engine = (args) => {
     db(
       queries.development.getTransactionByID,
       [TRANSACTIONID],
-      (err, result) => {
+      async (err, result) => {
         const argsReinit = {
           EMPLOYEE_ID: args.EMPLOYEE_RESPONSIBLE,
           PRODUCT_ID: result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
           QUANTITY: result[0]?.QUANTITY ?? result2[0]?.Quantity,
           TRANSACTIONID: newTransactionID,
         };
-        local_service.addTransaction({ src: "consumption", args: argsReinit });
-        db(queries.development.addBarcodeInfoToTransaction, [
+        await local_service.addTransaction({
+          src: "consumption",
+          args: argsReinit,
+        });
+        //await
+
+        await knex.raw(queries.development.addBarcodeInfoToTransaction, [
           args.BARCODE_ID,
           newTransactionID,
         ]);
+
         setTimeout(() => {
           reduction_protocol.forEach((protocol, index) => {
             reduction_type(

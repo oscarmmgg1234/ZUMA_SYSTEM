@@ -1,5 +1,8 @@
 const { db } = require("./db_init.js");
 const { queries } = require("./queries.js");
+const { query_manager } = require("./query_manager.js");
+
+const knex = query_manager;
 
 // const insertShipmentLog = (args) => {
 //   var data = db.execute(queries.shipment_log.insert, args);
@@ -14,26 +17,19 @@ function getTransactionLog(callback) {
   });
 }
 
-const addTransaction = (args) => {
-  db(
-    queries.development.addProductTransaction,
-    [
-      args.args.TRANSACTIONID,
-      JSON.stringify([]),
-      JSON.stringify([]),
-      JSON.stringify([]),
-      JSON.stringify([]),
-      0,
-      args.src,
-      args.args.EMPLOYEE_ID,
-      args.args.PRODUCT_ID,
-      args.args.QUANTITY,
-    ],
-    (err) => {
-      if (err) {
-      }
-    }
-  );
+const addTransaction = async (args) => {
+  await knex.raw(queries.development.addProductTransaction, [
+    args.args.TRANSACTIONID,
+    JSON.stringify([]),
+    JSON.stringify([]),
+    JSON.stringify([]),
+    JSON.stringify([]),
+    0,
+    args.src,
+    args.args.EMPLOYEE_ID,
+    args.args.PRODUCT_ID,
+    args.args.QUANTITY,
+  ]);
 };
 
 const setBarcodeEmployee = (args) => {
@@ -421,8 +417,8 @@ class db_interface {
       return callback(data);
     });
   };
-  addTransaction = (args) => {
-    addTransaction(args);
+  addTransaction = async (args) => {
+    await addTransaction(args);
   };
   setBarcodeEmployee = (args) => {
     setBarcodeEmployee(args);
