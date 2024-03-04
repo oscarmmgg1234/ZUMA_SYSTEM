@@ -5,7 +5,7 @@ const { query_manager } = require("../DB/query_manager.js");
 const knex = query_manager;
 
 const transaction_engine = async (args) => {
-  const response = await trx.raw(
+  const response = await knex.raw(
     queries.development.getTransactionByID,
     args.to_arr()
   );
@@ -21,8 +21,8 @@ const transaction_engine = async (args) => {
             await trx.raw(queries.development.deleteActivationEntry, [item]);
           }
         }
-        if (transaction.CONSUMPTION_STACK.length > 0) {
-          for (const item of transaction.CONSUMPTION_STACK) {
+        if (transaction.RELEASE_STACK.length > 0) {
+          for (const item of transaction.RELEASE_STACK) {
             await trx.raw(queries.development.deleteConsumptionEntry, [item]);
           }
         }
@@ -40,12 +40,11 @@ const transaction_engine = async (args) => {
               item,
             ]);
           }
+          await trx.raw(
+            queries.development.setTransactionReversed,
+            args.to_arr()
+          );
         }
-
-        await trx.raw(
-          queries.development.setTransactionReversed,
-          args.to_arr()
-        );
       } catch (err) {
         throw err;
       }
@@ -56,3 +55,6 @@ const transaction_engine = async (args) => {
 };
 
 exports.transaction_engine = transaction_engine;
+
+
+// works need to be done for this to work
