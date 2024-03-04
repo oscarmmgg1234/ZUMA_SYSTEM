@@ -31,7 +31,8 @@ const subProtocolHandler = async (
     }
   }
 };
-
+// switch product exeption and then activate glycerin activation to check if product glycerin is null
+// if its the case then run glycerin exception function to activate the kukista
 const glycerinCompsumption = async (
   glycerinBottleAmountGALLONS,
   productGlycerinAmountOZ,
@@ -43,7 +44,7 @@ const glycerinCompsumption = async (
     "SELECT GlycerinGallonUnitConstant FROM system_config WHERE system_config.Index = 1"
   );
   const glycerinRatioOZ = await knex.raw(
-    "SELECT GLYCERIN_RATIO_OZ FROM product WHERE product.ID = ?",
+    "SELECT GLYCERIN_RATIO_OZ FROM product WHERE PRODUCT_ID = ?",
     [product_id]
   );
 
