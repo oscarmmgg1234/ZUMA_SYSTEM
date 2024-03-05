@@ -32,13 +32,9 @@ class http_handler {
       });
     },
     shimpent_insert: (req, res) => {
-      controller.shipment_controller.insert_shipment(req.req_data);
-      res.send(
-        new success_handling(
-          { request_data: req.req_data },
-          "Shipment Inserted"
-        ).getSuccess()
-      );
+      controller.shipment_controller.insert_shipment(req.req_data, (data) => {
+        res.send(new success_handling(data, "Shipment Inserted").getSuccess());
+      });
     },
     get_company_info: (req, res) => {
       controller.shipment.getCompanyInfo((data) => {
@@ -75,8 +71,14 @@ class http_handler {
   activation = {
     activate_prod: (req, res) => {
       this.ProductInventoryCache.systemChange = true;
-      controller.product_activation_controller.activate_product(req.req_data);
-      res.send(new success_handling({}, "Product Activated").getSuccess());
+      controller.product_activation_controller.activate_product(
+        req.req_data,
+        (data) => {
+          res.send(
+            new success_handling(data, "Product Activated").getSuccess()
+          );
+        }
+      );
     },
     get_employee_info: (req, res) => {
       controller.product_activation_controller.get_employee_info((data) => {

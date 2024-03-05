@@ -201,7 +201,7 @@ const glycerinException = async (
     });
     return callback(transHandler.sucessHandler());
   } catch (err) {
-    return callback(transHandler.errorHandler(err));
+    throw err;
   }
 };
 
@@ -430,6 +430,10 @@ const Type2_Protocol = async (
   subprocess_comp_id,
   callback
 ) => {
+  const isGlycerinProduct = await engineHelper.isGlycerinProduct(
+    args.product_id
+  );
+
   try {
     if (!exceptions.includes(args.product_id)) {
       await knex.transaction(async (trx) => {
@@ -637,19 +641,20 @@ const Type2_Protocol = async (
         return callback(transHandler.sucessHandler());
         // pet feline
       } else {
-        await glycerinException(
-          args,
-          exceptions,
-          subProtocol,
-          subprocess_comp_id,
-          (status) => {
-            return callback(status);
-          }
-        );
+        if (isGlycerinProduct) {
+          await glycerinException(
+            args,
+            exceptions,
+            subProtocol,
+            subprocess_comp_id,
+            (status) => {
+              return callback(status);
+            }
+          );
+        }
       }
     }
   } catch (err) {
-    console.log(err);
     return callback(transHandler.errorHandler(err));
   }
 };

@@ -13,6 +13,19 @@ const pill_base_amount = async (product) => {
   }
 };
 
+const isGlycerinProduct = async (product) => {
+  const result = await knex.raw(queries.activation_product.isGlycerinProduct, [
+    product,
+  ]);
+  if (
+    result[0][0].GLYCERIN_RATIO_OZ != null &&
+    result[0][0].GLYCERIN_RATIO_OZ > 0
+  ) {
+    return true;
+  }
+  return false;
+};
+
 //product component regex
 //helper functions
 function createProductRegex(productName) {
@@ -73,6 +86,7 @@ const product_ml_type = (product) => {
 };
 
 exports.activationEngineComponents = {
+  isGlycerinProduct: (product) => isGlycerinProduct(product),
   createRegex: (productName) => createProductRegex(productName),
   productType: (product) => product_type(product),
   productMLType: (product) => product_ml_type(product),

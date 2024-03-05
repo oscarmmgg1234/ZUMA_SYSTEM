@@ -19,6 +19,7 @@ const activation_product = {
     "INSERT INTO inventory_comsumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
   // product_inv_update: "UPDATE PRODUCT SET QUANTITY = ? WHERE PRODUCT_ID = ?",
   get_products: "SELECT * FROM product",
+  isGlycerinProduct: "SELECT GLYCERIN_RATIO_OZ FROM product WHERE PRODUCT_ID = ?",
 };
 
 const product_release = {

@@ -9,42 +9,49 @@ const transaction_engine = async (args) => {
     queries.development.getTransactionByID,
     args.to_arr()
   );
-  const transaction = response[0][0];
-  if (transaction.REVERSED === 1) {
+
+  const activation = JSON.parse(response[0][0].ACTIVATION_STACK);
+  const release = JSON.parse(response[0][0].RELEASE_STACK);
+  const shipment = JSON.parse(response[0][0].SHIPMENT_STACK);
+  const barcode = JSON.parse(response[0][0].BARCODE_STACK);
+  const transStatus = JSON.parse(response[0][0].REVERSED);
+
+  if (transStatus === 1) {
     return;
   }
+
   try {
     await knex.transaction(async (trx) => {
       try {
-        if (transaction.ACTIVATION_STACK.length > 0) {
-          for (const item of transaction.ACTIVATION_STACK) {
+        if (activation.length > 0) {
+          for (const item of activation) {
             await trx.raw(queries.development.deleteActivationEntry, [item]);
           }
         }
-        if (transaction.RELEASE_STACK.length > 0) {
-          for (const item of transaction.RELEASE_STACK) {
+        if (release.length > 0) {
+          for (const item of release) {
             await trx.raw(queries.development.deleteConsumptionEntry, [item]);
           }
         }
 
-        if (transaction.SHIPMENT_STACK.length > 0) {
-          for (const item of transaction.SHIPMENT_STACK) {
+        if (shipment.length > 0) {
+          for (const item of shipment) {
             await trx.raw(queries.development.deleteShipmentEntry, [item]);
           }
         }
 
-        if (transaction.BARCODE_STACK.length > 0) {
-          for (const item of transaction.BARCODE_STACK) {
+        if (barcode.length > 0) {
+          for (const item of barcode) {
             await trx.raw(queries.dashboard.transform_barcode_product, [
               "Active/Passive",
               item,
             ]);
           }
-          await trx.raw(
-            queries.development.setTransactionReversed,
-            args.to_arr()
-          );
         }
+        await trx.raw(
+          queries.development.setTransactionReversed,
+          args.to_arr()
+        );
       } catch (err) {
         throw err;
       }
@@ -55,6 +62,5 @@ const transaction_engine = async (args) => {
 };
 
 exports.transaction_engine = transaction_engine;
-
 
 // works need to be done for this to work
