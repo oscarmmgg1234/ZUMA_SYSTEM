@@ -39,8 +39,9 @@ class Services {
         const return_buffer_arr = buffer_arr.map((buffer) => {
           return { png_buffer: buffer };
         });
-        try {
-          fetch("http://192.168.1.25:5000/print_labels", {
+        //192.168.1.25:5000/print_labels
+        http: try {
+          fetch("http://192.168.0.153:5001/print_labels", {
             method: "POST",
             body: JSON.stringify(return_buffer_arr),
             headers: {

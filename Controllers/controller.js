@@ -170,20 +170,21 @@ const get_product_by_id = (args, callback) => {
 //
 const activate_product = (args, callback) => {
   helper.activation_engine(args, (data) => {
+    console.log(data)
+    // going to create a barcode callback to be able to add the barcode to the transaction log
+    if (data.status) {
+      services.http_print_barcode({
+        PRODUCT_ID: args.PRODUCT_ID,
+        NAME: args.EMPLOYEE_NAME,
+        QUANTITY: args.QUANTITY,
+        MULTIPLIER: args.MULTIPLIER,
+        PRODUCT_NAME: args.PRODUCT_NAME,
+        EMPLOYEE_ID: args.EMPLOYEE_ID,
+        SRC: "Active/Passive",
+        TRANSACTIONID: args.TRANSACTIONID,
+      });
+    }
     return callback(data);
-    //going to create a barcode callback to be able to add the barcode to the transaction log
-    // if (data.status) {
-    //   services.http_print_barcode({
-    //     PRODUCT_ID: args.PRODUCT_ID,
-    //     NAME: args.EMPLOYEE_NAME,
-    //     QUANTITY: args.QUANTITY,
-    //     MULTIPLIER: args.MULTIPLIER,
-    //     PRODUCT_NAME: args.PRODUCT_NAME,
-    //     EMPLOYEE_ID: args.EMPLOYEE_ID,
-    //     SRC: "Active/Passive",
-    //     TRANSACTIONID: args.TRANSACTIONID,
-    //   });
-    // }
   });
 };
 
@@ -228,25 +229,25 @@ const product_reduction = (args, callback) => {
 const shipment_add = (args, callback) => {
   args.forEach((element) => {
     helper.shipment_engine(element, (data) => {
+      if (data.status) {
+        if ((element.TYPE = "33")) {
+          db_api.getEmployeeInfoByID(element.EMPLOYEE_ID, (data) => {
+            db_api.get_product_by_id(element.PRODUCT_ID, (product) => {
+              services.http_print_barcode({
+                PRODUCT_ID: args.PRODUCT_ID,
+                NAME: data[0].NAME,
+                QUANTITY: 1,
+                MULTIPLIER: `${element.QUANTITY}`,
+                PRODUCT_NAME: product[0].NAME,
+                EMPLOYEE_ID: element.EMPLOYEE_ID,
+                SRC: "Active/Passive",
+                TRANSACTIONID: args.TRANSACTIONID,
+              });
+            });
+          });
+        }
+      }
       return callback(data);
-      // if (data.status) {
-      //   if ((element.TYPE = "33")) {
-      //     db_api.getEmployeeInfoByID(element.EMPLOYEE_ID, (data) => {
-      //       db_api.get_product_by_id(element.PRODUCT_ID, (product) => {
-      //         services.http_print_barcode({
-      //           PRODUCT_ID: args.PRODUCT_ID,
-      //           NAME: data[0].NAME,
-      //           QUANTITY: 1,
-      //           MULTIPLIER: `${element.QUANTITY}`,
-      //           PRODUCT_NAME: product[0].NAME,
-      //           EMPLOYEE_ID: element.EMPLOYEE_ID,
-      //           SRC: "Active/Passive",
-      //           TRANSACTIONID: args.TRANSACTIONID,
-      //         });
-      //       });
-      //     });
-      //   }
-      // }
     });
   });
 };
@@ -287,7 +288,9 @@ class controller {
       });
     },
     insert_shipment: (args, callback) => {
-      shipment_add(args, (data) => {return callback(data)});
+      shipment_add(args, (data) => {
+        return callback(data);
+      });
     },
     update_shipment: (args) => {
       update_shipment_log(args);
@@ -317,7 +320,9 @@ class controller {
       });
     },
     activate_product: (args, callback) => {
-      activate_product(args, (data)=>{return callback(data)});
+      activate_product(args, (data) => {
+        return callback(data);
+      });
     },
   };
   label_print_controller = {
