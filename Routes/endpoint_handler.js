@@ -6,6 +6,8 @@ const controller = controller_interface();
 const { ErrorHandling } = require("../Error/error_handling");
 const { success_handling } = require("../Error/success_handling");
 const { InMemoryCache } = require("../MiddleWare/CACHE/in_memory_cache");
+const { buffer } = require("stream/consumers");
+const { bufferedPageRange } = require("pdfkit");
 
 class http_handler {
   constructor() {
@@ -149,30 +151,7 @@ class http_handler {
     },
     barcode_gen: (req, res) => {
       controller.services.barcode_gen(req.req_data, (buffer_arr) => {
-        const return_buffer_arr = buffer_arr.map((buffer) => {
-          return { png_buffer: buffer };
-        });
-        const err = new ErrorHandling(
-          return_buffer_arr,
-          "Generate Barcode Error"
-        );
-        if (err.isValid()) {
-          fetch("http://192.168.1.25:5000/print_labels", {
-            method: "POST",
-            body: JSON.stringify(return_buffer_arr),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-          res.send(
-            new success_handling(
-              "Barcode Generated",
-              "generating barcode process"
-            ).getSuccess()
-          );
-        } else {
-          res.send(err.getError());
-        }
+        res.send(buffer_arr);
       });
     },
     api_status: (req, res) => {

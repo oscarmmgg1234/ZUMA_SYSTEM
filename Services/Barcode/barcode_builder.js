@@ -2,6 +2,38 @@ const bwipjs = require("bwip-js");
 const sharp = require("sharp");
 const { db } = require("../../DB/db_init.js");
 const { queries } = require("../../DB/queries.js");
+const PDFDocument = require("pdfkit");
+const { PDFDocument: PDFLibDocument } = require("pdf-lib");
+const fs = require("fs");
+
+const createPDFBuffer = async (buffer) => {
+  return new Promise((resolve, reject) => {
+         const pdfDoc = new PDFDocument({
+           size: [162, 72], // Dimensions in points for 2.25x1 inches at 72 DPI
+         });
+         let chunks = [];
+
+         pdfDoc.on("data", (chunk) => chunks.push(chunk));
+         pdfDoc.on("end", () => resolve(Buffer.concat(chunks)));
+
+
+         pdfDoc.image(buffer, 0, 0, {fit: [162, 72]});
+
+    pdfDoc.end();
+  });
+};
+
+async function mergePDFBuffers(pdfBuffers) {
+  const mergedPdf = await PDFLibDocument.create();
+
+  for (const pdfBuffer of pdfBuffers) {
+    const pdf = await PDFLibDocument.load(pdfBuffer);
+    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+    copiedPages.forEach((page) => mergedPdf.addPage(page));
+  }
+
+  return await mergedPdf.save(); // This is a buffer
+}
 
 const barcode_builder = (args, callback) => {
   const promises = [];
@@ -121,6 +153,7 @@ const barcode_builder = (args, callback) => {
               },
             })
               .png()
+              .sharpen()
               .toBuffer();
 
             const compo = await sharp(main_view)
@@ -132,7 +165,9 @@ const barcode_builder = (args, callback) => {
                 { input: quantityText, top: 75, left: 10 },
                 { input: timePrinted, top: 90, left: 10 },
               ])
+              .sharpen({ sigma: 10, flat: 1, jagged: 10 })
               .toBuffer();
+
 
             resolve(compo);
           } catch (sharpErr) {
@@ -146,8 +181,14 @@ const barcode_builder = (args, callback) => {
   }
 
   Promise.all(promises)
-    .then((buffer_arr) => {
-      callback(buffer_arr);
+    .then(async (buffer_arr) => {
+      var pdfBuffer = [];
+      for (buffer of buffer_arr) {
+        pdfBuffer.push(await createPDFBuffer(buffer));
+      }
+      const mergedPdfBuffer = await mergePDFBuffers(pdfBuffer);
+      fs.writeFileSync("mergedPdfBuffer.pdf", mergedPdfBuffer);
+      callback(mergedPdfBuffer);
     })
     .catch((err) => {
       console.error("Error in Promise.all:", err);

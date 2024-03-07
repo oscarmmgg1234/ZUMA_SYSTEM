@@ -170,21 +170,25 @@ const get_product_by_id = (args, callback) => {
 //
 const activate_product = (args, callback) => {
   helper.activation_engine(args, (data) => {
-    console.log(data)
     // going to create a barcode callback to be able to add the barcode to the transaction log
     if (data.status) {
-      services.http_print_barcode({
-        PRODUCT_ID: args.PRODUCT_ID,
-        NAME: args.EMPLOYEE_NAME,
-        QUANTITY: args.QUANTITY,
-        MULTIPLIER: args.MULTIPLIER,
-        PRODUCT_NAME: args.PRODUCT_NAME,
-        EMPLOYEE_ID: args.EMPLOYEE_ID,
-        SRC: "Active/Passive",
+      const barcodeInput = {
+        product_id: args.PRODUCT_ID,
+        employee: args.EMPLOYEE_NAME,
+        quantity: args.QUANTITY,
+        multiplier: args.MULTIPLIER,
+        product_name: args.PRODUCT_NAME,
+        employee_id: args.EMPLOYEE_ID,
+        src: "Active/Passive",
+        id: Math.floor(Math.random() * 1000000000),
         TRANSACTIONID: args.TRANSACTIONID,
+      };
+      generate_barcode(barcodeInput, (barcodeData) => {
+        return callback({ ...data, barcodeBuffer: barcodeData });
       });
+    } else {
+      return callback(data);
     }
-    return callback(data);
   });
 };
 
@@ -243,11 +247,26 @@ const shipment_add = (args, callback) => {
                 SRC: "Active/Passive",
                 TRANSACTIONID: args.TRANSACTIONID,
               });
+              const barcodeInput = {
+                product_id: args.PRODUCT_ID,
+                employee: data[0].EMPLOYEE_NAME,
+                quantity: args.QUANTITY,
+                multiplier: 1,
+                product_name: args.PRODUCT_NAME,
+                employee_id: args.EMPLOYEE_ID,
+                src: "Active/Passive",
+                id: Math.floor(Math.random() * 1000000000),
+                TRANSACTIONID: args.TRANSACTIONID,
+              };
+              generate_barcode(barcodeInput, (barcodeData) => {
+                return callback({ ...data, barcodeBuffer: barcodeData });
+              });
             });
           });
         }
+      } else {
+        return callback(data);
       }
-      return callback(data);
     });
   });
 };
