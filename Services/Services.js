@@ -33,6 +33,28 @@ class Services {
     });
   };
 
+  multiItemBarcodeGen = (args, callback) => {
+    // Map each arg to a promise that resolves when barcode_builder completes for that arg
+    const promises = args.map((arg) => {
+      return new Promise((resolve, reject) => {
+        req_model.barcode_build(arg, (data) => {
+          barcode_gen.barcode_builder(data, (barcode) => {
+            resolve(barcode); // Resolve this promise with the data
+          });
+        });
+      });
+    });
+    // Wait for all promises to resolve, then return the array of results
+    Promise.all(promises).then((data) => {
+      let barcode_buffers = [];
+      for (const barcode_arr of data) {
+        for (const barcode of barcode_arr) {
+          barcode_buffers.push(barcode);
+        }
+      }
+      return callback(barcode_buffers);
+    });
+  };
   http_print_barcode = (args) => {
     req_model.barcode_build(args, (data) => {
       this.barcode_gen(data, (buffer_arr) => {

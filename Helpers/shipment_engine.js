@@ -2,13 +2,15 @@ const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 const { db_interface } = require("../DB/interface.js");
 const { query_manager } = require("../DB/query_manager.js");
-const { TransactionHandler } = require("./EngineComponents/transactionErrorHandler.js");
+const {
+  TransactionHandler,
+} = require("./EngineComponents/transactionErrorHandler.js");
 
 const transHandler = new TransactionHandler();
 const knex = query_manager;
 const db_api = db_interface();
 
-const shipment_engine = (args, callback) => {
+const shipment_engine = async (args, callback) => {
   db_api.addTransaction({ src: "shipment", args: args });
   const newArgs = {
     quantity: args.QUANTITY,
@@ -20,19 +22,20 @@ const shipment_engine = (args, callback) => {
     arr: args.to_arr(),
     TRANSACTIONID: args.TRANSACTIONID,
   };
-  setTimeout(() => {
-    shipment_protocol.forEach((protocol, index) => {
-      if (args.SHIPMENT_TYPE == index + 1) {
-        protocol(newArgs, (status) => {
+  setTimeout(async () => {
+    for (var i = 0; i < shipment_protocol.length; i++) {
+      if (args.SHIPMENT_TYPE == i + 1) {
+        await shipment_protocol[i](newArgs, async (status) => {
           if (status.status == false) {
-            knex.raw("DELETE FROM transaction_log WHERE TRANSACTIONID = ?", [
-              args.TRANSACTIONID,
-            ]);
+            await knex.raw(
+              "DELETE FROM transaction_log WHERE TRANSACTIONID = ?",
+              [args.TRANSACTIONID]
+            );
           }
           return callback(status);
         });
       }
-    });
+    }
   }, 300);
   // setTimeout(() => {
 

@@ -230,44 +230,17 @@ const product_reduction = (args, callback) => {
   });
 };
 
-const shipment_add = (args, callback) => {
-  args.forEach((element) => {
+const shipment_add = async (args, callback) => {
+  for (element of args) {
     helper.shipment_engine(element, (data) => {
       if (data.status) {
-        if ((element.TYPE = "33")) {
-          db_api.getEmployeeInfoByID(element.EMPLOYEE_ID, (data) => {
-            db_api.get_product_by_id(element.PRODUCT_ID, (product) => {
-              services.http_print_barcode({
-                PRODUCT_ID: args.PRODUCT_ID,
-                NAME: data[0].NAME,
-                QUANTITY: 1,
-                MULTIPLIER: `${element.QUANTITY}`,
-                PRODUCT_NAME: product[0].NAME,
-                EMPLOYEE_ID: element.EMPLOYEE_ID,
-                SRC: "Active/Passive",
-                TRANSACTIONID: args.TRANSACTIONID,
-              });
-              const barcodeInput = {
-                product_id: args.PRODUCT_ID,
-                employee: data[0].EMPLOYEE_NAME,
-                quantity: args.QUANTITY,
-                multiplier: 1,
-                product_name: args.PRODUCT_NAME,
-                employee_id: args.EMPLOYEE_ID,
-                src: "Active/Passive",
-                id: Math.floor(Math.random() * 1000000000),
-                TRANSACTIONID: args.TRANSACTIONID,
-              };
-              generate_barcode(barcodeInput, (barcodeData) => {
-                return callback({ ...data, barcodeBuffer: barcodeData });
-              });
-            });
-          });
-        }
       } else {
         return callback(data);
       }
     });
+  }
+  services.multiItemBarcodeGen(args, (data) => {
+    return callback(data);
   });
 };
 
