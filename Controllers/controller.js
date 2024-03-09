@@ -231,17 +231,88 @@ const product_reduction = (args, callback) => {
 };
 
 const shipment_add = async (args, callback) => {
-  for (element of args) {
-    helper.shipment_engine(element, (data) => {
-      if (data.status) {
-      } else {
-        return callback(data);
+  let shipmentFullfillmentFlag = true;
+  const barcodeInputs = [];
+
+  try {
+    const shipmentPromises = args.map(
+      (element) =>
+        new Promise((resolve, reject) => {
+          helper.shipment_engine(element, (data) => {
+            if (data.status) {
+              resolve(data);
+            } else {
+              reject("Shipment failed");
+            }
+          });
+        })
+    );
+
+    // Wait for all shipment operations to complete
+    await Promise.all(shipmentPromises);
+
+    // Now handle the barcode inputs preparation
+    for (const element of args) {
+      if (element.TYPE === "33") {
+        try {
+          const employeeData = await new Promise((resolve, reject) => {
+            db_api.getEmployeeInfoByID(element.EMPLOYEE_ID, resolve, reject);
+          });
+
+          const productData = await new Promise((resolve, reject) => {
+            db_api.get_product_by_id(element.PRODUCT_ID, resolve, reject);
+          });
+
+          const barcodeInput = {
+            PRODUCT_ID: element.PRODUCT_ID,
+            NAME: employeeData[0].NAME,
+            QUANTITY: 1,
+            MULTIPLIER: `${element.QUANTITY}`,
+            PRODUCT_NAME: productData[0].NAME,
+            EMPLOYEE_ID: element.EMPLOYEE_ID,
+            SRC: "Active/Passive",
+            TRANSACTIONID: element.TRANSACTIONID,
+          };
+
+          barcodeInputs.push(barcodeInput);
+        } catch (error) {
+          shipmentFullfillmentFlag = false;
+          break; // Stop processing further if any error occurs
+        }
       }
+    }
+
+    // Proceed only if all operations were successful
+    if (shipmentFullfillmentFlag) {
+      services.multiItemBarcodeGen(barcodeInputs, (data) => {
+        if (data.length > 0) {
+          
+          callback({
+            status: true,
+            message: "Labels printed successfully",
+            barcodeBuffers: data,
+          });
+        } else {
+          callback({
+            status: true,
+            message: "Sucess no barcodes needed to be printed.",
+            barcodeBuffers: [],
+          });
+        }
+      });
+    } else {
+      callback({
+        status: false,
+        message: "Error preparing barcode inputs or no valid inputs found",
+      });
+    }
+  } catch (error) {
+    // Handle any errors from the shipment operations
+    callback({
+      status: false,
+      message: error instanceof Error ? error.message : error,
     });
   }
-  services.multiItemBarcodeGen(args, (data) => {
-    return callback(data);
-  });
 };
 
 const get_shipment_log = (callback) => {

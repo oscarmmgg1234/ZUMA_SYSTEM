@@ -151,7 +151,9 @@ class http_handler {
     },
     barcode_gen: (req, res) => {
       controller.services.barcode_gen(req.req_data, (buffer_arr) => {
-        res.send(buffer_arr);
+        res.send(
+          new success_handling(buffer_arr, "Barcode Generated").getSuccess()
+        );
       });
     },
     api_status: (req, res) => {
