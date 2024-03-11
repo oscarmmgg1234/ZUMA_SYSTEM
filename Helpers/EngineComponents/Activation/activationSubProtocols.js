@@ -70,11 +70,11 @@ const Type2_Component_Protocol = async (args, exceptions, trx_handler) => {
       queries.product_release.get_quantity_by_stored_id_storage,
       ["d588ca27"]
     );
-    await trx_handler.handler(
+    await trx_handler.raw(
       queries.product_inventory.update_consumption_stored,
       [result2[0][0].STORED_STOCK - args.quantity, "d588ca27"]
     );
-  } catch (e) {
+  } catch (err) {
     throw err;
   }
 };

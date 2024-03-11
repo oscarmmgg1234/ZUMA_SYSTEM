@@ -173,16 +173,16 @@ const glycerinException = async (
             await trx.raw(queries.product_inventory.update_consumption_stored, [
               result2[0][0].STORED_STOCK -
                 (engineHelper.productMLType(args.product_name) == 1
-                  ? productConsumption(50, args.quantity, 1)
-                  : productConsumption(30, args.quantity, 1)),
+                  ? productConsumption(30, args.quantity, 1.203)
+                  : productConsumption(50, args.quantity, 1.203)),
               component.PRODUCT_ID,
             ]);
 
             await trx.raw(queries.product_release.insert_product_release, [
               component.PRODUCT_ID,
               engineHelper.productMLType(args.product_name) == 1
-                ? productConsumption(50, args.quantity, 1)
-                : productConsumption(30, args.quantity, 1),
+                ? productConsumption(30, args.quantity, 1.203)
+                : productConsumption(50, args.quantity, 1.203),
               args.employee_id,
               args.TRANSACTIONID,
             ]);
@@ -436,8 +436,10 @@ const Type2_Protocol = async (
 
   try {
     if (!exceptions.includes(args.product_id)) {
+     
       await knex.transaction(async (trx) => {
         try {
+          
           for (const component of args.product_components) {
             const productType = engineHelper.productType(component.NAME);
 
@@ -481,6 +483,7 @@ const Type2_Protocol = async (
                   component.PRODUCT_ID,
                 ]
               );
+              
             }
 
             // Product Type 2: Custom Logic for Product Consumption

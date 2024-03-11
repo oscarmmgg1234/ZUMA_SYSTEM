@@ -24,9 +24,6 @@ const knex = query_manager;
 //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
 //think about this a bit more => maintanance, add products, remove product, tweaks to products
 
-// error handling
-let success = { status: true, message: "success" };
-
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
 const exeptions = [
   "78c8da4d",
@@ -161,7 +158,7 @@ const main_activation = (args, callback) => {
                     [TRANSACTIONID]
                   );
                 }
-                
+
                 return callback(status);
               }
             );
