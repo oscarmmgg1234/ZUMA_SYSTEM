@@ -2,9 +2,6 @@ const bwipjs = require("bwip-js");
 const sharp = require("sharp");
 const { db } = require("../../DB/db_init.js");
 const { queries } = require("../../DB/queries.js");
-const PDFDocument = require("pdfkit");
-const { PDFDocument: PDFLibDocument } = require("pdf-lib");
-const fs = require("fs");
 
 // const createPDFBuffer = async (buffer) => {
 //   return new Promise((resolve, reject) => {
