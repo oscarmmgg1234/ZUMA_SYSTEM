@@ -80,11 +80,11 @@ const tools = {
 const dashboard = {
   get_product_stock: "SELECT * from product_inventory where PRODUCT_ID = ?",
   get_product_reduction_recent:
-    "SELECT * from inventory_consumption where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
+    "SELECT * from inventory_consumption where PRODUCT_ID = ? ORDER BY DATETIME DESC LIMIT 1",
   get_product_activation_recent:
-    "SELECT * from inventory_activation where PRODUCT_ID = ? ORDER BY DATETIME DESC LIMIT 1",
+    "SELECT * from inventory_activation where PRODUCT_ID = ? ORDER BY DATE DESC LIMIT 1",
   get_product_shipment_recent:
-    "SELECT * from shipment_log where PRODUCT_ID = ? ORDER BY SHIPMNENT_DATE DESC LIMIT 1",
+    "SELECT * from shipment_log where PRODUCT_ID = ? ORDER BY SHIPMENT_DATE DESC LIMIT 1",
   get_active_stock:
     "SELECT ACTIVE_STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
   get_stored_stock:

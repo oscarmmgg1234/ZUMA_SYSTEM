@@ -2,9 +2,6 @@ const bwipjs = require("bwip-js");
 const sharp = require("sharp");
 const { db } = require("../../DB/db_init.js");
 const { queries } = require("../../DB/queries.js");
-const PDFDocument = require("pdfkit");
-const { PDFDocument: PDFLibDocument } = require("pdf-lib");
-const fs = require("fs");
 
 // const createPDFBuffer = async (buffer) => {
 //   return new Promise((resolve, reject) => {
@@ -151,8 +148,9 @@ const barcode_builder = (args, callback) => {
                 background: { r: 255, g: 255, b: 255, alpha: 1 },
               },
             })
-              .png()
-              .sharpen()
+            .png()
+            .greyscale()
+            .sharpen()
               .toBuffer();
 
             const compo = await sharp(main_view)
@@ -164,7 +162,7 @@ const barcode_builder = (args, callback) => {
                 { input: quantityText, top: 75, left: 10 },
                 { input: timePrinted, top: 90, left: 10 },
               ])
-              .sharpen({ sigma: 10, flat: 1, jagged: 10 })
+
               .toBuffer();
 
             resolve(compo);
