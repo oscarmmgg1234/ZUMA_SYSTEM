@@ -1,6 +1,7 @@
 const express = require("express");
 const server = express();
 const cors = require("cors");
+const wss = require("ws");
 
 // const originalConsoleLog = console.log;
 // console.log = function(...args) {
@@ -28,6 +29,7 @@ server.use(dashboard_endpoints);
 //engineTest.populate_base_components();
 //engineTest.test();
 
+exports.server = server;
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
