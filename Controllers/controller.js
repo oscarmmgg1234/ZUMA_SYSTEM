@@ -2,14 +2,19 @@ const { db_interface } = require("../DB/interface.js");
 const { res_interface } = require("../Models/INTERFACE/res/res_interface.js");
 const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
-const { query_manager } = require("../DB/query_manager.js");
-const { queries } = require("../DB/queries.js");
+const { get } = require("http");
 
 const helper = Helper();
 const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
-const knex = query_manager;
+
+const getGlycerinGlobal = async () => {
+  return await db_api.getGlycerinGlobal();
+};
+const setGlycerinGLobal = (args) => {
+  db_api.setGlycerinGlobal(args);
+};
 
 const getTransactionLog = (callback) => {
   db_api.getTransactionLog((data) => {
@@ -286,7 +291,6 @@ const shipment_add = async (args, callback) => {
     if (shipmentFullfillmentFlag) {
       services.multiItemBarcodeGen(barcodeInputs, (data) => {
         if (data.length > 0) {
-          
           callback({
             status: true,
             message: "Labels printed successfully",
@@ -458,6 +462,12 @@ class controller {
   };
 
   dashboard_controller = {
+    getGlycerinGlobal: async (callback) => {
+      return callback(await getGlycerinGlobal());
+    },
+    setGlycerinGlobal: (args) => {
+      setGlycerinGLobal(args);
+    },
     revert_transaction: (args) => {
       transaction_engine(args);
     },

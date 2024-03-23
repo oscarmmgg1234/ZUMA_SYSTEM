@@ -43,4 +43,10 @@ service_router.post("/revertTransaction", (req, res) => {
 service_router.post("/getTransactionLog", (req, res) => {
   endpoint_handler.dashboard.getTransactionLog(req, res);
 });
+service_router.post("/getGlycerinGlobal", (req, res) => {
+  endpoint_handler.dashboard.getGlycerinGlobal(req, res);
+});
+service_router.post("/setGlycerinGlobal", (req, res) => {
+  endpoint_handler.dashboard.setGlycerinGlobal(req, res);
+});
 module.exports = service_router;

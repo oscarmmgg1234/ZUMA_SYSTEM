@@ -8,6 +8,15 @@ const knex = query_manager;
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const getGlycerinGlobal = async () => {
+  const result = await knex.raw(queries.dashboard.getGlycerinGlobal);
+  return { glycerinGlobalUnit: result[0][0].GlycerinGallonUnitConstant };
+};
+
+const setGlycerinGlobal = async (args) => {
+  await knex.raw(queries.dashboard.setGlycerinGLobal, args);
+};
+
 function getTransactionLog(callback) {
   db(queries.development.getTransactionLog, (err, result) => {
     if (err) {
@@ -412,6 +421,12 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  getGlycerinGlobal = async () => {
+    return await getGlycerinGlobal();
+  };
+  setGlycerinGlobal = async (args) => {
+    await setGlycerinGlobal(args);
+  };
   getTransactionLog = (callback) => {
     getTransactionLog((data) => {
       return callback(data);

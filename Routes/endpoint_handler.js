@@ -219,6 +219,27 @@ class http_handler {
   };
 
   dashboard = {
+    getGlycerinGlobal: (req, res) => {
+      controller.dashboard_controller.getGlycerinGlobal((data) => {
+        const err = new ErrorHandling(data, "Error getting glycerin global");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Glycerin Global").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    setGlycerinGlobal: (req, res) => {
+      controller.dashboard_controller.setGlycerinGlobal([req.body.set_value]);
+      res.send(
+        new success_handling(
+          { request_data: req.req_data },
+          "Glycerin Global Set"
+        ).getSuccess()
+      );
+    },
     getTransactionLog: (req, res) => {
       controller.services.getTransactionLog((data) => {
         const err = new ErrorHandling(data, "Error getting transaction log");
