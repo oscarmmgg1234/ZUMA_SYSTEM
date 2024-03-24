@@ -29,19 +29,34 @@ async function main() {
       subject: "Zuma Low Stock Alert",
       plainText: `The following Products require review and/or ordering to avoid stockout issues:\n\n${productList}`,
       html: `
-      <div style="background-color:#A5BEBA;padding:20px;text-align:center;">
-        <h1 style="color:white;font-family:Arial, sans-serif;">Zuma Automated Alert</h1>
-      </div>
-      <div style="font-family:Arial, sans-serif;padding:20px;">
-        <p>The following Products require review and/or ordering to avoid stockout issues:</p>
-        <ul>${products
-          .map(
-            (product) =>
-              `<li>${product.NAME} => Stored: ${product.stock.STORED_STOCK} ${product.UNIT_TYPE}S, Active: ${product.stock.ACTIVE_STOCK} ${product.UNIT_TYPE}S </li>`
-          )
-          .join("")}</ul>
-      </div>
-    `,
+  <div style="background-color:#A5BEBA;padding:20px;text-align:center;">
+    <h1 style="color:white;font-family:Arial, sans-serif;">Zuma Automated Alert</h1>
+  </div>
+  <div style="font-family:Arial, sans-serif;padding:20px;">
+    <p>The following Products require review and/or ordering to avoid stockout issues:</p>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr>
+        <th style="border:1px solid #ddd;padding:8px;background-color:#f2f2f2;">Name of Product</th>
+        <th style="border:1px solid #ddd;padding:8px;background-color:#f2f2f2;">Stock</th>
+        <th style="border:1px solid #ddd;padding:8px;background-color:#f2f2f2;">Stored Stock</th>
+        <th style="border:1px solid #ddd;padding:8px;background-color:#f2f2f2;">Active Stock</th>
+        <th style="border:1px solid #ddd;padding:8px;background-color:#f2f2f2;">Unit Type</th>
+      </tr>
+      ${products
+        .map(
+          (product) =>
+            `<tr>
+            <td style="border:1px solid #ddd;padding:8px;">${product.NAME}</td>
+            <td style="border:1px solid #ddd;padding:8px;">${product.stock.STOCK}</td>
+            <td style="border:1px solid #ddd;padding:8px;">${product.stock.STORED_STOCK}</td>
+            <td style="border:1px solid #ddd;padding:8px;">${product.stock.ACTIVE_STOCK}</td>
+            <td style="border:1px solid #ddd;padding:8px;">${product.UNIT_TYPE}S</td>
+           </tr>`
+        )
+        .join("")}
+    </table>
+  </div>
+`,
     },
     recipients: {
       to: formatRecipents,
@@ -49,7 +64,9 @@ async function main() {
   };
 
   try {
-    if(products.length === 0) {return;}
+    if (products.length === 0) {
+      return;
+    }
     const poller = await client.beginSend(emailMessage);
     const result = await poller.pollUntilDone();
   } catch (error) {
