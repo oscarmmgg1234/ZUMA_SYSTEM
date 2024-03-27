@@ -3,34 +3,6 @@ const sharp = require("sharp");
 const { db } = require("../../DB/db_init.js");
 const { queries } = require("../../DB/queries.js");
 
-// const createPDFBuffer = async (buffer) => {
-//   return new Promise((resolve, reject) => {
-//          const pdfDoc = new PDFDocument({
-//            size: [162, 72], // Dimensions in points for 2.25x1 inches at 72 DPI
-//          });
-//          let chunks = [];
-
-//          pdfDoc.on("data", (chunk) => chunks.push(chunk));
-//          pdfDoc.on("end", () => resolve(Buffer.concat(chunks)));
-
-//          pdfDoc.image(buffer, 0, 0, {fit: [162, 72]});
-
-//     pdfDoc.end();
-//   });
-// };
-
-// async function mergePDFBuffers(pdfBuffers) {
-//   const mergedPdf = await PDFLibDocument.create();
-
-//   for (const pdfBuffer of pdfBuffers) {
-//     const pdf = await PDFLibDocument.load(pdfBuffer);
-//     const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-//     copiedPages.forEach((page) => mergedPdf.addPage(page));
-//   }
-
-//   return await mergedPdf.save(); // This is a buffer
-// }
-
 const barcode_builder = (args, callback) => {
   const promises = [];
   for (let i = 0; i < parseInt(args.multiplier); i++) {

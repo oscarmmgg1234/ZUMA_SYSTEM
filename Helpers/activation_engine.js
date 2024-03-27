@@ -65,7 +65,10 @@ const getProductProccessInfo = (args, callback) => {
   //1st step
   const component_regex = engineHelper.createRegex(args.PRODUCT_NAME);
   //parses request object and create obj needed for protocols
-
+  const glycerin_exeption =
+    args.GLYCERIN_RATIO_OZ != null || args.GLYCERIN_RATIO_GAL != 0
+      ? true
+      : false;
   getProducts((products) => {
     const process_info = products.filter((product) => {
       return product.PRODUCT_ID === args.PRODUCT_ID;
@@ -115,6 +118,7 @@ const getProductProccessInfo = (args, callback) => {
       product_name: process_info[0].NAME,
       product_components: formated_components,
       employee_id: args.EMPLOYEE_ID,
+      glycerin_exeption: glycerin_exeption,
     });
   });
 };
@@ -134,6 +138,7 @@ const main_activation = (args, callback) => {
         product_components,
         quantity,
         employee_id,
+        glycerin_exeption,
       }) => {
         const TRANSACTIONID = args.TRANSACTIONID;
         protocols.forEach((protocol, index) => {
@@ -146,6 +151,7 @@ const main_activation = (args, callback) => {
                 quantity,
                 employee_id,
                 TRANSACTIONID,
+                glycerin_exeption,
               },
               exeptions,
               subProtocols,
