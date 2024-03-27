@@ -26,6 +26,8 @@ const knex = query_manager;
 
 //special product exeptions //think about wether its worth creating exeption rules or just create a diffrent protocol for product that meets exeption rule
 const exeptions = [
+  "2wdf4rdh",
+  "2eridng1",
   "78c8da4d",
   "4d1f188e",
   "cc53b880",

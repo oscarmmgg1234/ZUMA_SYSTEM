@@ -350,7 +350,128 @@ const Type1_Protocol = async (
                 trx
               );
             }
+            //body wash sm
+            if ("2eridng1" == args.product_id) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                await trx.raw(
+                  queries.activation_product.product_activation_liquid,
+                  [
+                    "2eridng1",
+                    args.quantity,
+                    args.employee_id,
+                    args.TRANSACTIONID,
+                  ]
+                );
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_active,
+                  ["2eridng1"]
+                );
+                await trx.raw(queries.product_inventory.update_activation, [
+                  result[0][0].ACTIVE_STOCK + args.quantity,
+                  "2eridng1",
+                ]);
 
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "2eridng1",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result2 = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["2eridng1"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result2[0][0].STORED_STOCK - args.quantity, "2eridng1"]
+                );
+              }
+
+              if (engineHelper.productType(component.NAME) == 1) {
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "2erglsdf",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["2erglsdf"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result[0][0].STORED_STOCK - args.quantity, "2erglsdf"]
+                );
+              }
+              await subProtocolHandler(
+                args,
+                exceptions,
+                subProtocol,
+                subprocess_comp_id,
+                trx
+              );
+            }
+            //laundry detergent sm
+            if ("2wdf4rdh" == args.product_id) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                await trx.raw(
+                  queries.activation_product.product_activation_liquid,
+                  [
+                    "2wdf4rdh",
+                    args.quantity,
+                    args.employee_id,
+                    args.TRANSACTIONID,
+                  ]
+                );
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_active,
+                  ["2wdf4rdh"]
+                );
+                await trx.raw(queries.product_inventory.update_activation, [
+                  result[0][0].ACTIVE_STOCK + args.quantity,
+                  "2wdf4rdh",
+                ]);
+
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "2eridng1",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result2 = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["2eridng1"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result2[0][0].STORED_STOCK - args.quantity, "2eridng1"]
+                );
+              }
+
+              if (engineHelper.productType(component.NAME) == 1) {
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "2worgdlw",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["2worgdlw"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result[0][0].STORED_STOCK - args.quantity, "2worgdlw"]
+                );
+              }
+              await subProtocolHandler(
+                args,
+                exceptions,
+                subProtocol,
+                subprocess_comp_id,
+                trx
+              );
+            }
             if ("4d1f188e" == args.product_id) {
               if (engineHelper.productType(component.NAME) == 0) {
                 await trx.raw(
