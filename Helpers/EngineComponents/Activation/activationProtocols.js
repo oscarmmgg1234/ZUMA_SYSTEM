@@ -435,11 +435,9 @@ const Type2_Protocol = async (
   );
 
   try {
-    if (!exceptions.includes(args.product_id) || !args.glycerin_exeption) {
-     
+    if (!exceptions.includes(args.product_id) && !args.glycerin_exeption) {
       await knex.transaction(async (trx) => {
         try {
-          
           for (const component of args.product_components) {
             const productType = engineHelper.productType(component.NAME);
 
@@ -483,7 +481,6 @@ const Type2_Protocol = async (
                   component.PRODUCT_ID,
                 ]
               );
-              
             }
 
             // Product Type 2: Custom Logic for Product Consumption
