@@ -554,9 +554,9 @@ const Type2_Protocol = async (
   const isGlycerinProduct = await engineHelper.isGlycerinProduct(
     args.product_id
   );
-
   try {
-    if (!exceptions.includes(args.product_id) && !args.glycerin_exeption) {
+    if (!exceptions.includes(args.product_id) && (isGlycerinProduct !== 0 || isGlycerinProduct == null)) {
+      
       await knex.transaction(async (trx) => {
         try {
           for (const component of args.product_components) {
@@ -648,7 +648,7 @@ const Type2_Protocol = async (
       if (args.product_id == "236gh33j") {
         // pet canine
         //activate pet canine
-        await trx.transaction(async (trx) => {
+        await knex.transaction(async (trx) => {
           await trx.raw(queries.activation_product.product_activation_liquid, [
             args.product_id,
             args.quantity,
@@ -704,8 +704,9 @@ const Type2_Protocol = async (
             trx
           );
         });
+        return callback(transHandler.sucessHandler());
       } else if (args.product_id == "342fr32e") {
-        await trx.transaction(async (trx) => {
+        await knex.transaction(async (trx) => {
           await trx.raw(queries.activation_product.product_activation_liquid, [
             args.product_id,
             args.quantity,

@@ -49,8 +49,6 @@ function createProductRegex(productName) {
     return pattern; // will capture Fulvic Detox, Fulvic Detox Label, Fulvic Detox Gal, Fulvic & Detox 30ml Label, etc. and
   } catch (err) {
     console.log(err);
-    success.status = false;
-    success.message = "error creating regex pattern";
   }
 }
 

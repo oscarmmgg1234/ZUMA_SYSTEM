@@ -166,7 +166,6 @@ const main_activation = (args, callback) => {
                     [TRANSACTIONID]
                   );
                 }
-
                 return callback(status);
               }
             );
