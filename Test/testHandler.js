@@ -1,9 +1,10 @@
-const {LogHandler} = require("./LogHandler");
+const { LogHandler } = require("./LogHandler");
 const {
   KukistaActivationIntegrationTest,
 } = require("./src/KukistaActivationEngineIntegration_test");
-
-
+const {
+  PillActivationEngineIntegrationTest,
+} = require("./src/PillActivationEngineIntegrationTest");
 
 class Test {
   constructor() {
@@ -15,7 +16,11 @@ class Test {
       return callback(data);
     });
   }
-
+  pillProductTest(quantity, type, callback) {
+    PillActivationEngineIntegrationTest(quantity, type, (data) => {
+      return callback(data);
+    });
+  }
   SetInternalStateTestHandler(status) {
     this.internal_state = status;
   }
@@ -28,7 +33,9 @@ class Test {
         "Kukista Product Activation Engine Test",
         "199",
         (data) => {
-            const output = LogHandler("KukistaActivationEngineIntegrationTest.log");
+          const output = LogHandler(
+            "KukistaActivationEngineIntegrationTest.log"
+          );
           if (data == false) {
             console.log("test is inactive");
             return;
@@ -38,7 +45,8 @@ class Test {
               output.LogToFile(
                 `Inventory for product ${key} did not update correctly. Expected: ${
                   value + data.quantity
-                }, Actual: ${data.end_inv_map.get(key)}`, true
+                }, Actual: ${data.end_inv_map.get(key)}`,
+                true
               );
             }
           }
@@ -50,8 +58,13 @@ class Test {
     } else {
       console.log("testing is inactive");
     }
+    //----------------------------------------------------
+    this.pillProductTest(100, "44", (data) => {
+
+    });
   }
-}
+  
+}   
 
 exports.TestHandler = () => {
   return new Test();

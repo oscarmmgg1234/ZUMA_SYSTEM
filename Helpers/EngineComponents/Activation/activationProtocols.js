@@ -555,7 +555,7 @@ const Type2_Protocol = async (
     args.product_id
   );
   try {
-    if (!exceptions.includes(args.product_id) && (isGlycerinProduct !== 0 || isGlycerinProduct == null)) {
+    if (!exceptions.includes(args.product_id) && (isGlycerinProduct == 0 || isGlycerinProduct == null)) {
       
       await knex.transaction(async (trx) => {
         try {
