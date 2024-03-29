@@ -5,7 +5,9 @@ const {
 const {
   PillActivationEngineIntegrationTest,
 } = require("./src/PillActivationEngineIntegrationTest");
-
+const {
+  OmicaActivationEngineIntegrationTest,
+} = require("./src/OmicaActivationEngineIntegrationTest");
 class Test {
   constructor() {
     this.internal_state = false;
@@ -21,6 +23,12 @@ class Test {
       return callback(data);
     });
   }
+  omicaProductTest(quantity, company, callback) {
+    OmicaActivationEngineIntegrationTest(quantity, company, (data) => {
+      return callback(data);
+    });
+  }
+
   SetInternalStateTestHandler(status) {
     this.internal_state = status;
   }
@@ -59,12 +67,11 @@ class Test {
       console.log("testing is inactive");
     }
     //----------------------------------------------------
-    this.pillProductTest(100, "44", (data) => {
-
-    });
+    this.pillProductTest(100, "44", (data) => {});
+    //----------------------------------------------------
+    this.omicaProductTest(100, "888", (data) => {});
   }
-  
-}   
+}
 
 exports.TestHandler = () => {
   return new Test();
