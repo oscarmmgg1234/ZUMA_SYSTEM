@@ -1,6 +1,7 @@
 const { query_manager } = require("../../DB/query_manager");
 const engines = require("../../Helpers/helper_interface");
 const { LogHandler } = require("../LogHandler");
+const { subprotocolCheck } = require("./helper/subprotocolCheck");
 
 const engine = engines.Helper();
 const knex = query_manager;
@@ -148,6 +149,21 @@ const activationIntegrationTest = async (
   };
   let counter = 1;
   for (let [key, value] of product_map) {
+    const subcomponents = subprotocolCheck(value.PROCESS_COMPONENT_TYPE);
+    const subcomponentarr_start = [];
+    if (subcomponents != null) {
+      for (const [key, value] of Object.entries(subcomponents)) {
+        const subcomponent_start = await knex.raw(
+          "SELECT STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
+          [value]
+        );
+        subcomponentarr_start.push({
+          product: key,
+          stock: subcomponent_start[0][0].STOCK,
+        });
+      }
+    }
+
     const product_regex = createProductRegex(value.NAME);
     const components = all_products[0].filter((product) =>
       product.NAME.match(product_regex)
@@ -201,7 +217,6 @@ const activationIntegrationTest = async (
       });
     }
 
-
     const data = {
       EMPLOYEE_ID: "000002",
       PRODUCT_ID: key,
@@ -220,6 +235,20 @@ const activationIntegrationTest = async (
     try {
       // Attempt to activate the product and clear the interval on success or failure
       const status = await activateProduct(data);
+      const subcomponentarr_end = [];
+      if (subcomponents != null) {
+        for (const [key, value] of Object.entries(subcomponents)) {
+          const subcomponent_end = await knex.raw(
+            "SELECT STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
+            [value]
+          );
+          subcomponentarr_end.push({
+            product: key,
+            stock: subcomponent_end[0][0].STOCK,
+          });
+        }
+      }
+
       let component_end = [];
       for (let component of refined_components) {
         const product_end = await knex.raw(
@@ -258,12 +287,12 @@ const activationIntegrationTest = async (
               quantity,
               1
             );
-      
+
       for (let product of component_start) {
         const end_product = component_end.filter(
           (end) => end.product == product.product
         )[0];
-        
+
         Output.LogToFile(
           `${product.product} ${value.NAME} => { start: ${
             product.stock
@@ -285,9 +314,31 @@ const activationIntegrationTest = async (
           true
         );
       }
+      if (subcomponents != null) {
+        for (let product of subcomponentarr_start) {
+          const end_product = subcomponentarr_end.filter(
+            (end) => end.product == product.product
+          )[0];
+          Output.LogToFile(
+            `${product.product} ${value.NAME} => { start: ${
+              product.stock
+            }, end: ${end_product.stock} }, diffrence ${Math.abs(
+              Math.abs(end_product.stock) - Math.abs(product.stock)
+            )}, ${
+              Math.abs(end_product.stock - product.stock) == quantity
+                ? "Pass"
+                : "Fail"
+            }`,
+            true
+          );
+        }
+      }
       Output.LogToFile(`Kukista Product ${counter}/${product_map.size}`, true);
       Output.LogToFile("", true);
-      Output.LogToFile("-----------------------------------------------------------------------------------", true);
+      Output.LogToFile(
+        "-----------------------------------------------------------------------------------",
+        true
+      );
       counter++;
     } catch (error) {
       console.error(
