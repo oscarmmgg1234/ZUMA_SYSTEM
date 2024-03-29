@@ -1,8 +1,13 @@
-const { query_manager } = require("../DB/query_manager");
-const engines = require("../Helpers/helper_interface");
+const { query_manager } = require("../../DB/query_manager");
+const engines = require("../../Helpers/helper_interface");
+const { LogHandler } = require("../LogHandler");
 
 const engine = engines.Helper();
 const knex = query_manager;
+const Output = LogHandler("KukistaActivationEngineIntegrationTest.log")
+// Then replace all console.log and console.error in your function with logToFile
+// For the first log message, call logToFile(message, false) to truncate the file
+// For subsequent messages, call logToFile(message, true) to append to the file
 
 function generateRandomID(length) {
   // Create a random ID with a specified length
@@ -30,7 +35,10 @@ const activationIntegrationTest = async (
   company,
   callback
 ) => {
-  console.log(arg);
+  Output.LogToFile(arg, false);
+  Output.LogToFile("", true)
+  Output.LogToFile("", true)
+  Output.LogToFile("Starting test", true);
   const products = await knex.raw(queries.selectProducts, [type, company]);
   const product_map = new Map(
     products[0].map((product) => [product.PRODUCT_ID, { ...product }])
@@ -68,20 +76,25 @@ const activationIntegrationTest = async (
     };
 
     // Start the interval timer
+    let counter = 0;
     const interval = setInterval(() => {
-      console.log("Waiting for activation of product " + value.NAME);
+      Output.LogToFile("Waiting for activation of product " + value.NAME, true);
     }, 5000);
 
     try {
       // Attempt to activate the product and clear the interval on success or failure
       const status = await activateProduct(data);
-      console.log(
+      if (status.status == false) {
+        throw new Error(status.message);
+      }
+      Output.LogToFile(
         value.NAME +
-          " activated successfully with status object: " +
+          " => { status: " +
           status.status +
-          " and message: " +
-          status.message
+          ",message: " +
+          status.message + " }", true
       );
+
     } catch (error) {
       console.error(
         "Activation failed for product " +
@@ -107,4 +120,4 @@ const activationIntegrationTest = async (
   return callback({ start_inv_map, end_inv_map, quantity });
 };
 
-exports.activationIntegrationTest = activationIntegrationTest;
+exports.KukistaActivationIntegrationTest = activationIntegrationTest;

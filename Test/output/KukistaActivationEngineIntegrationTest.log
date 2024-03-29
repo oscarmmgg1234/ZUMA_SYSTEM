@@ -1,0 +1,35 @@
+Kukista Product Activation Engine Test
+
+
+Starting test
+Parasite Detox => { status: true,message: Transaction Successful }
+Lymphatic Cleanse => { status: true,message: Transaction Successful }
+Candida Cleanse => { status: true,message: Transaction Successful }
+Daily Immunity => { status: true,message: Transaction Successful }
+Male Hormones 30ml => { status: true,message: Transaction Successful }
+Liver Cleanse => { status: true,message: Transaction Successful }
+Eye Support 30ml => { status: true,message: Transaction Successful }
+Sleep and Repair 30ml => { status: true,message: Transaction Successful }
+Lung Support => { status: true,message: Transaction Successful }
+Ashwagandha => { status: true,message: Transaction Successful }
+Women Hormones => { status: true,message: Transaction Successful }
+Sibo Cleanse => { status: true,message: Transaction Successful }
+G.I Pathogen => { status: true,message: Transaction Successful }
+Kidney Gallbladder => { status: true,message: Transaction Successful }
+Ginko Bilboa Brain Flow => { status: true,message: Transaction Successful }
+Astralogous => { status: true,message: Transaction Successful }
+Urinary Renal Support => { status: true,message: Transaction Successful }
+Women Hormones 30ml => { status: true,message: Transaction Successful }
+Candida Cleanse 30ml => { status: true,message: Transaction Successful }
+Liver Cleanse 30ml => { status: true,message: Transaction Successful }
+Lymphatic Cleanse 30ml => { status: true,message: Transaction Successful }
+Mold Micotoxin Detox => { status: true,message: Transaction Successful }
+Plastic Detox => { status: true,message: Transaction Successful }
+PET_Shampoo => { status: true,message: Transaction Successful }
+PET_Wormwood_Feline 30ml => { status: true,message: Transaction Successful }
+PET_Wormwood_Canine 30ml => { status: true,message: Transaction Successful }
+Heart Support 30ml => { status: true,message: Transaction Successful }
+Endocrine Cleanse 30ml => { status: true,message: Transaction Successful }
+
+
+Test completed successfully
