@@ -1,7 +1,187 @@
-Execution DateTime: 3/29/2024, 19:18:23
+Execution DateTime: 3/29/2024, 19:43:11
 Pill Products Activation Engine Test
 
 
 Starting test
 
 Activation Quantity for each product is 100
+
+Product at test: L-Lysine
+L-Lysine => { status: true,message: Transaction Successful }
+Active Stock L-Lysine, start: 5322, end: 5422, diff: 100, expected: 100, result: Pass
+Stored Stock: L-Lysine, start: -3195, end: -3255, diff: 60, expected: 60, result: Pass
+Label L-Lysine => { start: -5325, end: -5425 }, diffrence 100, Pass
+bottle L-Lysine => { start: -14831, end: -14931 }, diffrence 100, Pass
+accessory L-Lysine => { start: -14831, end: -14931 }, diffrence 100, Pass
+shrinkLabel L-Lysine => { start: -14831, end: -14931 }, diffrence 100, Pass
+Pill product 1/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: L-Proline
+L-Proline => { status: true,message: Transaction Successful }
+Active Stock L-Proline, start: 5200, end: 5300, diff: 100, expected: 100, result: Pass
+Stored Stock: L-Proline, start: -3122.4, end: -3182.4, diff: 60, expected: 60, result: Pass
+Label L-Proline => { start: -5204, end: -5304 }, diffrence 100, Pass
+bottle L-Proline => { start: -37057, end: -37157 }, diffrence 100, Pass
+accessory L-Proline => { start: -38050, end: -38150 }, diffrence 100, Pass
+shrinkLabel L-Proline => { start: -45858, end: -45958 }, diffrence 100, Pass
+Pill product 2/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Stress B-Complex & Vtm C
+Stress B-Complex & Vtm C => { status: true,message: Transaction Successful }
+Active Stock Stress B-Complex & Vtm C, start: 5099, end: 5199, diff: 100, expected: 100, result: Pass
+Stored Stock: Stress B-Complex & Vtm C, start: -1271.75, end: -1296.75, diff: 25, expected: 25, result: Pass
+Label Stress B-Complex & Vtm C => { start: -5103, end: -5203 }, diffrence 100, Pass
+bottle Stress B-Complex & Vtm C => { start: -14931, end: -15031 }, diffrence 100, Pass
+accessory Stress B-Complex & Vtm C => { start: -14931, end: -15031 }, diffrence 100, Pass
+shrinkLabel Stress B-Complex & Vtm C => { start: -14931, end: -15031 }, diffrence 100, Pass
+Pill product 3/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: L-Theanine
+L-Theanine => { status: true,message: Transaction Successful }
+Active Stock L-Theanine, start: 4799, end: 4899, diff: 100, expected: 100, result: Pass
+Stored Stock: L-Theanine, start: -1592.93, end: -1626.26, diff: 33.32999999999993, expected: 33.3333, result: Pass
+Label L-Theanine => { start: -4779, end: -4879 }, diffrence 100, Pass
+bottle L-Theanine => { start: -37157, end: -37257 }, diffrence 100, Pass
+accessory L-Theanine => { start: -38150, end: -38250 }, diffrence 100, Pass
+shrinkLabel L-Theanine => { start: -45958, end: -46058 }, diffrence 100, Pass
+Pill product 4/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Digestive Enzyme
+Digestive Enzyme => { status: true,message: Transaction Successful }
+Active Stock Digestive Enzyme, start: 4700, end: 4800, diff: 100, expected: 100, result: Pass
+Stored Stock: Digestive Enzyme, start: -1568.6, end: -1601.93, diff: 33.330000000000155, expected: 33.3333, result: Pass
+Label Digestive Enzyme => { start: -4706, end: -4806 }, diffrence 100, Pass
+bottle Digestive Enzyme => { start: -37257, end: -37357 }, diffrence 100, Pass
+accessory Digestive Enzyme => { start: -38250, end: -38350 }, diffrence 100, Pass
+shrinkLabel Digestive Enzyme => { start: -46058, end: -46158 }, diffrence 100, Pass
+Pill product 5/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Coenzyme B-Complex
+Coenzyme B-Complex => { status: true,message: Transaction Successful }
+Active Stock Coenzyme B-Complex, start: 4399, end: 4499, diff: 100, expected: 100, result: Pass
+Stored Stock: Coenzyme B-Complex, start: -2644.8, end: -2704.8, diff: 60, expected: 60, result: Pass
+Label Coenzyme B-Complex => { start: -4403, end: -4503 }, diffrence 100, Pass
+bottle Coenzyme B-Complex => { start: -37357, end: -37457 }, diffrence 100, Pass
+accessory Coenzyme B-Complex => { start: -38350, end: -38450 }, diffrence 100, Pass
+shrinkLabel Coenzyme B-Complex => { start: -46158, end: -46258 }, diffrence 100, Pass
+Pill product 6/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Colostrum
+Colostrum => { status: true,message: Transaction Successful }
+Active Stock Colostrum, start: 4399, end: 4499, diff: 100, expected: 100, result: Pass
+Stored Stock: Colostrum, start: -2200.5, end: -2250.5, diff: 50, expected: 50, result: Pass
+Label Colostrum => { start: -4405, end: -4505 }, diffrence 100, Pass
+bottle Colostrum => { start: -37457, end: -37557 }, diffrence 100, Pass
+accessory Colostrum => { start: -38450, end: -38550 }, diffrence 100, Pass
+shrinkLabel Colostrum => { start: -46258, end: -46358 }, diffrence 100, Pass
+Pill product 7/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Arabinogalactan
+Arabinogalactan => { status: true,message: Transaction Successful }
+Active Stock Arabinogalactan, start: 4399, end: 4499, diff: 100, expected: 100, result: Pass
+Stored Stock: Arabinogalactan, start: -2935.43, end: -3002.1, diff: 66.67000000000007, expected: 66.6666, result: Pass
+Label Arabinogalactan => { start: -4403, end: -4503 }, diffrence 100, Pass
+bottle Arabinogalactan => { start: -15031, end: -15131 }, diffrence 100, Pass
+accessory Arabinogalactan => { start: -15031, end: -15131 }, diffrence 100, Pass
+shrinkLabel Arabinogalactan => { start: -15031, end: -15131 }, diffrence 100, Pass
+Pill product 8/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Butyric Acid
+Butyric Acid => { status: true,message: Transaction Successful }
+Active Stock Butyric Acid, start: 4099, end: 4199, diff: 100, expected: 100, result: Pass
+Stored Stock: Butyric Acid, start: -2736.76, end: -2803.43, diff: 66.66999999999962, expected: 66.6666, result: Pass
+Label Butyric Acid => { start: -4105, end: -4205 }, diffrence 100, Pass
+bottle Butyric Acid => { start: -37557, end: -37657 }, diffrence 100, Pass
+accessory Butyric Acid => { start: -38550, end: -38650 }, diffrence 100, Pass
+shrinkLabel Butyric Acid => { start: -46358, end: -46458 }, diffrence 100, Pass
+Pill product 9/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Amino Acid
+Amino Acid => { status: true,message: Transaction Successful }
+Active Stock Amino Acid, start: 4891, end: 4991, diff: 100, expected: 100, result: Pass
+Stored Stock: Amino Acid, start: -1256, end: -1281, diff: 25, expected: 25, result: Pass
+Label Amino Acid => { start: -4993, end: -5093 }, diffrence 100, Pass
+bottle Amino Acid => { start: -37657, end: -37757 }, diffrence 100, Pass
+accessory Amino Acid => { start: -38650, end: -38750 }, diffrence 100, Pass
+shrinkLabel Amino Acid => { start: -46458, end: -46558 }, diffrence 100, Pass
+Pill product 10/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: PET_Agaricus
+PET_Agaricus => { status: true,message: Transaction Successful }
+Active Stock PET_Agaricus, start: 3998, end: 4098, diff: 100, expected: 100, result: Pass
+Stored Stock: PET_Agaricus, start: 0, end: 0, diff: 0, expected: 50, result: Pass
+Label PET_Agaricus => { start: -4002, end: -4102 }, diffrence 100, Pass
+bottle PET_Agaricus => { start: -7805, end: -7905 }, diffrence 100, Pass
+accessory PET_Agaricus => { start: -7805, end: -7905 }, diffrence 100, Pass
+shrinkLabel PET_Agaricus => { start: -46558, end: -46658 }, diffrence 100, Pass
+Pill product 11/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Matcha
+Matcha => { status: true,message: Transaction Successful }
+Active Stock Matcha, start: 3999, end: 4099, diff: 100, expected: 100, result: Pass
+Stored Stock: Matcha, start: -4059, end: -4159, diff: 100, expected: 100, result: Pass
+Label Matcha => { start: -4059, end: -4159 }, diffrence 100, Pass
+Pill product 12/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Probiotic_Lg
+Probiotic_Lg => { status: true,message: Transaction Successful }
+Active Stock Probiotic_Lg, start: 3899, end: 3999, diff: 100, expected: 100, result: Pass
+Stored Stock: Probiotic_Lg, start: -1550, end: -1590, diff: 40, expected: 40, result: Pass
+Label Probiotic_Lg => { start: -3875, end: -3975 }, diffrence 100, Pass
+bottle Probiotic_Lg => { start: -37757, end: -37857 }, diffrence 100, Pass
+accessory Probiotic_Lg => { start: -38750, end: -38850 }, diffrence 100, Pass
+shrinkLabel Probiotic_Lg => { start: -46658, end: -46758 }, diffrence 100, Pass
+Pill product 13/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Probiotic_Sm
+Probiotic_Sm => { status: true,message: Transaction Successful }
+Active Stock Probiotic_Sm, start: 3799, end: 3899, diff: 100, expected: 100, result: Pass
+Stored Stock: Probiotic_Sm, start: -760.6, end: -780.6, diff: 20, expected: 20, result: Pass
+Label Probiotic_Sm => { start: -3803, end: -3903 }, diffrence 100, Pass
+bottle Probiotic_Sm => { start: -7905, end: -8005 }, diffrence 100, Pass
+accessory Probiotic_Sm => { start: -7905, end: -8005 }, diffrence 100, Pass
+shrinkLabel Probiotic_Sm => { start: -46758, end: -46858 }, diffrence 100, Pass
+Pill product 14/15
+
+-----------------------------------------------------------------------------------
+
+Product at test: Mushroom
+Mushroom => { status: true,message: Transaction Successful }
+Active Stock Mushroom, start: 3799, end: 3899, diff: 100, expected: 100, result: Pass
+Stored Stock: Mushroom, start: -1901.5, end: -1951.5, diff: 50, expected: 50, result: Pass
+Label Mushroom => { start: -3803, end: -3903 }, diffrence 100, Pass
+bottle Mushroom => { start: -37857, end: -37957 }, diffrence 100, Pass
+accessory Mushroom => { start: -38850, end: -38950 }, diffrence 100, Pass
+shrinkLabel Mushroom => { start: -46858, end: -46958 }, diffrence 100, Pass
+Pill product 15/15
+
+-----------------------------------------------------------------------------------
+
+
+Test completed successfully

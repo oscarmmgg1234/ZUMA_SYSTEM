@@ -68,7 +68,7 @@ class Test {
       //----------------------------------------------------
       this.omicaProductTest(100, "888", (data) => {});
     } else {
-      console.log("testing is inactive");
+      console.log("testing is inactive => production mode");
     }
   }
 }

@@ -24,7 +24,7 @@ server.use(dashboard_endpoints);
 
 //integration test
 const test = TestHandler();
-test.SetInternalStateTestHandler(true);
+test.SetInternalStateTestHandler(false);
 test.runTest();
 
 

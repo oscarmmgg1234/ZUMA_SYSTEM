@@ -1,7 +1,181 @@
-Execution DateTime: 3/29/2024, 19:18:23
+Execution DateTime: 3/29/2024, 19:43:11
 Omica Products Activation Engine Test
 
 
 Starting test
 
 Activation Quantity for each product is 100
+
+Product at test: Fulvic Detox
+Fulvic Detox => { status: true,message: Transaction Successful }
+Active Stock Fulvic Detox, start: 4102, end: 4202, diff: 100, expected: 100, result: Pass
+Stored Stock: Fulvic Detox, start: -3255, end: -3355, diff: 100, expected: 100, result: Pass
+Label Fulvic Detox => { start: -3255, end: -3355 }, diffrence 100, Pass
+Omica product 1/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Ionic Magnesium
+Ionic Magnesium => { status: true,message: Transaction Successful }
+Active Stock Ionic Magnesium, start: 2421, end: 2521, diff: 100, expected: 100, result: Pass
+Stored Stock: Ionic Magnesium, start: -2815, end: -2915, diff: 100, expected: 100, result: Pass
+Label Ionic Magnesium => { start: -2815, end: -2915 }, diffrence 100, Pass
+accessory Ionic Magnesium => { start: -170543, end: -170643 }, diffrence 100, Pass
+Omica product 2/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Zeolite
+Zeolite => { status: true,message: Transaction Successful }
+Active Stock Zeolite, start: 2198, end: 2298, diff: 100, expected: 100, result: Pass
+Stored Stock: Zeolite, start: -2592, end: -2692, diff: 100, expected: 100, result: Pass
+Label Zeolite => { start: -2592, end: -2692 }, diffrence 100, Pass
+accessory Zeolite => { start: -185623, end: -185723 }, diffrence 100, Pass
+Omica product 3/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Liposomal Curcumin
+Liposomal Curcumin => { status: true,message: Transaction Successful }
+Active Stock Liposomal Curcumin, start: 2648, end: 2748, diff: 100, expected: 100, result: Pass
+Stored Stock: Liposomal Curcumin, start: -1556, end: -1656, diff: 100, expected: 100, result: Pass
+Label Liposomal Curcumin => { start: -1556, end: -1656 }, diffrence 100, Pass
+Omica product 4/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Liposomal Guava
+Liposomal Guava => { status: true,message: Transaction Successful }
+Active Stock Liposomal Guava, start: 2098, end: 2198, diff: 100, expected: 100, result: Pass
+Stored Stock: Liposomal Guava, start: -2492, end: -2592, diff: 100, expected: 100, result: Pass
+Label Liposomal Guava => { start: -2492, end: -2592 }, diffrence 100, Pass
+Omica product 5/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Himilayan Shilajit
+Himilayan Shilajit => { status: true,message: Transaction Successful }
+Active Stock Himilayan Shilajit, start: 2098, end: 2198, diff: 100, expected: 100, result: Pass
+Stored Stock: Himilayan Shilajit, start: -2492, end: -2592, diff: 100, expected: 100, result: Pass
+Label Himilayan Shilajit => { start: -2492, end: -2592 }, diffrence 100, Pass
+accessory Himilayan Shilajit => { start: -2492, end: -2592 }, diffrence 100, Pass
+Omica product 6/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Biodynamic Facemist
+Biodynamic Facemist => { status: true,message: Transaction Successful }
+Active Stock Biodynamic Facemist, start: 1998, end: 2098, diff: 100, expected: 100, result: Pass
+Stored Stock: Biodynamic Facemist, start: -2392, end: -2492, diff: 100, expected: 100, result: Pass
+Label Biodynamic Facemist => { start: -2392, end: -2492 }, diffrence 100, Pass
+Omica product 7/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Deep Calm
+Deep Calm => { status: true,message: Transaction Successful }
+Active Stock Deep Calm, start: 1998, end: 2098, diff: 100, expected: 100, result: Pass
+Stored Stock: Deep Calm, start: -2377, end: -2477, diff: 100, expected: 100, result: Pass
+Label Deep Calm => { start: -2377, end: -2477 }, diffrence 100, Pass
+Omica product 8/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Shampoo
+Shampoo => { status: true,message: Transaction Successful }
+Active Stock Shampoo, start: 2055, end: 2155, diff: 100, expected: 100, result: Pass
+Stored Stock: Shampoo, start: -10937, end: -11037, diff: 100, expected: 100, result: Pass
+Label Shampoo => { start: -2434, end: -2534 }, diffrence 100, Pass
+Omica product 9/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Conditioner
+Conditioner => { status: true,message: Transaction Successful }
+Active Stock Conditioner, start: 1898, end: 1998, diff: 100, expected: 100, result: Pass
+Stored Stock: Conditioner, start: -2277, end: -2377, diff: 100, expected: 100, result: Pass
+Label Conditioner => { start: -2277, end: -2377 }, diffrence 100, Pass
+Omica product 10/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Laundry Detergent
+Laundry Detergent => { status: true,message: Transaction Successful }
+Active Stock Laundry Detergent, start: 1956, end: 2056, diff: 100, expected: 100, result: Pass
+Stored Stock: Laundry Detergent, start: 0, end: 0, diff: 0, expected: 100, result: Fail
+Label Laundry Detergent => { start: -2335, end: -2435 }, diffrence 100, Pass
+Omica product 11/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Body Wash
+Body Wash => { status: true,message: Transaction Successful }
+Active Stock Body Wash, start: 1898, end: 1998, diff: 100, expected: 100, result: Pass
+Stored Stock: Body Wash, start: -4235, end: -4435, diff: 200, expected: 100, result: Fail
+Label Body Wash => { start: -2277, end: -2377 }, diffrence 100, Pass
+Omica product 12/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: PET_Palm Balm
+PET_Palm Balm => { status: true,message: Transaction Successful }
+Active Stock PET_Palm Balm, start: 1198, end: 1298, diff: 100, expected: 100, result: Pass
+Stored Stock: PET_Palm Balm, start: -1577, end: -1677, diff: 100, expected: 100, result: Pass
+Label PET_Palm Balm => { start: -1577, end: -1677 }, diffrence 100, Pass
+Omica product 13/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: PET_Shampoo
+PET_Shampoo => { status: true,message: Transaction Successful }
+Active Stock PET_Shampoo, start: 8503, end: 8603, diff: 100, expected: 100, result: Pass
+Stored Stock: PET_Shampoo, start: 0, end: 0, diff: 0, expected: 100, result: Fail
+Label PET_Shampoo => { start: -8880, end: -8980 }, diffrence 100, Pass
+Omica product 14/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Shampoo Sm
+Shampoo Sm => { status: true,message: Transaction Successful }
+Active Stock Shampoo Sm, start: 898, end: 998, diff: 100, expected: 100, result: Pass
+Stored Stock: Shampoo Sm, start: -1277, end: -1377, diff: 100, expected: 100, result: Pass
+Label Shampoo Sm => { start: -1277, end: -1377 }, diffrence 100, Pass
+Omica product 15/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Conditioner Sm
+Conditioner Sm => { status: true,message: Transaction Successful }
+Active Stock Conditioner Sm, start: 898, end: 998, diff: 100, expected: 100, result: Pass
+Stored Stock: Conditioner Sm, start: -1277, end: -1377, diff: 100, expected: 100, result: Pass
+Label Conditioner Sm => { start: -1277, end: -1377 }, diffrence 100, Pass
+Omica product 16/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Adrenal Support
+Adrenal Support => { status: true,message: Transaction Successful }
+Active Stock Adrenal Support, start: 801, end: 901, diff: 100, expected: 100, result: Pass
+Stored Stock: Adrenal Support, start: -1316, end: -1416, diff: 100, expected: 100, result: Pass
+Label Adrenal Support => { start: -1316, end: -1416 }, diffrence 100, Pass
+
+Product at test: Laundry Detergent Sm
+Laundry Detergent Sm => { status: true,message: Transaction Successful }
+Active Stock Laundry Detergent Sm, start: 801, end: 901, diff: 100, expected: 100, result: Pass
+Stored Stock: Laundry Detergent Sm, start: 0, end: 0, diff: 0, expected: 100, result: Fail
+Label Laundry Detergent Sm => { start: -797, end: -897 }, diffrence 100, Pass
+Omica product 17/20
+
+-----------------------------------------------------------------------------------
+
+Product at test: Body Wash Sm
+Body Wash Sm => { status: true,message: Transaction Successful }
+Active Stock Body Wash Sm, start: 801, end: 901, diff: 100, expected: 100, result: Pass
+Stored Stock: Body Wash Sm, start: -1596, end: -1796, diff: 200, expected: 100, result: Fail
+Label Body Wash Sm => { start: -801, end: -901 }, diffrence 100, Pass
+Omica product 18/20
+
+-----------------------------------------------------------------------------------
+
+
+Test completed successfully
