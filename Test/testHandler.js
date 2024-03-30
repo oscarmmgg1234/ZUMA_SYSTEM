@@ -1,13 +1,13 @@
 const { LogHandler } = require("./LogHandler");
 const {
   KukistaActivationIntegrationTest,
-} = require("./src/KukistaActivationEngineIntegration_test");
+} = require("./src/activationEngineTest/KukistaIntegrationTest");
 const {
   PillActivationEngineIntegrationTest,
-} = require("./src/PillActivationEngineIntegrationTest");
+} = require("./src/activationEngineTest/PillIntegrationTest");
 const {
   OmicaActivationEngineIntegrationTest,
-} = require("./src/OmicaActivationEngineIntegrationTest");
+} = require("./src/activationEngineTest/OmicaIntegrationTest");
 class Test {
   constructor() {
     this.internal_state = false;

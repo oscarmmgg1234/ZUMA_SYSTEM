@@ -1,7 +1,7 @@
-const { query_manager } = require("../../DB/query_manager");
-const engines = require("../../Helpers/helper_interface");
-const { LogHandler } = require("../LogHandler");
-const { subprotocolCheck } = require("./helper/subprotocolCheck");
+const { query_manager } = require("../../../DB/query_manager");
+const engines = require("../../../Helpers/helper_interface");
+const { LogHandler } = require("../../LogHandler");
+const { subprotocolCheck } = require("../helper/subprotocolCheck");
 
 const engine = engines.Helper();
 const knex = query_manager;
@@ -98,7 +98,7 @@ const activationIntegrationTest = async (
   const date = new Date();
   const options = { timeZone: "America/Los_Angeles", hour12: false };
   const laDate = date.toLocaleString("en-US", options);
-  Output.LogToFile(`Execution DateTime: ${laDate}` , false);
+  Output.LogToFile(`Execution DateTime: ${laDate}`, false);
   Output.LogToFile(arg, true);
   Output.LogToFile("", true);
   Output.LogToFile("", true);

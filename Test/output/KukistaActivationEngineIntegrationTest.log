@@ -1,4 +1,4 @@
-Execution DateTime: 3/29/2024, 19:43:11
+Execution DateTime: 3/29/2024, 20:00:15
 Kukista Product Activation Engine Test
 
 
@@ -9,288 +9,288 @@ Activation Quantity for each product is 100
 
 Product at test: Parasite Detox
 Parasite Detox => { status: true,message: Transaction Successful }
-Gal Parasite Detox => { start: -205.17, end: -206.491 }, diffrence 1.3210000000000264, Pass
-Label Parasite Detox => { start: -15532, end: -15632 }, diffrence 100, Pass
-bottle Parasite Detox => { start: -168204, end: -168304 }, diffrence 100, Pass
-accessory Parasite Detox => { start: -170643, end: -170743 }, diffrence 100, Pass
+Gal Parasite Detox => { start: -206.491, end: -207.812 }, diffrence 1.320999999999998, Pass
+Label Parasite Detox => { start: -15632, end: -15732 }, diffrence 100, Pass
+bottle Parasite Detox => { start: -169304, end: -169404 }, diffrence 100, Pass
+accessory Parasite Detox => { start: -171843, end: -171943 }, diffrence 100, Pass
 Kukista Product 1/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Lymphatic Cleanse
 Lymphatic Cleanse => { status: true,message: Transaction Successful }
-Gal Lymphatic Cleanse => { start: -271.672, end: -272.77 }, diffrence 1.0979999999999563, Pass
-Label Lymphatic Cleanse => { start: -17117, end: -17217 }, diffrence 100, Pass
-bottle Lymphatic Cleanse => { start: -168304, end: -168404 }, diffrence 100, Pass
-accessory Lymphatic Cleanse => { start: -170743, end: -170843 }, diffrence 100, Pass
+Gal Lymphatic Cleanse => { start: -273.429, end: -274.527 }, diffrence 1.0980000000000132, Pass
+Label Lymphatic Cleanse => { start: -17217, end: -17317 }, diffrence 100, Pass
+bottle Lymphatic Cleanse => { start: -169404, end: -169504 }, diffrence 100, Pass
+accessory Lymphatic Cleanse => { start: -171943, end: -172043 }, diffrence 100, Pass
 Kukista Product 2/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Candida Cleanse
 Candida Cleanse => { status: true,message: Transaction Successful }
-Gal Candida Cleanse => { start: -61.8806, end: -62.9786 }, diffrence 1.097999999999999, Pass
-Label Candida Cleanse => { start: -32839, end: -32939 }, diffrence 100, Pass
-bottle Candida Cleanse => { start: -168404, end: -168504 }, diffrence 100, Pass
-accessory Candida Cleanse => { start: -170843, end: -170943 }, diffrence 100, Pass
+Gal Candida Cleanse => { start: -63.6374, end: -64.7354 }, diffrence 1.097999999999999, Pass
+Label Candida Cleanse => { start: -32939, end: -33039 }, diffrence 100, Pass
+bottle Candida Cleanse => { start: -169504, end: -169604 }, diffrence 100, Pass
+accessory Candida Cleanse => { start: -172043, end: -172143 }, diffrence 100, Pass
 Kukista Product 3/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Daily Immunity
 Daily Immunity => { status: true,message: Transaction Successful }
-Gal Daily Immunity => { start: -162.218, end: -163.316 }, diffrence 1.0980000000000132, Pass
-Label Daily Immunity => { start: -14694, end: -14794 }, diffrence 100, Pass
-bottle Daily Immunity => { start: -168504, end: -168604 }, diffrence 100, Pass
-accessory Daily Immunity => { start: -170943, end: -171043 }, diffrence 100, Pass
+Gal Daily Immunity => { start: -163.316, end: -164.414 }, diffrence 1.0979999999999848, Pass
+Label Daily Immunity => { start: -14794, end: -14894 }, diffrence 100, Pass
+bottle Daily Immunity => { start: -169604, end: -169704 }, diffrence 100, Pass
+accessory Daily Immunity => { start: -172143, end: -172243 }, diffrence 100, Pass
 Kukista Product 4/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Male Hormones 30ml
 Male Hormones 30ml => { status: true,message: Transaction Successful }
-Label Male Hormones 30ml => { start: -14292, end: -14392 }, diffrence 100, Pass
-Gal Male Hormones 30ml => { start: -113.272, end: -114.065 }, diffrence 0.7929999999999922, Pass
-bottle Male Hormones 30ml => { start: -183800, end: -183900 }, diffrence 100, Pass
-accessory Male Hormones 30ml => { start: -185723, end: -185823 }, diffrence 100, Pass
+Label Male Hormones 30ml => { start: -14392, end: -14492 }, diffrence 100, Pass
+Gal Male Hormones 30ml => { start: -114.065, end: -114.858 }, diffrence 0.7930000000000064, Pass
+bottle Male Hormones 30ml => { start: -185600, end: -185700 }, diffrence 100, Pass
+accessory Male Hormones 30ml => { start: -187623, end: -187723 }, diffrence 100, Pass
 Kukista Product 5/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Liver Cleanse
 Liver Cleanse => { status: true,message: Transaction Successful }
-Gal Liver Cleanse => { start: -284.039, end: -285.36 }, diffrence 1.3210000000000264, Pass
-Label Liver Cleanse => { start: -14254, end: -14354 }, diffrence 100, Pass
-bottle Liver Cleanse => { start: -168604, end: -168704 }, diffrence 100, Pass
-accessory Liver Cleanse => { start: -171043, end: -171143 }, diffrence 100, Pass
+Gal Liver Cleanse => { start: -286.153, end: -287.474 }, diffrence 1.3209999999999695, Pass
+Label Liver Cleanse => { start: -14354, end: -14454 }, diffrence 100, Pass
+bottle Liver Cleanse => { start: -169704, end: -169804 }, diffrence 100, Pass
+accessory Liver Cleanse => { start: -172243, end: -172343 }, diffrence 100, Pass
 Kukista Product 6/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Eye Support 30ml
 Eye Support 30ml => { status: true,message: Transaction Successful }
-Gal Eye Support 30ml => { start: -109.315, end: -110.108 }, diffrence 0.7930000000000064, Pass
-Label Eye Support 30ml => { start: -13793, end: -13893 }, diffrence 100, Pass
-bottle Eye Support 30ml => { start: -183900, end: -184000 }, diffrence 100, Pass
-accessory Eye Support 30ml => { start: -185823, end: -185923 }, diffrence 100, Pass
+Gal Eye Support 30ml => { start: -110.108, end: -110.901 }, diffrence 0.7929999999999922, Pass
+Label Eye Support 30ml => { start: -13893, end: -13993 }, diffrence 100, Pass
+bottle Eye Support 30ml => { start: -185700, end: -185800 }, diffrence 100, Pass
+accessory Eye Support 30ml => { start: -187723, end: -187823 }, diffrence 100, Pass
 Kukista Product 7/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Sleep and Repair 30ml
 Sleep and Repair 30ml => { status: true,message: Transaction Successful }
-Gal Sleep and Repair 30ml => { start: -93.9247, end: -94.7172 }, diffrence 0.792500000000004, Pass
-Label Sleep and Repair 30ml => { start: -13492, end: -13592 }, diffrence 100, Pass
-bottle Sleep and Repair 30ml => { start: -184000, end: -184100 }, diffrence 100, Pass
-accessory Sleep and Repair 30ml => { start: -185923, end: -186023 }, diffrence 100, Pass
+Gal Sleep and Repair 30ml => { start: -94.7172, end: -95.5097 }, diffrence 0.7924999999999898, Pass
+Label Sleep and Repair 30ml => { start: -13592, end: -13692 }, diffrence 100, Pass
+bottle Sleep and Repair 30ml => { start: -185800, end: -185900 }, diffrence 100, Pass
+accessory Sleep and Repair 30ml => { start: -187823, end: -187923 }, diffrence 100, Pass
 Kukista Product 8/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Lung Support
 Lung Support => { status: true,message: Transaction Successful }
-Gal Lung Support => { start: -179.242, end: -180.34 }, diffrence 1.0980000000000132, Pass
-Label Lung Support => { start: -13392, end: -13492 }, diffrence 100, Pass
-bottle Lung Support => { start: -168704, end: -168804 }, diffrence 100, Pass
-accessory Lung Support => { start: -171143, end: -171243 }, diffrence 100, Pass
+Gal Lung Support => { start: -180.999, end: -182.097 }, diffrence 1.0980000000000132, Pass
+Label Lung Support => { start: -13492, end: -13592 }, diffrence 100, Pass
+bottle Lung Support => { start: -169804, end: -169904 }, diffrence 100, Pass
+accessory Lung Support => { start: -172343, end: -172443 }, diffrence 100, Pass
 Kukista Product 9/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Ashwagandha
 Ashwagandha => { status: true,message: Transaction Successful }
-Gal Ashwagandha => { start: -175.579, end: -176.9 }, diffrence 1.320999999999998, Pass
-Label Ashwagandha => { start: -13292, end: -13392 }, diffrence 100, Pass
-bottle Ashwagandha => { start: -184100, end: -184200 }, diffrence 100, Pass
-accessory Ashwagandha => { start: -186023, end: -186123 }, diffrence 100, Pass
+Gal Ashwagandha => { start: -176.9, end: -178.221 }, diffrence 1.320999999999998, Pass
+Label Ashwagandha => { start: -13392, end: -13492 }, diffrence 100, Pass
+bottle Ashwagandha => { start: -185900, end: -186000 }, diffrence 100, Pass
+accessory Ashwagandha => { start: -187923, end: -188023 }, diffrence 100, Pass
 Kukista Product 10/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Women Hormones
 Women Hormones => { status: true,message: Transaction Successful }
-Gal Women Hormones => { start: -210.007, end: -211.105 }, diffrence 1.0979999999999848, Pass
-Label Women Hormones => { start: -13193, end: -13293 }, diffrence 100, Pass
-bottle Women Hormones => { start: -168804, end: -168904 }, diffrence 100, Pass
-accessory Women Hormones => { start: -171243, end: -171343 }, diffrence 100, Pass
+Gal Women Hormones => { start: -211.764, end: -212.862 }, diffrence 1.0979999999999848, Pass
+Label Women Hormones => { start: -13293, end: -13393 }, diffrence 100, Pass
+bottle Women Hormones => { start: -169904, end: -170004 }, diffrence 100, Pass
+accessory Women Hormones => { start: -172443, end: -172543 }, diffrence 100, Pass
 Kukista Product 11/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Sibo Cleanse
 Sibo Cleanse => { status: true,message: Transaction Successful }
-Gal Sibo Cleanse => { start: -177.705, end: -178.803 }, diffrence 1.0979999999999848, Pass
-Label Sibo Cleanse => { start: -13192, end: -13292 }, diffrence 100, Pass
-bottle Sibo Cleanse => { start: -168904, end: -169004 }, diffrence 100, Pass
-accessory Sibo Cleanse => { start: -171343, end: -171443 }, diffrence 100, Pass
+Gal Sibo Cleanse => { start: -179.462, end: -180.56 }, diffrence 1.0980000000000132, Pass
+Label Sibo Cleanse => { start: -13292, end: -13392 }, diffrence 100, Pass
+bottle Sibo Cleanse => { start: -170004, end: -170104 }, diffrence 100, Pass
+accessory Sibo Cleanse => { start: -172543, end: -172643 }, diffrence 100, Pass
 Kukista Product 12/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: G.I Pathogen
 G.I Pathogen => { status: true,message: Transaction Successful }
-Gal G.I Pathogen => { start: -171.616, end: -172.937 }, diffrence 1.320999999999998, Pass
-Label G.I Pathogen => { start: -12992, end: -13092 }, diffrence 100, Pass
-bottle G.I Pathogen => { start: -169004, end: -169104 }, diffrence 100, Pass
-accessory G.I Pathogen => { start: -171443, end: -171543 }, diffrence 100, Pass
+Gal G.I Pathogen => { start: -172.937, end: -174.258 }, diffrence 1.320999999999998, Pass
+Label G.I Pathogen => { start: -13092, end: -13192 }, diffrence 100, Pass
+bottle G.I Pathogen => { start: -170104, end: -170204 }, diffrence 100, Pass
+accessory G.I Pathogen => { start: -172643, end: -172743 }, diffrence 100, Pass
 Kukista Product 13/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Kidney Gallbladder
 Kidney Gallbladder => { status: true,message: Transaction Successful }
-Gal Kidney Gallbladder => { start: -178.803, end: -179.901 }, diffrence 1.0980000000000132, Pass
-Label Kidney Gallbladder => { start: -12692, end: -12792 }, diffrence 100, Pass
-bottle Kidney Gallbladder => { start: -169104, end: -169204 }, diffrence 100, Pass
-accessory Kidney Gallbladder => { start: -171543, end: -171643 }, diffrence 100, Pass
+Gal Kidney Gallbladder => { start: -180.56, end: -181.658 }, diffrence 1.0979999999999848, Pass
+Label Kidney Gallbladder => { start: -12792, end: -12892 }, diffrence 100, Pass
+bottle Kidney Gallbladder => { start: -170204, end: -170304 }, diffrence 100, Pass
+accessory Kidney Gallbladder => { start: -172743, end: -172843 }, diffrence 100, Pass
 Kukista Product 14/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Ginko Bilboa Brain Flow
 Ginko Bilboa Brain Flow => { status: true,message: Transaction Successful }
-Gal Ginko Bilboa Brain Flow => { start: -140.341, end: -141.439 }, diffrence 1.0979999999999848, Pass
-Label Ginko Bilboa Brain Flow => { start: -12702, end: -12802 }, diffrence 100, Pass
-bottle Ginko Bilboa Brain Flow => { start: -184200, end: -184300 }, diffrence 100, Pass
-accessory Ginko Bilboa Brain Flow => { start: -186123, end: -186223 }, diffrence 100, Pass
+Gal Ginko Bilboa Brain Flow => { start: -141.439, end: -142.537 }, diffrence 1.0980000000000132, Pass
+Label Ginko Bilboa Brain Flow => { start: -12802, end: -12902 }, diffrence 100, Pass
+bottle Ginko Bilboa Brain Flow => { start: -186000, end: -186100 }, diffrence 100, Pass
+accessory Ginko Bilboa Brain Flow => { start: -188023, end: -188123 }, diffrence 100, Pass
 Kukista Product 15/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Astralogous
 Astralogous => { status: true,message: Transaction Successful }
-Gal Astralogous => { start: -165.011, end: -166.332 }, diffrence 1.320999999999998, Pass
-Label Astralogous => { start: -12492, end: -12592 }, diffrence 100, Pass
-bottle Astralogous => { start: -169204, end: -169304 }, diffrence 100, Pass
-accessory Astralogous => { start: -171643, end: -171743 }, diffrence 100, Pass
+Gal Astralogous => { start: -166.332, end: -167.653 }, diffrence 1.320999999999998, Pass
+Label Astralogous => { start: -12592, end: -12692 }, diffrence 100, Pass
+bottle Astralogous => { start: -170304, end: -170404 }, diffrence 100, Pass
+accessory Astralogous => { start: -172843, end: -172943 }, diffrence 100, Pass
 Kukista Product 16/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Urinary Renal Support
 Urinary Renal Support => { status: true,message: Transaction Successful }
-Label Urinary Renal Support => { start: -12377, end: -12477 }, diffrence 100, Pass
-Gal Urinary Renal Support => { start: -136.739, end: -137.837 }, diffrence 1.0979999999999848, Pass
-bottle Urinary Renal Support => { start: -184300, end: -184400 }, diffrence 100, Pass
-accessory Urinary Renal Support => { start: -186223, end: -186323 }, diffrence 100, Pass
+Label Urinary Renal Support => { start: -12477, end: -12577 }, diffrence 100, Pass
+Gal Urinary Renal Support => { start: -137.837, end: -138.935 }, diffrence 1.0980000000000132, Pass
+bottle Urinary Renal Support => { start: -186100, end: -186200 }, diffrence 100, Pass
+accessory Urinary Renal Support => { start: -188123, end: -188223 }, diffrence 100, Pass
 Kukista Product 17/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Women Hormones 30ml
 Women Hormones 30ml => { status: true,message: Transaction Successful }
-Gal Women Hormones 30ml => { start: -211.105, end: -211.764 }, diffrence 0.6590000000000202, Pass
-Label Women Hormones 30ml => { start: -11403, end: -11503 }, diffrence 100, Pass
-bottle Women Hormones 30ml => { start: -184400, end: -184500 }, diffrence 100, Pass
-accessory Women Hormones 30ml => { start: -186323, end: -186423 }, diffrence 100, Pass
+Gal Women Hormones 30ml => { start: -212.862, end: -213.521 }, diffrence 0.6589999999999918, Pass
+Label Women Hormones 30ml => { start: -11503, end: -11603 }, diffrence 100, Pass
+bottle Women Hormones 30ml => { start: -186200, end: -186300 }, diffrence 100, Pass
+accessory Women Hormones 30ml => { start: -188223, end: -188323 }, diffrence 100, Pass
 Kukista Product 18/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Candida Cleanse 30ml
 Candida Cleanse 30ml => { status: true,message: Transaction Successful }
-Gal Candida Cleanse 30ml => { start: -62.9786, end: -63.6374 }, diffrence 0.6587999999999994, Pass
-Label Candida Cleanse 30ml => { start: -11330, end: -11430 }, diffrence 100, Pass
-bottle Candida Cleanse 30ml => { start: -184500, end: -184600 }, diffrence 100, Pass
-accessory Candida Cleanse 30ml => { start: -186423, end: -186523 }, diffrence 100, Pass
+Gal Candida Cleanse 30ml => { start: -64.7354, end: -65.3942 }, diffrence 0.6587999999999994, Pass
+Label Candida Cleanse 30ml => { start: -11430, end: -11530 }, diffrence 100, Pass
+bottle Candida Cleanse 30ml => { start: -186300, end: -186400 }, diffrence 100, Pass
+accessory Candida Cleanse 30ml => { start: -188323, end: -188423 }, diffrence 100, Pass
 Kukista Product 19/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Liver Cleanse 30ml
 Liver Cleanse 30ml => { status: true,message: Transaction Successful }
-Gal Liver Cleanse 30ml => { start: -285.36, end: -286.153 }, diffrence 0.7930000000000064, Pass
-Label Liver Cleanse 30ml => { start: -12077, end: -12177 }, diffrence 100, Pass
-bottle Liver Cleanse 30ml => { start: -184600, end: -184700 }, diffrence 100, Pass
-accessory Liver Cleanse 30ml => { start: -186523, end: -186623 }, diffrence 100, Pass
+Gal Liver Cleanse 30ml => { start: -287.474, end: -288.267 }, diffrence 0.7930000000000064, Pass
+Label Liver Cleanse 30ml => { start: -12177, end: -12277 }, diffrence 100, Pass
+bottle Liver Cleanse 30ml => { start: -186400, end: -186500 }, diffrence 100, Pass
+accessory Liver Cleanse 30ml => { start: -188423, end: -188523 }, diffrence 100, Pass
 Kukista Product 20/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Lymphatic Cleanse 30ml
 Lymphatic Cleanse 30ml => { status: true,message: Transaction Successful }
-Gal Lymphatic Cleanse 30ml => { start: -272.77, end: -273.429 }, diffrence 0.6589999999999918, Pass
-Label Lymphatic Cleanse 30ml => { start: -12190, end: -12290 }, diffrence 100, Pass
-bottle Lymphatic Cleanse 30ml => { start: -184700, end: -184800 }, diffrence 100, Pass
-accessory Lymphatic Cleanse 30ml => { start: -186623, end: -186723 }, diffrence 100, Pass
+Gal Lymphatic Cleanse 30ml => { start: -274.527, end: -275.186 }, diffrence 0.6589999999999918, Pass
+Label Lymphatic Cleanse 30ml => { start: -12290, end: -12390 }, diffrence 100, Pass
+bottle Lymphatic Cleanse 30ml => { start: -186500, end: -186600 }, diffrence 100, Pass
+accessory Lymphatic Cleanse 30ml => { start: -188523, end: -188623 }, diffrence 100, Pass
 Kukista Product 21/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Mold Micotoxin Detox 30ml
 Mold Micotoxin Detox 30ml => { status: true,message: Transaction Successful }
-Gal Mold Micotoxin Detox 30ml => { start: -127.574, end: -128.367 }, diffrence 0.7929999999999922, Pass
-Label Mold Micotoxin Detox 30ml => { start: -10677, end: -10777 }, diffrence 100, Pass
-bottle Mold Micotoxin Detox 30ml => { start: -184800, end: -184900 }, diffrence 100, Pass
-accessory Mold Micotoxin Detox 30ml => { start: -186723, end: -186823 }, diffrence 100, Pass
+Gal Mold Micotoxin Detox 30ml => { start: -128.367, end: -129.16 }, diffrence 0.7930000000000064, Pass
+Label Mold Micotoxin Detox 30ml => { start: -10777, end: -10877 }, diffrence 100, Pass
+bottle Mold Micotoxin Detox 30ml => { start: -186600, end: -186700 }, diffrence 100, Pass
+accessory Mold Micotoxin Detox 30ml => { start: -188623, end: -188723 }, diffrence 100, Pass
 Kukista Product 22/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Sibo Cleanse 30ml
 Sibo Cleanse 30ml => { status: true,message: Transaction Successful }
-Gal Sibo Cleanse 30ml => { start: -178.803, end: -179.462 }, diffrence 0.6589999999999918, Pass
-Label Sibo Cleanse 30ml => { start: -4777, end: -4877 }, diffrence 100, Pass
-bottle Sibo Cleanse 30ml => { start: -184900, end: -185000 }, diffrence 100, Pass
-accessory Sibo Cleanse 30ml => { start: -186823, end: -186923 }, diffrence 100, Pass
+Gal Sibo Cleanse 30ml => { start: -180.56, end: -181.219 }, diffrence 0.6589999999999918, Pass
+Label Sibo Cleanse 30ml => { start: -4877, end: -4977 }, diffrence 100, Pass
+bottle Sibo Cleanse 30ml => { start: -186700, end: -186800 }, diffrence 100, Pass
+accessory Sibo Cleanse 30ml => { start: -188723, end: -188823 }, diffrence 100, Pass
 Kukista Product 23/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Lung Support 30ml
 Lung Support 30ml => { status: true,message: Transaction Successful }
-Gal Lung Support 30ml => { start: -180.34, end: -180.999 }, diffrence 0.6589999999999918, Pass
-Label Lung Support 30ml => { start: -4677, end: -4777 }, diffrence 100, Pass
-bottle Lung Support 30ml => { start: -185000, end: -185100 }, diffrence 100, Pass
-accessory Lung Support 30ml => { start: -186923, end: -187023 }, diffrence 100, Pass
+Gal Lung Support 30ml => { start: -182.097, end: -182.756 }, diffrence 0.6589999999999918, Pass
+Label Lung Support 30ml => { start: -4777, end: -4877 }, diffrence 100, Pass
+bottle Lung Support 30ml => { start: -186800, end: -186900 }, diffrence 100, Pass
+accessory Lung Support 30ml => { start: -188823, end: -188923 }, diffrence 100, Pass
 Kukista Product 24/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Kidney Gallbladder 30ml
 Kidney Gallbladder 30ml => { status: true,message: Transaction Successful }
-Gal Kidney Gallbladder 30ml => { start: -179.901, end: -180.56 }, diffrence 0.6589999999999918, Pass
-Label Kidney Gallbladder 30ml => { start: -5777, end: -5877 }, diffrence 100, Pass
-bottle Kidney Gallbladder 30ml => { start: -185100, end: -185200 }, diffrence 100, Pass
-accessory Kidney Gallbladder 30ml => { start: -187023, end: -187123 }, diffrence 100, Pass
+Gal Kidney Gallbladder 30ml => { start: -181.658, end: -182.317 }, diffrence 0.6590000000000202, Pass
+Label Kidney Gallbladder 30ml => { start: -5877, end: -5977 }, diffrence 100, Pass
+bottle Kidney Gallbladder 30ml => { start: -186900, end: -187000 }, diffrence 100, Pass
+accessory Kidney Gallbladder 30ml => { start: -188923, end: -189023 }, diffrence 100, Pass
 Kukista Product 25/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: PET_Wormwood_Feline 30ml
 PET_Wormwood_Feline 30ml => { status: true,message: Transaction Successful }
-Label PET_Wormwood_Feline 30ml => { start: -10267, end: -10367 }, diffrence 100, Pass
-bottle PET_Wormwood_Feline 30ml => { start: -185200, end: -185300 }, diffrence 100, Pass
-accessory PET_Wormwood_Feline 30ml => { start: -187123, end: -187223 }, diffrence 100, Pass
+Label PET_Wormwood_Feline 30ml => { start: -10367, end: -10467 }, diffrence 100, Pass
+bottle PET_Wormwood_Feline 30ml => { start: -187000, end: -187100 }, diffrence 100, Pass
+accessory PET_Wormwood_Feline 30ml => { start: -189023, end: -189123 }, diffrence 100, Pass
 Kukista Product 26/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: PET_Wormwood_Canine 30ml
 PET_Wormwood_Canine 30ml => { status: true,message: Transaction Successful }
-Label PET_Wormwood_Canine 30ml => { start: -10166, end: -10266 }, diffrence 100, Pass
-bottle PET_Wormwood_Canine 30ml => { start: -185300, end: -185400 }, diffrence 100, Pass
-accessory PET_Wormwood_Canine 30ml => { start: -187223, end: -187323 }, diffrence 100, Pass
+Label PET_Wormwood_Canine 30ml => { start: -10266, end: -10366 }, diffrence 100, Pass
+bottle PET_Wormwood_Canine 30ml => { start: -187100, end: -187200 }, diffrence 100, Pass
+accessory PET_Wormwood_Canine 30ml => { start: -189123, end: -189223 }, diffrence 100, Pass
 Kukista Product 27/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Heart Support 30ml
 Heart Support 30ml => { status: true,message: Transaction Successful }
-Label Heart Support 30ml => { start: -10350, end: -10450 }, diffrence 100, Pass
-Gal Heart Support 30ml => { start: -82.024, end: -82.8165 }, diffrence 0.792500000000004, Pass
-bottle Heart Support 30ml => { start: -185400, end: -185500 }, diffrence 100, Pass
-accessory Heart Support 30ml => { start: -187323, end: -187423 }, diffrence 100, Pass
+Label Heart Support 30ml => { start: -10450, end: -10550 }, diffrence 100, Pass
+Gal Heart Support 30ml => { start: -82.8165, end: -83.609 }, diffrence 0.7924999999999898, Pass
+bottle Heart Support 30ml => { start: -187200, end: -187300 }, diffrence 100, Pass
+accessory Heart Support 30ml => { start: -189223, end: -189323 }, diffrence 100, Pass
 Kukista Product 28/29
 
 -----------------------------------------------------------------------------------
 
 Product at test: Endocrine Cleanse 30ml
 Endocrine Cleanse 30ml => { status: true,message: Transaction Successful }
-Label Endocrine Cleanse 30ml => { start: -10403, end: -10503 }, diffrence 100, Pass
-Gal Endocrine Cleanse 30ml => { start: -75.7563, end: -76.4151 }, diffrence 0.6587999999999994, Pass
-bottle Endocrine Cleanse 30ml => { start: -185500, end: -185600 }, diffrence 100, Pass
-accessory Endocrine Cleanse 30ml => { start: -187423, end: -187523 }, diffrence 100, Pass
+Label Endocrine Cleanse 30ml => { start: -10503, end: -10603 }, diffrence 100, Pass
+Gal Endocrine Cleanse 30ml => { start: -76.4151, end: -77.0739 }, diffrence 0.6587999999999994, Pass
+bottle Endocrine Cleanse 30ml => { start: -187300, end: -187400 }, diffrence 100, Pass
+accessory Endocrine Cleanse 30ml => { start: -189323, end: -189423 }, diffrence 100, Pass
 Kukista Product 29/29
 
 -----------------------------------------------------------------------------------

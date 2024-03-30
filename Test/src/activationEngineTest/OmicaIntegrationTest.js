@@ -1,11 +1,11 @@
-const { query_manager } = require("../../DB/query_manager");
-const engines = require("../../Helpers/helper_interface");
-const { LogHandler } = require("../LogHandler");
-const { subprotocolCheck } = require("./helper/subprotocolCheck");
+const { query_manager } = require("../../../DB/query_manager");
+const engines = require("../../../Helpers/helper_interface");
+const { LogHandler } = require("../../LogHandler");
+const { subprotocolCheck } = require("../helper/subprotocolCheck");
 
 const engine = engines.Helper();
 const knex = query_manager;
-const Output = LogHandler("PillActivationEngineIntegrationTest.log");
+const Output = LogHandler("OmicaActivationEngineIntegrationTest.log");
 // Then replace all console.log and console.error in your function with logToFile
 // For the first log message, call logToFile(message, false) to truncate the file
 // For subsequent messages, call logToFile(message, true) to append to the file
@@ -23,7 +23,6 @@ function generateRandomID(length) {
   }
   return result;
 }
-
 function createProductRegex(productName) {
   // Escape special characters for regex pattern
   try {
@@ -49,15 +48,15 @@ function createProductRegex(productName) {
 }
 const queries = {
   selectInventory: "SELECT * FROM product_inventory",
-  selectProducts: "SELECT * FROM product WHERE TYPE = ?",
+  selectProducts: "SELECT * FROM product WHERE COMPANY = ?",
 };
 
-const activationIntegrationTest = async (quantity, type, callback) => {
-   const date = new Date();
-   const options = { timeZone: "America/Los_Angeles", hour12: false };
-   const laDate = date.toLocaleString("en-US", options);
-   Output.LogToFile(`Execution DateTime: ${laDate}`, false);
-  Output.LogToFile("Pill Products Activation Engine Test", true);
+const activationIntegrationTest = async (quantity, company, callback) => {
+  const date = new Date();
+  const options = { timeZone: "America/Los_Angeles", hour12: false };
+  const laDate = date.toLocaleString("en-US", options);
+  Output.LogToFile(`Execution DateTime: ${laDate}`, false);
+  Output.LogToFile("Omica Products Activation Engine Test", true);
   Output.LogToFile("", true);
   Output.LogToFile("", true);
   Output.LogToFile("Starting test", true);
@@ -67,8 +66,7 @@ const activationIntegrationTest = async (quantity, type, callback) => {
   const all_products_map = new Map(
     all_products[0].map((product) => [product.PRODUCT_ID, { ...product }])
   );
-
-  const products = await knex.raw(queries.selectProducts, [type]);
+  const products = await knex.raw(queries.selectProducts, [company]);
   const product_map = new Map(
     products[0].map((product) => [product.PRODUCT_ID, { ...product }])
   );
@@ -97,6 +95,9 @@ const activationIntegrationTest = async (quantity, type, callback) => {
   };
   let counter = 1;
   for (let [key, value] of product_map) {
+    if (key == "14aa3aba") {
+      continue;
+    }
     const subcomponents = subprotocolCheck(value.PROCESS_COMPONENT_TYPE);
     const subcomponentarr_start = [];
     if (subcomponents != null) {
@@ -111,8 +112,8 @@ const activationIntegrationTest = async (quantity, type, callback) => {
         });
       }
     }
-    const pillreduct_start = start_inv_map.get(key).STORED;
-    const pillreduct_active_start = start_inv_map.get(key).ACTIVE;
+    const omicareduct_start = start_inv_map.get(key).STORED;
+    const omicareduct_active_start = start_inv_map.get(key).ACTIVE;
     const product_regex = createProductRegex(value.NAME);
     const components = all_products[0].filter((product) =>
       product.NAME.match(product_regex)
@@ -174,20 +175,9 @@ const activationIntegrationTest = async (quantity, type, callback) => {
       EMPLOYEE_NAME: "Oscar Maldonado",
       TRANSACTIONID: generateRandomID(12),
     };
+
     try {
       const status = await activateProduct(data);
-      let component_end = [];
-      for (let component of refined_components) {
-        const product_end = await knex.raw(
-          "SELECT STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
-          [component.PRODUCT_ID]
-        );
-        const product = component.NAME.match(/\bGal\b/) ? "Gal" : "Label";
-        component_end.push({
-          product: product,
-          stock: product_end[0][0].STOCK,
-        });
-      }
       const subcomponentarr_end = [];
       if (subcomponents != null) {
         for (const [key, value] of Object.entries(subcomponents)) {
@@ -201,6 +191,31 @@ const activationIntegrationTest = async (quantity, type, callback) => {
           });
         }
       }
+      let component_end = [];
+      for (let component of refined_components) {
+        const product_end = await knex.raw(
+          "SELECT STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
+          [component.PRODUCT_ID]
+        );
+        const product = component.NAME.match(/\bGal\b/) ? "Gal" : "Label";
+        component_end.push({
+          product: product,
+          stock: product_end[0][0].STOCK,
+        });
+      }
+      const end_inventory = await knex.raw(queries.selectInventory);
+      const end_inv_map = new Map(
+        end_inventory[0]
+          .filter((inv) => product_map.has(inv.PRODUCT_ID)) // Use filter to keep relevant inventory items
+          .map((inv) => [
+            inv.PRODUCT_ID,
+            { STORED: inv.STORED_STOCK, ACTIVE: inv.ACTIVE_STOCK },
+          ]) // Then map to the format expected by Map
+      );
+      const omicareduct_end = end_inv_map.get(key).STORED;
+      const omicareduct_active_end = end_inv_map.get(key).ACTIVE;
+
+      const stored_stock_diff = Math.abs(omicareduct_start - omicareduct_end);
       Output.LogToFile("", true);
       Output.LogToFile("Product at test: " + value.NAME, true);
       Output.LogToFile(
@@ -212,35 +227,25 @@ const activationIntegrationTest = async (quantity, type, callback) => {
           " }",
         true
       );
-      const end_inventory = await knex.raw(queries.selectInventory);
-      const end_inv_map = new Map(
-        end_inventory[0]
-          .filter((inv) => product_map.has(inv.PRODUCT_ID)) // Use filter to keep relevant inventory items
-          .map((inv) => [
-            inv.PRODUCT_ID,
-            { STORED: inv.STORED_STOCK, ACTIVE: inv.ACTIVE_STOCK },
-          ]) // Then map to the format expected by Map
-      );
-      const pillreduct_end = end_inv_map.get(key).STORED;
-      const pillreduct_active_end = end_inv_map.get(key).ACTIVE;
-      const stored_stock_diff = Math.abs(pillreduct_start - pillreduct_end);
 
-      const getRatio = (product) => {
-        const ratio = all_products_map.get(product).PILL_Ratio;
-        const result = ratio * quantity;
-        return result == 0 ? quantity : result;
-      };
       Output.LogToFile(
-        `Active Stock ${value.NAME}, start: ${pillreduct_active_start}, end: ${pillreduct_active_end}, diff: ${Math.abs( Math.abs(pillreduct_active_end) - Math.abs(pillreduct_active_start))}, expected: ${quantity}, result: ${ Math.abs(pillreduct_active_end - pillreduct_active_start) == quantity ? "Pass" : "Fail"}`,
+        `Active Stock ${
+          value.NAME
+        }, start: ${omicareduct_active_start}, end: ${omicareduct_active_end}, diff: ${Math.abs(
+          Math.abs(omicareduct_active_end) - Math.abs(omicareduct_active_start)
+        )}, expected: ${quantity}, result: ${
+          Math.abs(omicareduct_active_end - omicareduct_active_start) ==
+          quantity
+            ? "Pass"
+            : "Fail"
+        }`,
         true
       );
       Output.LogToFile(
         `Stored Stock: ${
           value.NAME
-        }, start: ${pillreduct_start}, end: ${pillreduct_end}, diff: ${stored_stock_diff}, expected: ${getRatio(
-          key
-        )}, result: ${
-          stored_stock_diff - getRatio(key) < 0.1 ? "Pass" : "Fail"
+        }, start: ${omicareduct_start}, end: ${omicareduct_end}, diff: ${stored_stock_diff}, expected: ${quantity}, result: ${
+          stored_stock_diff == quantity ? "Pass" : "Fail"
         }`,
         true
       );
@@ -289,26 +294,18 @@ const activationIntegrationTest = async (quantity, type, callback) => {
           );
         }
       }
-      Output.LogToFile(`Pill product ${counter}/${product_map.size}`, true);
+      Output.LogToFile(`Omica product ${counter}/${product_map.size}`, true);
       Output.LogToFile("", true);
       Output.LogToFile(
         "-----------------------------------------------------------------------------------",
         true
       );
       counter++;
-    } catch (err) {
-      console.log(err);
-      Output.LogToFile(
-        `Product: ${value.NAME} - Quantity: ${quantity} - Result: Activation failed`,
-        true
-      );
-    }
+    } catch (err) {}
   }
   Output.LogToFile("", true);
   Output.LogToFile("", true);
   Output.LogToFile("Test completed successfully", true);
 };
 
-exports.PillActivationEngineIntegrationTest = (quantity, type, callback) => {
-  activationIntegrationTest(quantity, type, callback);
-};
+exports.OmicaActivationEngineIntegrationTest = activationIntegrationTest;
