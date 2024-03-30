@@ -95,7 +95,11 @@ const activationIntegrationTest = async (
   company,
   callback
 ) => {
-  Output.LogToFile(arg, false);
+  const date = new Date();
+  const options = { timeZone: "America/Los_Angeles", hour12: false };
+  const laDate = date.toLocaleString("en-US", options);
+  Output.LogToFile(`Execution DateTime: ${laDate}` , false);
+  Output.LogToFile(arg, true);
   Output.LogToFile("", true);
   Output.LogToFile("", true);
   Output.LogToFile("Starting test", true);

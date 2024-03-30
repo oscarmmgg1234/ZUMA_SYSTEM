@@ -53,7 +53,11 @@ const queries = {
 };
 
 const activationIntegrationTest = async (quantity, type, callback) => {
-  Output.LogToFile("Pill Products Activation Engine Test", false);
+   const date = new Date();
+   const options = { timeZone: "America/Los_Angeles", hour12: false };
+   const laDate = date.toLocaleString("en-US", options);
+   Output.LogToFile(`Execution DateTime: ${laDate}`, false);
+  Output.LogToFile("Pill Products Activation Engine Test", true);
   Output.LogToFile("", true);
   Output.LogToFile("", true);
   Output.LogToFile("Starting test", true);

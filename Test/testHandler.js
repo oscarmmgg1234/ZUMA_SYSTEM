@@ -63,13 +63,13 @@ class Test {
           output.LogToFile("Test completed successfully", true);
         }
       );
+      //----------------------------------------------------
+      this.pillProductTest(100, "44", (data) => {});
+      //----------------------------------------------------
+      this.omicaProductTest(100, "888", (data) => {});
     } else {
       console.log("testing is inactive");
     }
-    //----------------------------------------------------
-    this.pillProductTest(100, "44", (data) => {});
-    //----------------------------------------------------
-    this.omicaProductTest(100, "888", (data) => {});
   }
 }
 

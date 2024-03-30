@@ -52,7 +52,11 @@ const queries = {
 };
 
 const activationIntegrationTest = async (quantity, company, callback) => {
-  Output.LogToFile("Omica Products Activation Engine Test", false);
+   const date = new Date();
+   const options = { timeZone: "America/Los_Angeles", hour12: false };
+   const laDate = date.toLocaleString("en-US", options);
+  Output.LogToFile(`Execution DateTime: ${laDate}`, false);
+  Output.LogToFile("Omica Products Activation Engine Test", true);
   Output.LogToFile("", true);
   Output.LogToFile("", true);
   Output.LogToFile("Starting test", true);
