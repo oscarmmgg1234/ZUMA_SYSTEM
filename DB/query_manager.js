@@ -18,4 +18,5 @@ exports.query_manager = require("knex")({
     database: "zuma_main",
     ssl: sslOptions,
   },
+  debug: false
 });

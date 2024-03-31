@@ -555,8 +555,10 @@ const Type2_Protocol = async (
     args.product_id
   );
   try {
-    if (!exceptions.includes(args.product_id) && (isGlycerinProduct == 0 || isGlycerinProduct == null)) {
-      
+    if (
+      !exceptions.includes(args.product_id) &&
+      (isGlycerinProduct == 0 || isGlycerinProduct == null)
+    ) {
       await knex.transaction(async (trx) => {
         try {
           for (const component of args.product_components) {
@@ -955,19 +957,18 @@ const Type5_Protocol = async (
   try {
     await knex.transaction(async (trx) => {
       try {
+        const consumption = productConsumption(50, args.quantity, 1);
         for (const component of args.product_components) {
           const productType = engineHelper.productType(component.NAME);
           // Product Type 0: Activation Liquid
           if (productType === 0) {
-            await trx.raw(
-              queries.activation_product.product_activation_liquid,
-              [
-                component.PRODUCT_ID,
-                args.quantity,
-                args.employee_id,
-                args.TRANSACTIONID,
-              ]
-            );
+           await trx.raw(queries.activation_product.product_activation_liquid, [
+             component.PRODUCT_ID,
+             args.quantity,
+             args.employee_id,
+             args.TRANSACTIONID,
+           ]);
+
             const result = await trx.raw(
               queries.product_release.get_quantity_by_stored_id_active,
               [component.PRODUCT_ID]
@@ -996,17 +997,18 @@ const Type5_Protocol = async (
           }
           // Product Type 2: Custom Logic
           else if (productType === 2) {
+           
             const result = await trx.raw(
               queries.product_release.get_quantity_by_stored_id_storage,
               [component.PRODUCT_ID]
             );
             await trx.raw(queries.product_inventory.update_consumption_stored, [
-              result[0][0].STORED_STOCK - productConsumption50ml(args.quantity),
+              result[0][0].STORED_STOCK - consumption,
               component.PRODUCT_ID,
             ]);
             await trx.raw(queries.product_release.insert_product_release, [
               component.PRODUCT_ID,
-              productConsumption50ml(args.quantity),
+              consumption,
               args.employee_id,
               args.TRANSACTIONID,
             ]);

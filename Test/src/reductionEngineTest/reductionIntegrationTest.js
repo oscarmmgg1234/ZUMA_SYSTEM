@@ -57,7 +57,7 @@ const reductionIntegrationTest = async () => {
         data,
         (data) => {
           if (data) {
-            resolve(data);
+            resolve(data.status);
           } else {
             reject(new Error("Activation failed"));
           }
@@ -68,12 +68,19 @@ const reductionIntegrationTest = async () => {
 
   const reduction = (data) => {
     return new Promise((resolve, reject) => {
-      engine.reduction_engine(data, (data) => {
-        resolve(data);
+      controller.reduction.product_reduction(data, (data) => {
+        setTimeout(() => {
+        if (data) {
+          resolve(data);
+        } else {
+          reject(new Error("Reduction failed"));
+        }
+      } , 500);
       });
     });
   };
 
+  const transaction_id_arr = [];
   for (let [key, value] of all_products_map) {
     const transaction_id = generateRandomID(12);
     const activationData = {
@@ -85,24 +92,55 @@ const reductionIntegrationTest = async () => {
       EMPLOYEE_NAME: "Oscar Maldonado",
       TRANSACTIONID: transaction_id,
     };
-
+    transaction_id_arr.push(transaction_id);
     const activation = await activate(activationData);
-    //get barcode id
+  }
+  Output.LogToFile("", true);
+  Output.LogToFile("Prerequisite Product Activation complete...initiating Product Reduction", true);
+  Output.LogToFile("", true);
+  const barcodes_start = [];
+  for (let i = 0; i < transaction_id_arr.length; i++) {
+    const barcode = await knex.raw(
+      "SELECT * FROM barcode_log WHERE TRANSACTIONID = ?",
+      [transaction_id_arr[i]]
+    );
+    barcodes_start.push(barcode[0][0]);
+  }
+  const barcodes_start_map = new Map(
+    barcodes_start.map((x) => [x.TRANSACTIONID, x.Status])
+  );
 
+  for (let i = 0; i < transaction_id_arr.length; i++) {
+    const barcode = await knex.raw(
+      "SELECT * FROM barcode_log WHERE TRANSACTIONID = ?",
+      [transaction_id_arr[i]]
+    );
+    const bardata = barcode[0][0]?.BarcodeID;
+    if (!bardata) {
+      console.log(
+        "No barcode found for transaction id: ",
+        transaction_id_arr[i]
+      );
+      continue;
+    }
     const reductionData = {
       EMPLOYEE_RESPONSIBLE: "000002",
-      BARCODE_ID: barcode[0][0].BarcodeID,
-      TRANSACTIONID: transaction_id,
+      BARCODE_ID: bardata,
+      TRANSACTIONID: transaction_id_arr[i],
     };
-    const barcode = await knex.raw(
-      `SELECT * FROM barcode_log WHERE TRANSACTIONID = ?`,
-      [transaction_id]
-    );
-    const reductionResult = await reduction(reductionData);
-
-    //we want to check for reduction and depending on type then either check active or passive stock
+    const reduct = await reduction(reductionData);
+   
+      const barcode_end = await knex.raw(
+        "SELECT * FROM barcode_log WHERE TRANSACTIONID = ?",
+        [transaction_id_arr[i]]
+      );
+        console.log("Barcode end", barcode_end[0][0].Status);
+    const product_name = await knex.raw("SELECT PRODUCT_NAME FROM transaction_log WHERE TRANSACTIONID = ?", [transaction_id_arr[i]]);
+    
+    Output.LogToFile("", true);
+    Output.LogToFile(`Product at test: ${product_name[0][0].PRODUCT_NAME}`, true);
+    Output.LogToFile(`Barcode status check for product transaction, Initial: ${barcodes_start_map.get(transaction_id_arr[i])}, Expected: Deducted)}, ${barcode_end[0][0].Status !== barcodes_start_map.get(transaction_id_arr[i]) ? true : false}`, true);
   }
-  console.log("done");
 };
 
 exports.reductionIntegrationTest = reductionIntegrationTest;
