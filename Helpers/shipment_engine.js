@@ -41,31 +41,38 @@ const shipment_engine = async (args, callback) => {
 
   // }, 1500);
 };
+const MAX_RETRIES = 3; // Maximum number of retries
+const RETRY_DELAY = 1000; // Delay between retries in milliseconds
 
-const type1_shipment = async (args, callback) => {
-  // Update stored quantity
+const type1_shipment = async (args, callback, retries = MAX_RETRIES) => {
   try {
     await knex.transaction(async (trx) => {
-      try {
-        const result = await trx.raw(
-          queries.product_release.get_quantity_by_stored_id_storage,
-          [args.product_id]
-        );
-        await trx.raw(queries.product_inventory.update_activation_stored, [
-          result[0][0].STORED_STOCK + args.quantity,
-          args.product_id,
-        ]);
+      const result = await trx.raw(
+        queries.product_release.get_quantity_by_stored_id_storage,
+        [args.product_id]
+      );
+      await trx.raw(queries.product_inventory.update_activation_stored, [
+        result[0][0].STORED_STOCK + args.quantity,
+        args.product_id,
+      ]);
 
-        // Insert shipment log
-        await trx.raw(queries.shipment_log.insert, args.arr);
-      } catch (err) {
-        throw err;
-      }
+      // Insert shipment log
+      await trx.raw(queries.shipment_log.insert, args.arr);
     });
     return callback(transHandler.sucessHandler());
   } catch (err) {
-    console.log(err);
-    return callback(transHandler.errorHandler(err));
+    console.log("Transaction error:", err);
+    if (err.code === "ER_LOCK_DEADLOCK" && retries > 0) {
+      console.log(
+        `Deadlock detected. Retrying transaction... Retries left: ${retries}`
+      );
+      setTimeout(
+        () => type1_shipment(args, callback, retries - 1),
+        RETRY_DELAY
+      );
+    } else {
+      return callback(transHandler.errorHandler(err));
+    }
   }
 };
 

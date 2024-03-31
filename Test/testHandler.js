@@ -8,9 +8,13 @@ const {
 const {
   OmicaActivationEngineIntegrationTest,
 } = require("./src/activationEngineTest/OmicaIntegrationTest");
+const {
+  shipmentIntegrationTest,
+} = require("./src/shipmentEngineTest/singleItemshipmentIntegrationTest");
+
 class Test {
   constructor() {
-    this.internal_state = false;
+    this.internal_state = [];
   }
 
   kukistaProductTest(quantity, type, arg, company, callback) {
@@ -28,13 +32,16 @@ class Test {
       return callback(data);
     });
   }
+  shipmentEngineTest(quantity) {
+    shipmentIntegrationTest(quantity);
+  }
 
   SetInternalStateTestHandler(status) {
     this.internal_state = status;
   }
 
   runTest() {
-    if (this.internal_state == true) {
+    if (this.internal_state.find((x) => x == "activation") !== undefined) {
       this.kukistaProductTest(
         100,
         "122",
@@ -67,6 +74,12 @@ class Test {
       this.pillProductTest(100, "44", (data) => {});
       //----------------------------------------------------
       this.omicaProductTest(100, "888", (data) => {});
+    }
+    if (this.internal_state.find((x) => x == "shipment") !== undefined) {
+      this.shipmentEngineTest(100);
+    }
+    if (this.internal_state.find((x) => x == "reduction") !== undefined) {
+      console.log("reduction test");
     } else {
       console.log("testing is inactive => production mode");
     }
