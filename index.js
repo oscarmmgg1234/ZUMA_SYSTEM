@@ -23,9 +23,11 @@ server.use(shipment_endpoints);
 server.use(dashboard_endpoints);
 
 //integration test
-const test = TestHandler();
-test.SetInternalStateTestHandler(['reduction']); //shipment should be ran alone because its very resource intensive
-test.runTest();
+setTimeout(() => {
+  const test = TestHandler();
+  test.SetInternalStateTestHandler(["reduction"]); //shipment should be ran alone because its very resource intensive
+  test.runTest();
+}, 2000);
 
 //remove laundry, petShampoo, 
 

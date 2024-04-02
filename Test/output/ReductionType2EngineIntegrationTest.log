@@ -1,7 +1,47 @@
 Test Performed by: Oscar Maldonado
-Execution DateTime: 4/1/2024, 17:58:58
+Execution DateTime: 4/1/2024, 22:31:12
 Reduction Engine Integration Test For Reduction Type 2 Products
 
 
 Starting test
 
+Product at Test: 8ecb8ded
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 
+Product at Test: 8a2c95fa
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 
+Product at Test: d00bfc5c
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 
+Product at Test: 71fbccbe
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 
+Product at Test: 342aa9c4
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Product at Test: 080071fa
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 
+Product at Test: 248af4b8
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Product at Test: 4bdcb95e
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Product at Test: b45df669
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 
+Product at Test: 6ab1bcc2
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 
+Product at Test: ca26bc94
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 
+Product at Test: rewt232w
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Product at Test: retyyd23
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Product at Test: a07e5d9y
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 
+Product at Test: 2we3erq2
+Shipment Result: { Result: true, Message: Labels printed successfully 
+Reduction Result: { Result: true, Message: Product Reduced 

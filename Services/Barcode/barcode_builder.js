@@ -28,6 +28,26 @@ const barcode_builder = (args, callback) => {
         }
       );
     }
+    else{
+       db(
+         queries.tools.barcode_log,
+         [
+           args.id,
+           args.employee_id,
+           args.product_name,
+           args.quantity,
+           args.src == "Manually Printed"
+             ? "Manually Printed"
+             : "Active/Passive",
+           args.TRANSACTIONID,
+         ],
+         (err, result) => {
+           if (err) {
+             console.log(err);
+           }
+         }
+       );
+    }
 
     const text = id + ">" + args.TRANSACTIONID;
 

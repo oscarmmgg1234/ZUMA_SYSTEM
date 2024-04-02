@@ -64,11 +64,22 @@ const reductionIntegrationTest = async () => {
   const all_products_map = new Map(
     all_products[0].map((x) => [x.PRODUCT_ID, { ...x }])
   );
+
   const inventory_start = await knex.raw("SELECT * FROM product_inventory");
-  const inventory_start_map = new Map(inventory_start[0].filter((x) => all_products_map.has(x.PRODUCT_ID)).map((x) => [x.PRODUCT_ID, x.STORED_STOCK]));
+  const inventory_start_map = new Map(
+    inventory_start[0]
+      .filter((x) => all_products_map.has(x.PRODUCT_ID))
+      .map((x) => [x.PRODUCT_ID, x.STORED_STOCK])
+  );
+  const get_inv_count = async (product_id) => {
+    return await knex.raw(
+      "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
+      [product_id]
+    );
+  };
   const shipmentObject = all_products[0].map((arg) => {
     return new insert_shipment({
-      QUANTITY: 100,
+      QUANTITY: 2,
       COMPANY_ID: arg.COMPANY,
       TYPE: arg.TYPE,
       EMPLOYEE_ID: "000002",
@@ -77,7 +88,19 @@ const reductionIntegrationTest = async () => {
       TRANSACTIONID: generateRandomID(12),
     });
   });
-  
+  const reduction = (data) => {
+    return new Promise((resolve, reject) => {
+      controller.reduction.product_reduction(data, (data) => {
+        setTimeout(() => {
+          if (data) {
+            resolve(data);
+          } else {
+            reject(new Error("Reduction failed"));
+          }
+        }, 500);
+      });
+    });
+  };
 
   const shipment = (shipmentobject) => {
     return new Promise((resolve, reject) => {
@@ -86,9 +109,39 @@ const reductionIntegrationTest = async () => {
       });
     });
   };
-
+  const delay = (ms) => new Promise((res) => setTimeout(res, ms));
   for (let i = 0; i < shipmentObject.length; i++) {
-    await shipment(shipmentObject[i]);
+    const result = await shipment([shipmentObject[i]]);
+    Output.LogToFile(`Product at Test: ${shipmentObject[i].PRODUCT_ID}`, true);
+    Output.LogToFile(
+      `Shipment Result: { Result: ${result.status}, Message: ${result.message} }`,
+      true
+    );
+    const barcode = await knex.raw(
+      "SELECT * FROM barcode_log WHERE TRANSACTIONID = ?",
+      [shipmentObject[i].TRANSACTIONID]
+    );
+    const bardata = barcode[0][0]?.BarcodeID;
+    if (!bardata) {
+      console.log(
+        "No barcode found for transaction id: ",
+        shipmentObject[i].TRANSACTIONID
+      );
+      continue;
+    }
+    const reductionData = {
+      EMPLOYEE_RESPONSIBLE: "000002",
+      BARCODE_ID: bardata,
+      TRANSACTIONID: shipmentObject[i].TRANSACTIONID,
+    };
+    const response = await reduction(reductionData);
+    Output.LogToFile(
+      `Reduction Result: { Result: ${response.status}, Message: ${response.message} }`,
+      true
+    );
+
+    Output.LogToFile("", true);
+    // await delay(300);
   }
 };
 

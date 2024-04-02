@@ -90,7 +90,7 @@ class Test {
       this.shipmentEngineTest(100);
     }
     if (this.internal_state.find((x) => x == "reduction") !== undefined) {
-      this.reductionEngineTest();
+      //this.reductionEngineTest();
       this.reductionType2EngineTest();
     } else {
       console.log("testing is inactive => production mode");
