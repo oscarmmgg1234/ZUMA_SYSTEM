@@ -25,7 +25,7 @@ server.use(dashboard_endpoints);
 //integration test
 setTimeout(() => {
   const test = TestHandler();
-  test.SetInternalStateTestHandler(["reduction"]); //shipment should be ran alone because its very resource intensive
+  test.SetInternalStateTestHandler([]); //shipment should be ran alone because its very resource intensive
   test.runTest();
 }, 2000);
 
