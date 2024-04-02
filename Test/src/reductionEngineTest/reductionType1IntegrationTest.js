@@ -6,7 +6,7 @@ const { controller_interface } = require("../../../Controllers/controller");
 const engine = engines.Helper();
 const controller = controller_interface();
 const knex = query_manager;
-const Output = LogHandler("ReductionEngineIntegrationTest.log");
+const Output = LogHandler("ReductionType1EngineIntegrationTest.log");
 // Then replace all console.log and console.error in your function with logToFile
 // For the first log message, call logToFile(message, false) to truncate the file
 // For subsequent messages, call logToFile(message, true) to append to the file
@@ -39,14 +39,18 @@ const reductionIntegrationTest = async () => {
   const date = new Date();
   const options = { timeZone: "America/Los_Angeles", hour12: false };
   const laDate = date.toLocaleString("en-US", options);
-  Output.LogToFile(`Execution DateTime: ${laDate}`, false);
-  Output.LogToFile("Reduction Engine Integration Test", true);
+  Output.LogToFile("Test Performed by: Oscar Maldonado", false);
+  Output.LogToFile(`Execution DateTime: ${laDate}`, true);
+  Output.LogToFile(
+    "Reduction Engine Integration Test For Reduction Type 1 Products",
+    true
+  );
   Output.LogToFile("", true);
   Output.LogToFile("", true);
   Output.LogToFile("Starting test", true);
   Output.LogToFile("", true);
   const all_products = await knex.raw(
-    "SELECT * FROM product WHERE REDUCTION_TYPE = 1 "
+    "SELECT * FROM product WHERE REDUCTION_TYPE = 1"
   );
   const all_products_map = new Map(
     all_products[0].map((x) => [x.PRODUCT_ID, { ...x }])
@@ -70,16 +74,42 @@ const reductionIntegrationTest = async () => {
     return new Promise((resolve, reject) => {
       controller.reduction.product_reduction(data, (data) => {
         setTimeout(() => {
-        if (data) {
-          resolve(data);
-        } else {
-          reject(new Error("Reduction failed"));
-        }
-      } , 500);
+          if (data) {
+            resolve(data);
+          } else {
+            reject(new Error("Reduction failed"));
+          }
+        }, 500);
       });
     });
   };
-
+  const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+  const waitForStatusUpdate = async (
+    transactionId,
+    expectedStatus,
+    timeout = 10000
+  ) => {
+    const startTime = Date.now();
+    while (true) {
+      const [result] = await knex.raw(
+        "SELECT Status FROM barcode_log WHERE TRANSACTIONID = ?",
+        [transactionId]
+      );
+      if (result[0].Status === expectedStatus) {
+        return true; // Status updated
+      }
+      if (Date.now() - startTime > timeout) {
+        return "Active/Passive";
+      }
+      await delay(200); // Wait for 200ms before checking again
+    }
+  };
+  const get_inv_count = async (product_id) => {
+    return await knex.raw(
+      "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
+      [product_id]
+    );
+  };
   const transaction_id_arr = [];
   for (let [key, value] of all_products_map) {
     const transaction_id = generateRandomID(12);
@@ -96,7 +126,10 @@ const reductionIntegrationTest = async () => {
     const activation = await activate(activationData);
   }
   Output.LogToFile("", true);
-  Output.LogToFile("Prerequisite Product Activation complete...initiating Product Reduction", true);
+  Output.LogToFile(
+    "Prerequisite Product Activation complete...initiating Product Reduction",
+    true
+  );
   Output.LogToFile("", true);
   const barcodes_start = [];
   for (let i = 0; i < transaction_id_arr.length; i++) {
@@ -111,6 +144,12 @@ const reductionIntegrationTest = async () => {
   );
 
   for (let i = 0; i < transaction_id_arr.length; i++) {
+    const product_name = await knex.raw(
+      "SELECT * FROM transaction_log WHERE TRANSACTIONID = ?",
+      [transaction_id_arr[i]]
+    );
+    const init_inv_product = await get_inv_count(product_name[0][0].PRODUCT_ID);
+    const initial_inv_count = init_inv_product[0][0].ACTIVE_STOCK;
     const barcode = await knex.raw(
       "SELECT * FROM barcode_log WHERE TRANSACTIONID = ?",
       [transaction_id_arr[i]]
@@ -129,18 +168,46 @@ const reductionIntegrationTest = async () => {
       TRANSACTIONID: transaction_id_arr[i],
     };
     const reduct = await reduction(reductionData);
-   
-      const barcode_end = await knex.raw(
-        "SELECT * FROM barcode_log WHERE TRANSACTIONID = ?",
-        [transaction_id_arr[i]]
-      );
-        console.log("Barcode end", barcode_end[0][0].Status);
-    const product_name = await knex.raw("SELECT PRODUCT_NAME FROM transaction_log WHERE TRANSACTIONID = ?", [transaction_id_arr[i]]);
-    
-    Output.LogToFile("", true);
-    Output.LogToFile(`Product at test: ${product_name[0][0].PRODUCT_NAME}`, true);
-    Output.LogToFile(`Barcode status check for product transaction, Initial: ${barcodes_start_map.get(transaction_id_arr[i])}, Expected: Deducted)}, ${barcode_end[0][0].Status !== barcodes_start_map.get(transaction_id_arr[i]) ? true : false}`, true);
+
+    // Instead of await delay(2000);
+    const statusUpdated = await waitForStatusUpdate(
+      transaction_id_arr[i],
+      "Deducted"
+    );
+    const final_inv_product = await get_inv_count(
+      product_name[0][0].PRODUCT_ID
+    );
+    const final_inv_count = final_inv_product[0][0].ACTIVE_STOCK;
+
+    Output.LogToFile(``, true);
+    Output.LogToFile(
+      `Product at test: ${product_name[0][0].PRODUCT_NAME}  Trans ID: ${transaction_id_arr[i]}`,
+      true
+    );
+    Output.LogToFile(
+      `The Active Stock start: ${initial_inv_count}, end: ${final_inv_count}, expected diffrence: ${
+        product_name[0][0].QUANTITY
+      }, ${
+        Math.abs(final_inv_count - initial_inv_count) ==
+        product_name[0][0].QUANTITY
+          ? "Pass"
+          : "Fail"
+      } `,
+      true
+    );
+    Output.LogToFile(
+      `Barcode status check for product reduction, Start: ${barcodes_start_map.get(
+        transaction_id_arr[i]
+      )}, End: ${
+        statusUpdated ? "Deducted" : "Active/Passive"
+      }, Expected: Deducted, ${statusUpdated}`,
+      true
+    );
   }
+  Output.LogToFile("", true);
+  Output.LogToFile("Test Complete", true);
+  Output.LogToFile("", true);
+  Output.LogToFile("", true);
 };
 
 exports.reductionIntegrationTest = reductionIntegrationTest;

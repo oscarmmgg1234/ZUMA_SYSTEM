@@ -13,7 +13,10 @@ const {
 } = require("./src/shipmentEngineTest/singleItemshipmentIntegrationTest");
 const {
   reductionIntegrationTest,
-} = require("./src/reductionEngineTest/reductionIntegrationTest");
+} = require("./src/reductionEngineTest/reductionType1IntegrationTest");
+const {
+  reductionType2IntegrationTest,
+} = require("./src/reductionEngineTest/reductionType2IntegrationTest");
 class Test {
   constructor() {
     this.internal_state = [];
@@ -40,7 +43,9 @@ class Test {
   reductionEngineTest() {
     reductionIntegrationTest();
   }
-
+  reductionType2EngineTest() {
+    reductionType2IntegrationTest();
+  }
 
   SetInternalStateTestHandler(status) {
     this.internal_state = status;
@@ -85,7 +90,8 @@ class Test {
       this.shipmentEngineTest(100);
     }
     if (this.internal_state.find((x) => x == "reduction") !== undefined) {
-      reductionIntegrationTest();
+      this.reductionEngineTest();
+      this.reductionType2EngineTest();
     } else {
       console.log("testing is inactive => production mode");
     }
