@@ -2,8 +2,7 @@ const express = require("express");
 const server = express();
 const cors = require("cors");
 const init_sock_server = require("./Sockets/SystemStatusSocket");
-const { TestHandler} = require("./Test/testHandler");
-
+const { TestHandler } = require("./Test/testHandler");
 
 const middleware = require("./MiddleWare/middleware");
 const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");
@@ -23,14 +22,11 @@ server.use(shipment_endpoints);
 server.use(dashboard_endpoints);
 
 //integration test
-setTimeout(() => {
-  const test = TestHandler();
-  test.SetInternalStateTestHandler([]); //shipment should be ran alone because its very resource intensive
-  test.runTest();
-}, 2000);
+const test = TestHandler();
+test.SetInternalStateTestHandler([]); // array states include "activation", "reduction", and "shipment"
+test.runTest();
 
-//remove laundry, petShampoo, 
-
+//remove laundry, petShampoo,
 
 //init websocket server
 init_sock_server();
