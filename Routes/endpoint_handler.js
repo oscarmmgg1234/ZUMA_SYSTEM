@@ -117,6 +117,19 @@ class http_handler {
   };
 
   reduction = {
+    getProductNameFromTrans: async (req, res) => {
+      const data = await controller.reduction.getProductNameFromTrans(
+        req.req_data.TRANSACTIONID
+      );
+      const err = new ErrorHandling(data, "Error getting product name");
+      if (err.isValid()) {
+        res.send(
+          new success_handling(data, "Retrieved Product Name").getSuccess()
+        );
+      } else {
+        res.send(err.getError());
+      }
+    },
     release_product: (req, res) => {
       this.ProductInventoryCache.systemChange = true;
       controller.reduction.product_reduction(req.req_data, (result) => {

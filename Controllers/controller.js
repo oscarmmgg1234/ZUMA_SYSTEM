@@ -2,13 +2,15 @@ const { db_interface } = require("../DB/interface.js");
 const { res_interface } = require("../Models/INTERFACE/res/res_interface.js");
 const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
-const { get } = require("http");
 
 const helper = Helper();
 const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const getProductNameFromTrans = async (args) => {
+  return await db_api.getProductNameFromTrans(args);
+};
 const getGlycerinGlobal = async () => {
   return await db_api.getGlycerinGlobal();
 };
@@ -243,7 +245,6 @@ const shipment_add = async (args, callback) => {
     const shipmentPromises = args.map(
       (element) =>
         new Promise((resolve, reject) => {
-          
           helper.shipment_engine(element, (data) => {
             if (data.status) {
               resolve(data);
@@ -416,6 +417,10 @@ class controller {
     },
   };
   reduction = {
+    getProductNameFromTrans: async (args) => {
+      return await getProductNameFromTrans(args);
+    },
+
     product_reduction: (args, callback) => {
       product_reduction(args, (data) => {
         return callback(data);

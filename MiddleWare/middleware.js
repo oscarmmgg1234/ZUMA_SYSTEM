@@ -10,6 +10,18 @@ const EmployeeCache = new InMemoryCache();
 
 const req_model = req_interface();
 
+router.use("/getProductNameFromTrans", (req, res, next) => {
+  req_model.barcodeParse(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+      console.log(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
 router.use("/revertTransaction", (req, res, next) => {
   req_model.reverseTransaction(req.body, (data) => {
     const err = new ErrorRequest(data);

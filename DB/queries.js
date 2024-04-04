@@ -39,6 +39,8 @@ const product_release = {
     "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID, ORIGIN) VALUES (?, ?, ?, ?, ?)",
   getReleaseInfoByTransID:
     "SELECT transaction_log.*, barcode_log,* FROM transaction_log INNER JOIN barcode_log ON transaction_log.TRANSACTIONID = barcode_log.TRANSACTIONID WHERE transaction_log.TRANSACTIONID = ?",
+  getProductName:
+    "SELECT PRODUCT_NAME, QUANTITY FROM transaction_log WHERE TRANSACTIONID = ?",
 };
 
 const product_inventory = {

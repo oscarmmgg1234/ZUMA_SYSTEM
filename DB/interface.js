@@ -8,6 +8,10 @@ const knex = query_manager;
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+const getProductNameFromTrans = async (args) => {
+  const result = await knex.raw(queries.product_release.getProductName, [args]);
+  return result[0][0];
+};
 const getGlycerinGlobal = async () => {
   const result = await knex.raw(queries.dashboard.getGlycerinGlobal);
   return { glycerinGlobalUnit: result[0][0].GlycerinGallonUnitConstant };
@@ -421,6 +425,9 @@ const get_consumption_log = (callback) => {
 };
 
 class db_interface {
+  getProductNameFromTrans = async (args) => {
+    return await getProductNameFromTrans(args);
+  };
   getGlycerinGlobal = async () => {
     return await getGlycerinGlobal();
   };
