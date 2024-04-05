@@ -119,7 +119,7 @@ class http_handler {
   reduction = {
     getProductNameFromTrans: async (req, res) => {
       const data = await controller.reduction.getProductNameFromTrans(
-        req.req_data.TRANSACTIONID
+        req.req_data.BARCODE_ID
       );
       const err = new ErrorHandling(data, "Error getting product name");
       if (err.isValid()) {
