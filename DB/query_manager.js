@@ -1,5 +1,6 @@
 const fs = require("fs");
 const tls = require("tls");
+const process = require("process")
 
 const sslOptions = {
   ca: fs.readFileSync("./Certs/DigiCertGlobalRootCA.crt.pem"), // CA certificate
@@ -15,8 +16,8 @@ exports.query_manager = require("knex")({
     user: "oscar",
     port: 3306,
     password: "Omariscool1234!",
-    database: "zuma_main",
+    database: process.argv[2] == "dev" ? "zuma_development" : "zuma_main",
     ssl: sslOptions,
   },
-  debug: false
+  debug: false,
 });

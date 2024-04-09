@@ -2,6 +2,7 @@ const bwipjs = require("bwip-js");
 const sharp = require("sharp");
 const { db } = require("../../DB/db_init.js");
 const { queries } = require("../../DB/queries.js");
+const { parentPort, workerData } = require("worker_threads");
 
 const barcode_builder = (args, callback) => {
   const promises = [];
