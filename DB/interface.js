@@ -41,7 +41,9 @@ const addTransaction = async (args) => {
     args.src,
     args.args.EMPLOYEE_ID,
     args.args.PRODUCT_ID,
-    args.args.QUANTITY,
+    args.args.MULTIPLIER
+      ? parseInt(args.args.MULTIPLIER) * args.args.QUANTITY
+      : args.args.QUANTITY,
   ]);
 };
 
