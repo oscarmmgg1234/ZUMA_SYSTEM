@@ -2,7 +2,6 @@ const bwipjs = require("bwip-js");
 const sharp = require("sharp");
 const { db } = require("../../DB/db_init.js");
 const { queries } = require("../../DB/queries.js");
-const { parentPort, workerData } = require("worker_threads");
 
 const barcode_builder = (args, callback) => {
   const promises = [];
@@ -28,26 +27,25 @@ const barcode_builder = (args, callback) => {
           }
         }
       );
-    }
-    else{
-       db(
-         queries.tools.barcode_log,
-         [
-           args.id,
-           args.employee_id,
-           args.product_name,
-           args.quantity,
-           args.src == "Manually Printed"
-             ? "Manually Printed"
-             : "Active/Passive",
-           args.TRANSACTIONID,
-         ],
-         (err, result) => {
-           if (err) {
-             console.log(err);
-           }
-         }
-       );
+    } else {
+      db(
+        queries.tools.barcode_log,
+        [
+          args.id,
+          args.employee_id,
+          args.product_name,
+          args.quantity,
+          args.src == "Manually Printed"
+            ? "Manually Printed"
+            : "Active/Passive",
+          args.TRANSACTIONID,
+        ],
+        (err, result) => {
+          if (err) {
+            console.log(err);
+          }
+        }
+      );
     }
 
     const text = id + ">" + args.TRANSACTIONID;
@@ -141,9 +139,9 @@ const barcode_builder = (args, callback) => {
                 background: { r: 255, g: 255, b: 255, alpha: 1 },
               },
             })
-            .png()
-            .greyscale()
-            .sharpen()
+              .png()
+              .greyscale()
+              .sharpen()
               .toBuffer();
 
             const compo = await sharp(main_view)

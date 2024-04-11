@@ -332,12 +332,10 @@ class http_handler {
       }
     },
     getInventory: (req, res) => {
-      if (!this.ProductInventoryCache.getCacheStatus()) {
+      if (req.body?.Mobile) {
         controller.dashboard_controller.getInventory((data) => {
           const err = new ErrorHandling(data, "Error getting inventory");
           if (err.isValid()) {
-            this.ProductInventoryCache.setCache(data);
-            this.ProductInventoryCache.systemChange = false;
             res.send(
               new success_handling(data, "Retrieved Inventory").getSuccess()
             );
@@ -346,12 +344,27 @@ class http_handler {
           }
         });
       } else {
-        res.send(
-          new success_handling(
-            this.ProductInventoryCache.getCache(),
-            "Retrieved Inventory"
-          ).getSuccess()
-        );
+        if (!this.ProductInventoryCache.getCacheStatus()) {
+          controller.dashboard_controller.getInventory((data) => {
+            const err = new ErrorHandling(data, "Error getting inventory");
+            if (err.isValid()) {
+              this.ProductInventoryCache.setCache(data);
+              this.ProductInventoryCache.systemChange = false;
+              res.send(
+                new success_handling(data, "Retrieved Inventory").getSuccess()
+              );
+            } else {
+              res.send(err.getError());
+            }
+          });
+        } else {
+          res.send(
+            new success_handling(
+              this.ProductInventoryCache.getCache(),
+              "Retrieved Inventory"
+            ).getSuccess()
+          );
+        }
       }
     },
     addProduct: (req, res) => {

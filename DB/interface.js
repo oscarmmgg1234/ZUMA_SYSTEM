@@ -1,7 +1,6 @@
 const { db } = require("./db_init.js");
 const { queries } = require("./queries.js");
 const { query_manager } = require("./query_manager.js");
-
 const knex = query_manager;
 
 // const insertShipmentLog = (args) => {
