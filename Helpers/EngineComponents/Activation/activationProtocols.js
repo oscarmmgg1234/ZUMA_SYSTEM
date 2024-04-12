@@ -873,77 +873,164 @@ const Type4_Protocol = async (
   callback
 ) => {
   const amount = await engineHelper.pillBaseAmount(args.product_name);
-  try {
-    await knex.transaction(async (trx) => {
-      try {
-        // const processComponents = await engineProcessHandler.processComponents(trx);
-        //can i inject this instance of trx into a seperate array in the application
-        // inject subcomponent process into this to create a single transaction(db)
+  if (!exceptions.includes(args.product_id)) {
+    try {
+      await knex.transaction(async (trx) => {
+        try {
+          // const processComponents = await engineProcessHandler.processComponents(trx);
+          //can i inject this instance of trx into a seperate array in the application
+          // inject subcomponent process into this to create a single transaction(db)
 
-        for (const component of args.product_components) {
-          if (engineHelper.productType(component.NAME) == 0) {
-            await trx.raw(
-              queries.activation_product.product_activation_liquid,
-              [
+          for (const component of args.product_components) {
+            if (engineHelper.productType(component.NAME) == 0) {
+              await trx.raw(
+                queries.activation_product.product_activation_liquid,
+                [
+                  component.PRODUCT_ID,
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]
+              );
+              const result = await trx.raw(
+                queries.product_release.get_quantity_by_stored_id_active,
+                [component.PRODUCT_ID]
+              );
+              await trx.raw(queries.product_inventory.update_activation, [
+                result[0][0].ACTIVE_STOCK + args.quantity,
+                component.PRODUCT_ID,
+              ]);
+              const result2 = await trx.raw(
+                queries.product_release.get_quantity_by_stored_id_storage,
+                [component.PRODUCT_ID]
+              );
+              await trx.raw(
+                queries.product_inventory.update_activation_stored,
+                [
+                  result2[0][0].STORED_STOCK - args.quantity * amount,
+                  component.PRODUCT_ID,
+                ]
+              );
+              await trx.raw(queries.product_release.insert_product_release, [
+                component.PRODUCT_ID,
+                args.quantity * amount,
+                args.employee_id,
+                args.TRANSACTIONID,
+              ]);
+            } else if (engineHelper.productType(component.NAME) == 1) {
+              await trx.raw(queries.product_release.insert_product_release, [
                 component.PRODUCT_ID,
                 args.quantity,
                 args.employee_id,
                 args.TRANSACTIONID,
-              ]
-            );
-            const result = await trx.raw(
-              queries.product_release.get_quantity_by_stored_id_active,
-              [component.PRODUCT_ID]
-            );
-            await trx.raw(queries.product_inventory.update_activation, [
-              result[0][0].ACTIVE_STOCK + args.quantity,
-              component.PRODUCT_ID,
-            ]);
-            const result2 = await trx.raw(
-              queries.product_release.get_quantity_by_stored_id_storage,
-              [component.PRODUCT_ID]
-            );
-            await trx.raw(queries.product_inventory.update_activation_stored, [
-              result2[0][0].STORED_STOCK - args.quantity * amount,
-              component.PRODUCT_ID,
-            ]);
-            await trx.raw(queries.product_release.insert_product_release, [
-              component.PRODUCT_ID,
-              args.quantity * amount,
-              args.employee_id,
-              args.TRANSACTIONID,
-            ]);
-          } else if (engineHelper.productType(component.NAME) == 1) {
-            await trx.raw(queries.product_release.insert_product_release, [
-              component.PRODUCT_ID,
-              args.quantity,
-              args.employee_id,
-              args.TRANSACTIONID,
-            ]);
-            const result = await trx.raw(
-              queries.product_release.get_quantity_by_stored_id_storage,
-              [component.PRODUCT_ID]
-            );
-            await trx.raw(queries.product_inventory.update_consumption_stored, [
-              result[0][0].STORED_STOCK - args.quantity,
-              component.PRODUCT_ID,
-            ]);
+              ]);
+              const result = await trx.raw(
+                queries.product_release.get_quantity_by_stored_id_storage,
+                [component.PRODUCT_ID]
+              );
+              await trx.raw(
+                queries.product_inventory.update_consumption_stored,
+                [
+                  result[0][0].STORED_STOCK - args.quantity,
+                  component.PRODUCT_ID,
+                ]
+              );
+            }
           }
+          await subProtocolHandler(
+            args,
+            exceptions,
+            subProtocol,
+            subprocess_comp_id,
+            trx
+          );
+        } catch (err) {
+          throw err;
         }
-        await subProtocolHandler(
-          args,
-          exceptions,
-          subProtocol,
-          subprocess_comp_id,
-          trx
-        );
+      });
+      return callback(transHandler.sucessHandler());
+    } catch (err) {
+      return callback(transHandler.errorHandler(err));
+    }
+  } else {
+    //probiotic small
+    if (args.product_id == "7041e59c") {
+      try {
+        await knex.transaction(async (trx) => {
+          try {
+            // const processComponents = await engineProcessHandler.processComponents(trx);
+            //can i inject this instance of trx into a seperate array in the application
+            // inject subcomponent process into this to create a single transaction(db)
+
+            for (const component of args.product_components) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                await trx.raw(
+                  queries.activation_product.product_activation_liquid,
+                  [
+                    component.PRODUCT_ID,
+                    args.quantity,
+                    args.employee_id,
+                    args.TRANSACTIONID,
+                  ]
+                );
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_active,
+                  [component.PRODUCT_ID]
+                );
+                await trx.raw(queries.product_inventory.update_activation, [
+                  result[0][0].ACTIVE_STOCK + args.quantity,
+                  component.PRODUCT_ID,
+                ]);
+                const result2 = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  [component.PRODUCT_ID]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_activation_stored,
+                  [
+                    result2[0][0].STORED_STOCK - args.quantity * amount,
+                    component.PRODUCT_ID,
+                  ]
+                );
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "de711bdc",
+                  args.quantity * amount,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+              } else if (engineHelper.productType(component.NAME) == 1) {
+                await trx.raw(queries.product_release.insert_product_release, [
+                  component.PRODUCT_ID,
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["de711bdc"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result[0][0].STORED_STOCK - args.quantity, "de711bdc"]
+                );
+              }
+            }
+            await subProtocolHandler(
+              args,
+              exceptions,
+              subProtocol,
+              subprocess_comp_id,
+              trx
+            );
+          } catch (err) {
+            throw err;
+          }
+        });
+        return callback(transHandler.sucessHandler());
       } catch (err) {
-        throw err;
+        return callback(transHandler.errorHandler(err));
       }
-    });
-    return callback(transHandler.sucessHandler());
-  } catch (err) {
-    return callback(transHandler.errorHandler(err));
+    }
   }
 };
 
@@ -962,12 +1049,15 @@ const Type5_Protocol = async (
           const productType = engineHelper.productType(component.NAME);
           // Product Type 0: Activation Liquid
           if (productType === 0) {
-           await trx.raw(queries.activation_product.product_activation_liquid, [
-             component.PRODUCT_ID,
-             args.quantity,
-             args.employee_id,
-             args.TRANSACTIONID,
-           ]);
+            await trx.raw(
+              queries.activation_product.product_activation_liquid,
+              [
+                component.PRODUCT_ID,
+                args.quantity,
+                args.employee_id,
+                args.TRANSACTIONID,
+              ]
+            );
 
             const result = await trx.raw(
               queries.product_release.get_quantity_by_stored_id_active,
@@ -997,7 +1087,6 @@ const Type5_Protocol = async (
           }
           // Product Type 2: Custom Logic
           else if (productType === 2) {
-           
             const result = await trx.raw(
               queries.product_release.get_quantity_by_stored_id_storage,
               [component.PRODUCT_ID]
