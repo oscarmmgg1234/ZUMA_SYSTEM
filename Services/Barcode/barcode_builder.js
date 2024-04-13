@@ -2,13 +2,16 @@ const bwipjs = require("bwip-js");
 const sharp = require("sharp");
 const { db } = require("../../DB/db_init.js");
 const { queries } = require("../../DB/queries.js");
+const { Constants } = require("../../Constants/Tools_Interface.js");
+
+const constants = new Constants();
 
 const barcode_builder = (args, callback) => {
   const promises = [];
   for (let i = 0; i < parseInt(args.multiplier); i++) {
     let id = args.id;
     if (i > 0) {
-      id = Math.floor(Math.random() * 1000000000);
+      id = constants.generateRandomID(12);
       db(
         queries.tools.barcode_log,
         [

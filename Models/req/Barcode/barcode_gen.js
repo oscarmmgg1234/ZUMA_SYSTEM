@@ -1,16 +1,5 @@
-function generateRandomID(length) {
-  // Create a random ID with a specified length
-  let result = "";
-  // Define the characters that can be included in the ID
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    // Append a random character from the characters string
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
+const { Constants } = require("../../../Constants/Tools_Interface.js");
+const constants = new Constants();
 
 class Barcode {
   constructor(args) {
@@ -20,11 +9,11 @@ class Barcode {
     this.multiplier = args.MULTIPLIER;
     this.product_name = args.PRODUCT_NAME;
     this.employee_id = args.EMPLOYEE_ID != "" ? args.EMPLOYEE_ID : "NULL";
-    this.id = Math.floor(Math.random() * 1000000000);
+    this.id = constants.generateRandomID(12);
     this.src = args.SRC;
     this.TRANSACTIONID = args.TRANSACTIONID
       ? args.TRANSACTIONID
-      : generateRandomID(12);
+      : constants.generateRandomID(12);
   }
   validate() {
     return;

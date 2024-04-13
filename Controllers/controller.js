@@ -2,7 +2,9 @@ const { db_interface } = require("../DB/interface.js");
 const { res_interface } = require("../Models/INTERFACE/res/res_interface.js");
 const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
+const {Constants} = require("../Constants/Tools_Interface.js")
 
+const constants = new Constants();
 const helper = Helper();
 const res = res_interface();
 const db_api = db_interface();
@@ -175,6 +177,7 @@ const get_product_by_id = (args, callback) => {
 //     this.EMPLOYEE_NAME = args.EMPLOYEE_NAME;
 //   }
 //
+
 const activate_product = (args, callback) => {
   helper.activation_engine(args, (data) => {
     // going to create a barcode callback to be able to add the barcode to the transaction log
@@ -187,7 +190,7 @@ const activate_product = (args, callback) => {
         product_name: args.PRODUCT_NAME,
         employee_id: args.EMPLOYEE_ID,
         src: "Active/Passive",
-        id: Math.floor(Math.random() * 1000000000),
+        id: constants.generateRandomID(12),
         TRANSACTIONID: args.TRANSACTIONID,
       };
       generate_barcode(barcodeInput, (barcodeData) => {

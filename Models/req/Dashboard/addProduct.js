@@ -1,17 +1,9 @@
-function generateRandomString(length) {
-  var result = "";
-  var characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
+const {Constants} = require("../../../Constants/Tools_Interface.js");
+const constants = new Constants();
 
 class product {
   constructor(args) {
-    this.productID = generateRandomString(8);
+    this.productID = constants.generateRandomID(8);
     this.name = args.name;
     this.desc = args.desc;
     this.price = args.price;
