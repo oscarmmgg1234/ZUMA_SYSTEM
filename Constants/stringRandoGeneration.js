@@ -9,5 +9,5 @@ exports.generateRandomID = (length) => {
     // Append a random character from the characters string
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
-  return result + `:${length}`;
+  return result;
 };
