@@ -13,7 +13,7 @@ class Barcode {
     this.src = args.SRC;
     this.TRANSACTIONID = args.TRANSACTIONID
       ? args.TRANSACTIONID
-      : constants.generateRandomID(12);
+      : constants.generateRandomID(8);
   }
   validate() {
     return;

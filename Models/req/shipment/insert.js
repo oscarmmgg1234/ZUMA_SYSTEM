@@ -21,7 +21,7 @@ class insert_shipment {
     this.EMPLOYEE_ID = args.EMPLOYEE_ID;
     this.PRODUCT_ID = args.PRODUCT_ID;
     this.SHIPMENT_TYPE = args.SHIPMENT_TYPE;
-    this.TRANSACTIONID = generateRandomID(12);
+    this.TRANSACTIONID = generateRandomID(8);
   }
   to_arr() {
     return [

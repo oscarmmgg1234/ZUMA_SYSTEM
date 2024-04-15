@@ -18,7 +18,7 @@ class inv_consumption {
     this.QUANTITY = args.QUANTITY;
     this.PRODUCT_ID = args.PRODUCT_ID;
     this.REDUCTION_TYPE = args.REDUCTION_TYPE;
-    this.TRANSACTIONID = generateRandomID(12);
+    this.TRANSACTIONID = generateRandomID(8);
   }
 }
 

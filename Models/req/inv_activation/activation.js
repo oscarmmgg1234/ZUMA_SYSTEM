@@ -49,7 +49,7 @@ class product_inventory {
     this.QUANTITY = parseInt(args.QUANTITY);
     this.MULTIPLIER = args.MULTIPLIER;
     this.EMPLOYEE_NAME = args.EMPLOYEE_NAME;
-    this.TRANSACTIONID = constants.generateRandomID(12);
+    this.TRANSACTIONID = constants.generateRandomID(8);
   }
 
   // quantityHandler(){

@@ -30,7 +30,7 @@ const reduction_type = (args, callback) => {
 };
 
 const reduction_engine = (args) => {
-  const newTransactionID = generateRandomID(12);
+  const newTransactionID = generateRandomID(8);
   local_service.setBarcodeEmployee([
     args.EMPLOYEE_RESPONSIBLE,
     args.BARCODE_ID,
