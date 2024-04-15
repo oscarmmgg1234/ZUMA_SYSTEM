@@ -11,3 +11,7 @@ exports.generateRandomID = (length) => {
   }
   return result;
 };
+
+exports.generateRandomInt = () => {
+  return Math.floor(Math.random() * 1000000);
+}

@@ -190,7 +190,7 @@ const activate_product = (args, callback) => {
         product_name: args.PRODUCT_NAME,
         employee_id: args.EMPLOYEE_ID,
         src: "Active/Passive",
-        id: constants.generateRandomID(12),
+        id: constants.generateRandomID(8),
         TRANSACTIONID: args.TRANSACTIONID,
       };
       generate_barcode(barcodeInput, (barcodeData) => {

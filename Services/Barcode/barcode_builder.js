@@ -11,7 +11,7 @@ const barcode_builder = (args, callback) => {
   for (let i = 0; i < parseInt(args.multiplier); i++) {
     let id = args.id;
     if (i > 0) {
-      id = constants.generateRandomID(12);
+      id = constants.generateRandomID(8);
       db(
         queries.tools.barcode_log,
         [

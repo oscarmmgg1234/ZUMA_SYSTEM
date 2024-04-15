@@ -9,7 +9,7 @@ class Barcode {
     this.multiplier = args.MULTIPLIER;
     this.product_name = args.PRODUCT_NAME;
     this.employee_id = args.EMPLOYEE_ID != "" ? args.EMPLOYEE_ID : "NULL";
-    this.id = constants.generateRandomID(12);
+    this.id = constants.generateRandomID(8);
     this.src = args.SRC;
     this.TRANSACTIONID = args.TRANSACTIONID
       ? args.TRANSACTIONID
