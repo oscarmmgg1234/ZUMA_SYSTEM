@@ -532,6 +532,66 @@ const Type1_Protocol = async (
                 trx
               );
             }
+            if ("3kergsbf" == args.product_id) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                await trx.raw(
+                  queries.activation_product.product_activation_liquid,
+                  [
+                    "3kergsbf",
+                    args.quantity,
+                    args.employee_id,
+                    args.TRANSACTIONID,
+                  ]
+                );
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_active,
+                  ["3kergsbf"]
+                );
+                await trx.raw(queries.product_inventory.update_activation, [
+                  result[0][0].ACTIVE_STOCK + args.quantity,
+                  "3kergsbf",
+                ]);
+
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "5f21a6fe",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result2 = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["5f21a6fe"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result2[0][0].STORED_STOCK - args.quantity, "5f21a6fe"]
+                );
+              }
+
+              if (engineHelper.productType(component.NAME) == 1) {
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "934df45f",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["934df45f"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result[0][0].STORED_STOCK - args.quantity, "934df45f"]
+                );
+              }
+              await subProtocolHandler(
+                args,
+                exceptions,
+                subProtocol,
+                subprocess_comp_id,
+                trx
+              );
+            }
           }
         } catch (err) {
           throw err;
