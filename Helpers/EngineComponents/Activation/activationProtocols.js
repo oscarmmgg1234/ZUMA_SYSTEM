@@ -350,6 +350,124 @@ const Type1_Protocol = async (
                 trx
               );
             }
+            if ("23f9rgd0" == args.product_id) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                await trx.raw(
+                  queries.activation_product.product_activation_liquid,
+                  [
+                    component.PRODUCT_ID,
+                    args.quantity,
+                    args.employee_id,
+                    args.TRANSACTIONID,
+                  ]
+                );
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_active,
+                  [component.PRODUCT_ID]
+                );
+                await trx.raw(queries.product_inventory.update_activation, [
+                  result[0][0].ACTIVE_STOCK + args.quantity,
+                  component.PRODUCT_ID,
+                ]);
+
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "e65b9756",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result2 = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["e65b9756"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result2[0][0].STORED_STOCK - args.quantity, "e65b9756"]
+                );
+              }
+              if (engineHelper.productType(component.NAME) == 1) {
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "8uhde34r",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["8uhde34r"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result[0][0].STORED_STOCK - args.quantity, "8uhde34r"]
+                );
+              }
+              await subProtocolHandler(
+                args,
+                exceptions,
+                subProtocol,
+                subprocess_comp_id,
+                trx
+              );
+            }
+            if ("5hedjsu3" == args.product_id) {
+              if (engineHelper.productType(component.NAME) == 0) {
+                await trx.raw(
+                  queries.activation_product.product_activation_liquid,
+                  [
+                    component.PRODUCT_ID,
+                    args.quantity,
+                    args.employee_id,
+                    args.TRANSACTIONID,
+                  ]
+                );
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_active,
+                  [component.PRODUCT_ID]
+                );
+                await trx.raw(queries.product_inventory.update_activation, [
+                  result[0][0].ACTIVE_STOCK + args.quantity,
+                  component.PRODUCT_ID,
+                ]);
+
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "e65b9756",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result2 = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["e65b9756"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result2[0][0].STORED_STOCK - args.quantity, "e65b9756"]
+                );
+              }
+              if (engineHelper.productType(component.NAME) == 1) {
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "9kedh52d",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["9kedh52d"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result[0][0].STORED_STOCK - args.quantity, "9kedh52d"]
+                );
+              }
+              await subProtocolHandler(
+                args,
+                exceptions,
+                subProtocol,
+                subprocess_comp_id,
+                trx
+              );
+            }
             //body wash sm
             if ("2eridng1" == args.product_id) {
               if (engineHelper.productType(component.NAME) == 0) {
