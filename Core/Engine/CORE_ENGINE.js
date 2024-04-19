@@ -17,19 +17,29 @@ const core_engine = async (args) => {
   try {
     // Getting the transaction object
     db_handle = await transactionUnit();
-    //linked list of function references
-    const protocol= symbolTable(args.process_token);
-    for (let i = 0; i < protocol.size; i++) {
-      let current = protocol.getData();
-      //process
-      await current.proto(db_handle, args, current.value, current.custom);
-      protocol.next();
-    }
-    // Placeholder for database operations
-    // Example: await db_handle.raw('YOUR SQL QUERY HERE');
+    try {
+      //linked list of function references
+      const protocol = symbolTable(args.process_token);
+      for (let i = 0; i < protocol.size; i++) {
+        let current = protocol.getData();
+        //process
+        /*
+        db_handle: transaction object
+        args: req object for any need of the function
+        current.value: can be the id of product to be referenced by the function
+        current.custom: any additional data needed by the function
+      */
+        await current.proto(db_handle, args, current.value, current.custom);
+        protocol.next();
+      }
+      // Placeholder for database operations
+      // Example: await db_handle.raw('YOUR SQL QUERY HERE');
 
-    // If operations are successful, commit the transaction
-    await db_handle.commit();
+      // If operations are successful, commit the transaction
+      await db_handle.commit();
+    } catch (error) {
+      throw error;
+    }
   } catch (error) {
     // On error, check if db_handle exists and rollback
     if (db_handle) {
