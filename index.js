@@ -3,6 +3,13 @@ const server = express();
 const cors = require("cors");
 const init_sock_server = require("./Sockets/SystemStatusSocket");
 const { TestHandler } = require("./Test/testHandler");
+const { FunctionRegistry } = require("./Core/Engine/Registry/functionRegistry");
+const Registry = new FunctionRegistry();
+const { core_engine } = require("./Core/Engine/CORE_ENGINE");
+core_engine(
+  "AC:123:23232 AC:123:23244 AC:123:23244 AC:123:23244 AC:123:23244",
+  Registry
+);
 
 const middleware = require("./MiddleWare/middleware");
 const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");
@@ -34,3 +41,5 @@ init_sock_server();
 server.listen(PORT, () => {
   console.log(`API is running on port ${PORT}`);
 });
+
+exports.registry = Registry;

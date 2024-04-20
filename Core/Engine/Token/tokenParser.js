@@ -1,4 +1,4 @@
-const { LinkedList } = require("../DataStructures/linkedList");
+const { LinkedList } = require("../../Utility/LinkedList");
 
 const parser = (data) => {
   if (!data) return null;
@@ -14,6 +14,7 @@ const parser = (data) => {
       value: inputToken[2],
       custom: inputToken[3] ? inputToken[3] : null,
     };
+    console.log("Token object: ", tokenObject);
     list.append(tokenObject);
   }
   return list;
