@@ -42,10 +42,29 @@ class FunctionRegistry {
       console.error("Error fetching and updating registry:", error);
     }
   }
-
+  
   async getFunction(id) {
-    if (this.registry_map.size === 0) return null; // Corrected check
-    return this.registry_map.get(id);
+    return await this.pollFunction(id);
+  }
+  // Polling function to check if the function is available in case of calling function before registry class updates map and returns the function
+   async pollFunction(id, attempts = 3) {
+    return new Promise((resolve, reject) => {
+      const attemptFetch = (remainingAttempts) => {
+        if (this.registry_map.size > 0) {
+          const func = this.registry_map.get(id);
+          if (func) {
+            resolve(func);
+          } else {
+            reject(new Error("Function not found."));
+          }
+        } else if (remainingAttempts > 0) {
+          setTimeout(() => attemptFetch(remainingAttempts - 1), 200); // Wait 200ms then retry
+        } else {
+          reject(new Error("Function retrieval failed after maximum attempts."));
+        }
+      };
+      attemptFetch(attempts);
+    });
   }
 }
 
