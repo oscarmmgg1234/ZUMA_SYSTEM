@@ -7,35 +7,42 @@ This module is used to store the functions that will be used by the core engine.
 ============================================
 */
 
-const { db_registry } = require("../DBLayer/DAO/registry");
+const { query_manager } = require("../../../DB/query_manager");
+const knex = query_manager;
 
 class FunctionRegistry {
-  constructor() {}
-  getFunction(key, id) {
-    if (key == "AC") {
-      return this.activation_reg.get(id);
-    }
-    if (key == "RD") {
-      return this.reduction_reg.get(id);
-    }
-    if (key == "SH") {
-      return this.shipment_reg.get(id);
-    }
-    if (key == "UP") {
-      return this.update_reg.get(id);
+  constructor() {
+    this.registry_map = new Map();
+    this.init();
+  }
+
+  async init() {
+    const query = "SELECT * FROM protocol_registry";
+    try {
+      // Perform initial fetch
+      await this.fetchAndUpdateRegistry(query);
+      // Set up polling
+      setInterval(() => this.fetchAndUpdateRegistry(query), 30000); // Adjusted to 30 seconds
+    } catch (error) {
+      console.error("Error during initialization of FunctionRegistry:", error);
     }
   }
-  activation_reg = new Map();
-  reduction_reg = new Map();
-  shipment_reg = new Map();
-  update_reg = new Map();
+
+  async fetchAndUpdateRegistry(query) {
+    try {
+      let registry = await knex.raw(query)[0];
+      registry.forEach((current) => {
+        this.registry_map.set(current.id, current.protocol);
+      });
+    } catch (error) {
+      console.error("Error fetching and updating registry:", error);
+    }
+  }
+
+  getFunction(id) {
+    if (this.registry_map.size === 0) return null; // Corrected check
+    return this.registry_map.get(id);
+  }
 }
 
-const registry = new FunctionRegistry();
-//activation registry
-registry.activation_reg.set("00321", (db_handle, args, value, custom) => {
-  //Insert Row for Activation Log
-  db_registry.getFunction("AC", "00321")(db_handle, args, value, custom);
-});
-
-exports.FunctionRegistry = FunctionRegistry;
+module.exports = FunctionRegistry;
