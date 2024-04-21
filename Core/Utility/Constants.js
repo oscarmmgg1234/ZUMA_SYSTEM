@@ -25,7 +25,6 @@ const glycerinCompsumption = async (
   const glycerinBottleSize = await knex.raw(
     "SELECT GlycerinGallonUnitConstant FROM system_config WHERE system_config.Index = 1"
   );
-
   const glycerinBottleAmountGALLONS_toMill =
     glycerinBottleSize[0][0].GlycerinGallonUnitConstant * 3785.41;
   const productGlycerinAmountOZ_toMill = ratio * 29.5735;
