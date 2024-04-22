@@ -4,7 +4,7 @@ const parser = (data) => {
   if (!data) return null;
   const list = new LinkedList();
   // Split the data by space
-  const tokens = data.split(" ");
+  const tokens = data.split("-");
   //process each individual token then append the object to linked list
   for (let token of tokens) {
     let inputToken = token.split(":");

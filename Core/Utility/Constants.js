@@ -3,7 +3,7 @@ Author: Oscar Maldonado
 Date: 04/18/2024
 Engine Utility
 */
-const { query_manager } = require("../../../DB/query_manager");
+const { query_manager } = require("../../DB/query_manager");
 
 const knex = query_manager;
 

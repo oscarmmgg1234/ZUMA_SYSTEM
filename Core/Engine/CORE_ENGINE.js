@@ -11,12 +11,13 @@ const {
   transactionUnit,
 } = require("../DBLayer/Transaction/transactionUnit.js");
 const { symbolTable } = require("./Token/symbolTable");
+const { FunctionRegistry } = require("./Registry/functionRegistry");
 
-
-const core_engine = async (args, registry) => {
-  //console.log(protocol);
+const core_engine = async (args) => {
+  db_handle = await transactionUnit();
   setInterval(async () => {
-    const protocol = await symbolTable(args, registry);
+    console.log(args)
+    const protocol = await symbolTable(args, FunctionRegistry);
     for (let i = 0; i < protocol.size; i++) {
       let current = protocol.getData();
       const val = await current.proto();

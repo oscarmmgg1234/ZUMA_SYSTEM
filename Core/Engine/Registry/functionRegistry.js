@@ -8,7 +8,7 @@ This module is used to store the functions that will be used by the core engine.
 */
 
 const { query_manager } = require("../../../DB/query_manager");
-const { util } = require("../../Utility/Constants");
+
 const knex = query_manager;
 
 class FunctionRegistry {
@@ -36,10 +36,10 @@ class FunctionRegistry {
       this.registry_map.clear();
       registry[0].forEach((current) => {
         // Evaluate the protocol string to a async function
+
         const func = eval(`(${current.protocol})`);
         this.registry_map.set(current.id, func);
       });
-      console.log(this.registry_map.size, "functions in registry.");
     } catch (error) {
       console.error("Error fetching and updating registry:", error);
     }
@@ -73,26 +73,45 @@ class FunctionRegistry {
 }
 
 //would this function be able to call util.productConsumption in this scope?
-const string = async function insertIntoReductionTableLiquid(
+
+// example call would be like this insertIntoReductionTableLiquid(db_handle, args, product_id, custom)
+const string = `async function insertIntoReductionTableLiquid(
   db_handle,
   args,
   product_id,
-  custom,
-  functionConversion
+  custom
 ) {
+  const productConsumption = async (
+    productBottleSizeML = 50,
+    productQuantity,
+    product_id
+  ) => {
+    const productBaseGallon = await db_handle.raw(
+      "SELECT Product_Base_Gallon FROM product WHERE PRODUCT_ID = ?",
+      [product_id]
+    );
+    const productBaseGallon_toMill =
+      productBaseGallon[0][0].Product_Base_Gallon * 3785.41;
+    return (productBottleSizeML * productQuantity) / productBaseGallon_toMill;
+  };
+
   await db_handle.raw(
     "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
     [
       product_id,
-      functionConversion.productConsumption(
-        args.productBottleSizeML,
-        args.productQuantity,
-        product_id
-      ),
+      productConsumption(parseFloat(custom), args.productQuantity, product_id),
       args.employee_id,
       args.TRANSACTIONID,
     ]
   );
-};
+}`
+// async function InsertInto() {
+//   await knex.raw(
+//     "INSERT INTO protocol_registry (class, id, protocol, description) VALUES (?, ?, ?, ?)",
+//     ["RD", "23fhw", string, "Inserts into reduction table liquid"]
+//   );
+// }
+// InsertInto();
 
-module.exports.FunctionRegistry = FunctionRegistry;
+const registry = new FunctionRegistry();
+module.exports.FunctionRegistry = registry;

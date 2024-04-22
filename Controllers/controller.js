@@ -2,13 +2,17 @@ const { db_interface } = require("../DB/interface.js");
 const { res_interface } = require("../Models/INTERFACE/res/res_interface.js");
 const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
-const {Constants} = require("../Constants/Tools_Interface.js")
+const { Constants } = require("../Constants/Tools_Interface.js");
+const {core_engine} = require("../Core/Engine/CORE_ENGINE.js");
 
 const constants = new Constants();
 const helper = Helper();
 const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
+
+core_engine("AC:123:23232-AC:123:23244");
+
 
 const getProductNameFromTrans = async (args) => {
   return await db_api.getProductNameFromTrans(args);
