@@ -72,29 +72,27 @@ class FunctionRegistry {
   }
 }
 
+//would this function be able to call util.productConsumption in this scope?
 const string = async function insertIntoReductionTableLiquid(
   db_handle,
   args,
   product_id,
-  custom
+  custom,
+  functionConversion
 ) {
   await db_handle.raw(
     "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
     [
       product_id,
-      util.productConsumption(args.productBottleSizeML, args.productQuantity, args.productBaseGallon),
+      functionConversion.productConsumption(
+        args.productBottleSizeML,
+        args.productQuantity,
+        product_id
+      ),
       args.employee_id,
       args.TRANSACTIONID,
     ]
   );
-}
-
-async function InsertInto() {
-  await knex.raw(
-    "INSERT INTO protocol_registry (class, id, protocol, description) VALUES (?, ?, ?, ?)",
-    ["RD", "48fhw", string, "Inserts into Inventory Consumption table"]
-  );
-}
-InsertInto();
+};
 
 module.exports.FunctionRegistry = FunctionRegistry;
