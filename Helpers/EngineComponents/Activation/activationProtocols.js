@@ -228,6 +228,23 @@ const Type1_Protocol = async (
                   args.TRANSACTIONID,
                 ]
               );
+              //shilajit paste
+              if (args.product_id == "30rhfodh") {
+                await trx.raw(queries.product_release.insert_product_release, [
+                  "40a1fbc3",
+                  args.quantity,
+                  args.employee_id,
+                  args.TRANSACTIONID,
+                ]);
+                const result = await trx.raw(
+                  queries.product_release.get_quantity_by_stored_id_storage,
+                  ["40a1fbc3"]
+                );
+                await trx.raw(
+                  queries.product_inventory.update_consumption_stored,
+                  [result[0][0].STORED_STOCK - args.quantity, "40a1fbc3"]
+                );
+              }
               const result = await trx.raw(
                 queries.product_release.get_quantity_by_stored_id_active,
                 [component.PRODUCT_ID]
