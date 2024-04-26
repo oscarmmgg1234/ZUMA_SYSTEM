@@ -6,7 +6,6 @@ Function Registry
 This module is used to store the functions that will be used by the core engine.
 ============================================
 */
-
 const { util } = require("../../Utility/Constants");
 
 class FunctionRegistry {
@@ -86,7 +85,7 @@ class FunctionRegistry {
     });
     this.registry_map.set("2js2", {
       class: "RD",
-      proto: async () => {
+      proto: async (db_handle, args, value, auxiliary) => {
         //insert a liquid product into the consumption table
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
@@ -94,7 +93,7 @@ class FunctionRegistry {
             value,
             this.Utils.productConsumption(
               parseFloat(auxiliary.auxiliaryParam),
-              parseFloat(auxiliaryParam.nextAuxiliaryParam),
+              parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
                 ? parseFloat(auxiliary.lastAuxiliaryParam)
                 : args.quantity
@@ -131,7 +130,7 @@ class FunctionRegistry {
           [
             this.Utils.productConsumption(
               parseFloat(auxiliary.auxiliaryParam),
-              parseFloat(auxiliaryParam.nextAuxiliaryParam),
+              parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
                 ? parseFloat(auxiliary.lastAuxiliaryParam)
                 : args.quantity
@@ -141,9 +140,54 @@ class FunctionRegistry {
         );
       },
     });
+    this.registry_map.set("2a1k", {
+      class: "UP",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update product quantity stored capsule
+        await db_handle.raw(
+          "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
+          [
+            auxiliary.auxiliaryParam
+              ? parseFloat(auxiliary.auxiliaryParam) * args.quantity
+              : args.quantity,
+            value,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("2q3e", {
+      class: "UP",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update product quantity active glycerin
+        const glycerinConsump = await this.Utils.glycerinCompsumption(
+          db_handle,
+          args.quantity,
+          parseFloat(auxiliary.auxiliaryParam),
+          parseFloat(auxiliary.nextAuxiliaryParam)
+        );
+        await db_handle.raw(
+          "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
+          [glycerinConsump, value]
+        );
+      },
+    });
+    this.registry_map.set("2tyu", {
+      class: "RD",
+      // insert into consumption table glycerin
+      proto: async (db_handle, args, value, auxiliary) => {
+        const glycerinConsump = await this.Utils.glycerinCompsumption(
+          db_handle,
+          args.quantity,
+          parseFloat(auxiliary.auxiliaryParam),
+          parseFloat(auxiliary.nextAuxiliaryParam)
+        );
+        await db_handle.raw(
+          "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
+          [value, glycerinConsump, args.employee_id, args.TRANSACTIONID]
+        );
+      },
+    });
   }
-
-  // deangerous way to solve the problem as it can be a security risk but there is no sesative information in program or device this hosted on, but this allow me to dynamically add functions to the registry and they work as expected with minimal back end intervention
 
   getFunction(id) {
     return this.registry_map.get(id);
