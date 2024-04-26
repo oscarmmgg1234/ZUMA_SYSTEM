@@ -7,17 +7,13 @@ const { query_manager } = require("../../DB/query_manager");
 
 const knex = query_manager;
 
-const productConsumption = async (
+const productConsumption = (
+  productBase,
   productBottleSizeML = 50,
-  productQuantity,
-  product_id
+  productQuantity
 ) => {
-  const productBaseGallon = await knex.raw(
-    "SELECT Product_Base_Gallon FROM product WHERE PRODUCT_ID = ?",
-    [product_id]
-  );
-  const productBaseGallon_toMill =
-    productBaseGallon[0][0].Product_Base_Gallon * 3785.41;
+  // auxilaryParam = productBase, auxilaryParam2 = productBottleSizeML, auxilaryParam3 = productQuantity
+  const productBaseGallon_toMill = productBase * 3785.41;
   return (productBottleSizeML * productQuantity) / productBaseGallon_toMill;
 };
 

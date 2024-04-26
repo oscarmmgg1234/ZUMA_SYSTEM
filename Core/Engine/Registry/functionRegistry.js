@@ -7,111 +7,148 @@ This module is used to store the functions that will be used by the core engine.
 ============================================
 */
 
-const { query_manager } = require("../../../DB/query_manager");
-
-const knex = query_manager;
+const { util } = require("../../Utility/Constants");
 
 class FunctionRegistry {
   constructor() {
     if (FunctionRegistry.instance) {
       return FunctionRegistry.instance;
     }
+    this.Utils = util;
     this.registry_map = new Map();
     this.init();
   }
-
-  async init() {
-    const query = "SELECT * FROM protocol_registry";
-    await this.fetchAndUpdateRegistry(query);
-    try {
-      setInterval(() => this.fetchAndUpdateRegistry(query), 15000); // Adjusted to 30 seconds
-    } catch (error) {
-      console.error("Error during initialization of FunctionRegistry:", error);
-    }
-  }
-  // deangerous way to solve the problem as it can be a security risk but there is no sesative information in program or device this hosted on, but this allow me to dynamically add functions to the registry and they work as expected with minimal back end intervention
-  async fetchAndUpdateRegistry(query) {
-    try {
-      let registry = await knex.raw(query);
-      this.registry_map.clear();
-      registry[0].forEach((current) => {
-        // Evaluate the protocol string to a async function
-
-        const func = eval(`(${current.protocol})`);
-        this.registry_map.set(current.id, func);
-      });
-    } catch (error) {
-      console.error("Error fetching and updating registry:", error);
-    }
-  }
-
-  async getFunction(id) {
-    return await this.pollFunction(id);
-  }
-  // Polling function to check if the function is available in case of calling function before registry class updates map and returns the function
-  async pollFunction(id, attempts = 3) {
-    return new Promise((resolve, reject) => {
-      const attemptFetch = (remainingAttempts) => {
-        if (this.registry_map.size > 0) {
-          const func = this.registry_map.get(id);
-          if (func) {
-            resolve(func);
-          } else {
-            reject(new Error("Function not found."));
-          }
-        } else if (remainingAttempts > 0) {
-          setTimeout(() => attemptFetch(remainingAttempts - 1), 200); // Wait 200ms then retry
-        } else {
-          reject(
-            new Error("Function retrieval failed after maximum attempts.")
-          );
-        }
-      };
-      attemptFetch(attempts);
+  init() {
+    //function have a 4 letter rando id
+    this.registry_map.set("1023", {
+      class: "AC",
+      proto: async (db_handle, args, value, auxiliary) => {
+        //insert new record into activation table
+        await db_handle.raw(
+          "INSERT INTO inventory_activation (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
+          [
+            value,
+            auxiliary.auxiliaryParam
+              ? parseFloat(auxiliary.auxiliaryParam)
+              : args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("10fd", {
+      class: "RD",
+      proto: async (db_handle, args, value, auxiliary) => {
+        //insert new record into consumption table
+        await db_handle.raw(
+          "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
+          [
+            value,
+            auxiliary.auxiliaryParam
+              ? parseFloat(auxiliary.auxiliaryParam)
+              : args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("23hs", {
+      class: "UP",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update product quantity stored
+        await db_handle.raw(
+          "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK + ? WHERE PRODUCT_ID = ?",
+          [
+            auxiliary.auxiliaryParam
+              ? parseFloat(auxiliary.auxiliaryParam)
+              : args.quantity,
+            value,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("2j3w", {
+      class: "UP",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update product quantity active
+        await db_handle.raw(
+          "UPDATE product_inventory SET ACTIVE_STOCK = ACTIVE_STOCK + ? WHERE PRODUCT_ID = ?",
+          [
+            auxiliary.auxiliaryParam
+              ? parseFloat(auxiliary.auxiliaryParam)
+              : args.quantity,
+            value,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("2js2", {
+      class: "RD",
+      proto: async () => {
+        //insert a liquid product into the consumption table
+        await db_handle.raw(
+          "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
+          [
+            value,
+            this.Utils.productConsumption(
+              parseFloat(auxiliary.auxiliaryParam),
+              parseFloat(auxiliaryParam.nextAuxiliaryParam),
+              auxiliary.lastAuxiliaryParam
+                ? parseFloat(auxiliary.lastAuxiliaryParam)
+                : args.quantity
+            ),
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("234d", {
+      class: "RD",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // insert a capsule product into the consumption table auxilary param is the quantity of the product, next auxilary param for the consumption ratio
+        await db_handle.raw(
+          "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
+          [
+            value,
+            auxiliary.auxiliaryParam
+              ? parseFloat(auxiliary.auxiliaryParam) * args.quantity
+              : args.quantity,
+            args.employee_id,
+            args.TRANSACTIONID,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("2j2h", {
+      class: "UP",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update product quantity stored liquid
+        await db_handle.raw(
+          "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
+          [
+            this.Utils.productConsumption(
+              parseFloat(auxiliary.auxiliaryParam),
+              parseFloat(auxiliaryParam.nextAuxiliaryParam),
+              auxiliary.lastAuxiliaryParam
+                ? parseFloat(auxiliary.lastAuxiliaryParam)
+                : args.quantity
+            ),
+            value,
+          ]
+        );
+      },
     });
   }
+
+  // deangerous way to solve the problem as it can be a security risk but there is no sesative information in program or device this hosted on, but this allow me to dynamically add functions to the registry and they work as expected with minimal back end intervention
+
+  getFunction(id) {
+    return this.registry_map.get(id);
+  }
 }
-
-//would this function be able to call util.productConsumption in this scope?
-
-// example call would be like this insertIntoReductionTableLiquid(db_handle, args, product_id, custom)
-const string = `async function insertIntoReductionTableLiquid(
-  db_handle,
-  args,
-  product_id,
-  custom
-) {
-  const productConsumption = async (
-    productBottleSizeML = 50,
-    productQuantity,
-    product_id
-  ) => {
-    const productBaseGallon = await db_handle.raw(
-      "SELECT Product_Base_Gallon FROM product WHERE PRODUCT_ID = ?",
-      [product_id]
-    );
-    const productBaseGallon_toMill =
-      productBaseGallon[0][0].Product_Base_Gallon * 3785.41;
-    return (productBottleSizeML * productQuantity) / productBaseGallon_toMill;
-  };
-
-  await db_handle.raw(
-    "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
-    [
-      product_id,
-      productConsumption(parseFloat(custom), args.productQuantity, product_id),
-      args.employee_id,
-      args.TRANSACTIONID,
-    ]
-  );
-}`
-// async function InsertInto() {
-//   await knex.raw(
-//     "INSERT INTO protocol_registry (class, id, protocol, description) VALUES (?, ?, ?, ?)",
-//     ["RD", "23fhw", string, "Inserts into reduction table liquid"]
-//   );
-// }
-// InsertInto();
 
 const registry = new FunctionRegistry();
 module.exports.FunctionRegistry = registry;

@@ -14,51 +14,45 @@ const { symbolTable } = require("./Token/symbolTable");
 const { FunctionRegistry } = require("./Registry/functionRegistry");
 
 const core_engine = async (args) => {
-  db_handle = await transactionUnit();
-  setInterval(async () => {
-    console.log(args)
-    const protocol = await symbolTable(args, FunctionRegistry);
-    for (let i = 0; i < protocol.size; i++) {
-      let current = protocol.getData();
-      const val = await current.proto();
-      console.log(val);
-      protocol.next();
-    }
-  }, 1000);
-  // let db_handle = null;
-  // try {
-  //   // Getting the transaction object
-  //   db_handle = await transactionUnit();
-  //   try {
-  //     //linked list of function references
-  //     const protocol = symbolTable(args.process_token);
-  //     for (let i = 0; i < protocol.size; i++) {
-  //       let current = protocol.getData();
-  //       //process
-  //       /*
-  //       db_handle: transaction object
-  //       args: req object for any need of the function
-  //       current.value: can be the id of product to be referenced by the function
-  //       current.custom: any additional data needed by the function
-  //     */
-  //       await current.proto(db_handle, args, current.value, current.custom);
-  //       protocol.next();
-  //     }
-  //     // Placeholder for database operations
-  //     // Example: await db_handle.raw('YOUR SQL QUERY HERE');
+  let db_handle = null;
+  try {
+    // Getting the transaction object
+    db_handle = await transactionUnit();
+    try {
+      //linked list of function references
+      const protocol = symbolTable(args.process_token, FunctionRegistry);
+      for (let i = 0; i < protocol.size; i++) {
+        let current = protocol.getData();
+        //process
+        /*
+        db_handle: transaction object
+        args: req object for any need of the function
+        current.value: can be the id of product to be referenced by the function
+        current.custom: any additional data needed by the function
+      */
+        const auxiliary = {
+          auxiliaryParam: current.auxiliaryParam,
+          nextAuxiliaryParam: current.nextAuxiliaryParam,
+          lastAuxiliaryParam: current.lastAuxiliaryParam,
+        };
+        await current.proto(db_handle, args.args, current.value, auxiliary);
+        protocol.next();
+      }
+      // Placeholder for database operations
+      // Example: await db_handle.raw('YOUR SQL QUERY HERE');
 
-  //     // If operations are successful, commit the transaction
-  //     await db_handle.commit();
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // } catch (error) {
-  //   // On error, check if db_handle exists and rollback
-  //   if (db_handle) {
-  //     await db_handle.rollback();
-  //   }
-  //   console.error("Transaction failed:", error);
-  // }
+      // If operations are successful, commit the transaction
+      await db_handle.commit();
+    } catch (error) {
+      throw error;
+    }
+  } catch (error) {
+    // On error, check if db_handle exists and rollback
+    if (db_handle) {
+      await db_handle.rollback();
+    }
+    console.error("Transaction failed:", error);
+  }
 };
 
 exports.core_engine = core_engine;
