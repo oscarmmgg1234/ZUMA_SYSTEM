@@ -44,7 +44,7 @@ const reduction_engine = (args) => {
         const argsReinit = {
           EMPLOYEE_ID: args.EMPLOYEE_RESPONSIBLE,
           PRODUCT_ID: result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
-          QUANTITY: result[0]?.QUANTITY ?? result2[0]?.Quantity,
+          QUANTITY: result2[0]?.Quantity,
           TRANSACTIONID: newTransactionID,
         };
         await local_service.addTransaction({
