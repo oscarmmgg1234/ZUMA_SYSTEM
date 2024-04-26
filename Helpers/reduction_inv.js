@@ -66,7 +66,7 @@ const reduction_engine = (args) => {
                 if (index + 1 == type) {
                   protocol(
                     {
-                      quantity: result[0]?.QUANTITY ?? result2[0]?.Quantity,
+                      quantity: result2[0]?.Quantity,
                       product_id:
                         result[0]?.PRODUCT_ID ?? result2[0]?.PRODUCT_ID,
                       employee_id: args.EMPLOYEE_RESPONSIBLE,
