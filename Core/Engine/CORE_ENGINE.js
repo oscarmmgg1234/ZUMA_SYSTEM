@@ -14,6 +14,7 @@ const { symbolTable } = require("./Token/symbolTable");
 const { FunctionRegistry } = require("./Registry/functionRegistry");
 
 const core_engine = async (args) => {
+  
   let db_handle = null;
   try {
     // Getting the transaction object

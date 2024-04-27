@@ -1,7 +1,7 @@
 class Activation_Product_Info {
   constructor(args) {
     this.activation_products = args.map((obj) => {
-      return { PRODUCT_ID: obj.PRODUCT_ID, NAME: obj.NAME };
+      return { PRODUCT_ID: obj.PRODUCT_ID, NAME: obj.NAME, ACTIVATION_TOKEN: obj.ACTIVATION_TOKEN };
     });
   }
 }

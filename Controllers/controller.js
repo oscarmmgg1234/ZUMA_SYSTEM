@@ -187,6 +187,7 @@ const get_product_by_id = (args, callback) => {
 //
 
 const activate_product = async (args) => {
+  console.log("args", args);
   db_api.addTransaction({ src: "activation", args: args });
   const barcodeInput = {
     product_id: args.PRODUCT_ID,

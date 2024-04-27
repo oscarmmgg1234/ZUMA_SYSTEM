@@ -7,7 +7,7 @@ const shipment_log = {
   delete: "DELETE FROM shipment_log WHERE SHIPMENT_ID = ?",
 };
 const activation_product = {
-  get_product_by_type: "SELECT PRODUCT_ID, NAME FROM product WHERE TYPE = ?",
+  get_product_by_type: "SELECT * FROM product WHERE TYPE = ?",
   get_employee_info: "SELECT EMPLOYEE_ID, NAME FROM employee",
   product_activation_liquid:
     "INSERT INTO inventory_activation (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
