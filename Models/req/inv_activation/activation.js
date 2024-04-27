@@ -39,7 +39,7 @@
 //     //pills
 //   }
 // }
-const {Constants} = require("../../../Constants/Tools_Interface.js"); 
+const { Constants } = require("../../../Constants/Tools_Interface.js");
 const constants = new Constants();
 class product_inventory {
   constructor(args) {
@@ -50,6 +50,7 @@ class product_inventory {
     this.MULTIPLIER = args.MULTIPLIER;
     this.EMPLOYEE_NAME = args.EMPLOYEE_NAME;
     this.TRANSACTIONID = constants.generateRandomID(8);
+    this.process_token = args.PROCESS_TOKEN;
   }
 
   // quantityHandler(){

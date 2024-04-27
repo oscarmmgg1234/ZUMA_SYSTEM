@@ -7,6 +7,7 @@ This module is used to create a symbol table linked list using the function regi
 
 const tokenParser = require("./tokenParser").tokenParser;
 const { LinkedList } = require("../../Utility/LinkedList");
+const process = require("process");
 
 const symbolTable = (req_token, registry) => {
   try {
@@ -20,7 +21,9 @@ const symbolTable = (req_token, registry) => {
       let current = list.getData();
       //process
       let functionReg = registry.getFunction(current.id).proto;
-      console.log("Function registry:", functionReg);
+      if (process.argv[2] == "dev") {
+        console.log("Function registry:", functionReg);
+      }
       if (!functionReg) {
         throw new Error("Function not found in registry");
       }
@@ -34,7 +37,6 @@ const symbolTable = (req_token, registry) => {
       symbolTable.append(symbolObject);
       list.next();
     }
-    console.log(symbolTable.size);
     return symbolTable;
   } catch (e) {
     console.error("Error during symbolTable creation:", e);

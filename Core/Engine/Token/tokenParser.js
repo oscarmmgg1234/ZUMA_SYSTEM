@@ -1,4 +1,5 @@
 const { LinkedList } = require("../../Utility/LinkedList");
+const process = require("process");
 
 const parser = (data) => {
   if (!data) return null;
@@ -16,7 +17,9 @@ const parser = (data) => {
       nextAuxiliaryParam: inputToken[4] ? inputToken[4] : null,
       lastAuxiliaryParam: inputToken[5] ? inputToken[5] : null,
     };
-    console.log("Token object: ", tokenObject);
+    if (process.argv[2] == "dev") {
+      console.log("Token object: ", tokenObject);
+    }
     list.append(tokenObject);
   }
   return list;

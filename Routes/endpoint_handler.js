@@ -5,14 +5,10 @@ const { controller_interface } = require("../Controllers/controller.js");
 const controller = controller_interface();
 const { ErrorHandling } = require("../Error/error_handling");
 const { success_handling } = require("../Error/success_handling");
-const { InMemoryCache } = require("../MiddleWare/CACHE/in_memory_cache");
 
 class http_handler {
   constructor() {
     this.init = true;
-    this.ProductCache = new InMemoryCache();
-    this.CompanyCache = new InMemoryCache();
-    this.ProductInventoryCache = new InMemoryCache();
   }
 
   shipment = {
@@ -69,15 +65,13 @@ class http_handler {
   };
 
   activation = {
-    activate_prod: (req, res) => {
-      this.ProductInventoryCache.systemChange = true;
-      controller.product_activation_controller.activate_product(
-        req.req_data,
-        (data) => {
-          res.send(
-            new success_handling(data, "Product Activated").getSuccess()
-          );
-        }
+    activate_prod: async (req, res) => {
+      const response =
+        await controller.product_activation_controller.activate_product(
+          req.req_data
+        );
+      res.send(
+        new success_handling(response, "Product Activated").getSuccess()
       );
     },
     get_employee_info: (req, res) => {

@@ -4,6 +4,7 @@ const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
 const { Constants } = require("../Constants/Tools_Interface.js");
 const { core_engine } = require("../Core/Engine/CORE_ENGINE.js");
+const { core_exec } = require("../Core/Engine/CORE.js");
 
 const constants = new Constants();
 const helper = Helper();
@@ -11,11 +12,11 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
-core_engine({
-  process_token:
-    "AC:1023:fa5ceae5:20 RD:10fd:fa5ceae5:20 UP:23hs:fa5ceae5:-20 UP:2j3w:fa5ceae5:20 RD:2js2:fe260002:1:50 RD:234d:fa5ceae5:0.25 UP:2a1k:2e2f02c5:0.25 RD:2j2h:fe260002:1:50 UP:2q3e:14aa3aba:50:26 RD:2tyu:14aa3aba:50:26",
-  args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
-});
+// core_engine({
+//   process_token:
+//     "AC:1023:fa5ceae5:20 RD:10fd:fa5ceae5:20 UP:23hs:fa5ceae5:-20 UP:2j3w:fa5ceae5:20 RD:2js2:fe260002:1:50 RD:234d:fa5ceae5:0.25 UP:2a1k:2e2f02c5:0.25 RD:2j2h:fe260002:1:50 UP:2q3e:14aa3aba:50:26 RD:2tyu:14aa3aba:50:26",
+//   args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
+// });
 
 const getProductNameFromTrans = async (args) => {
   return await db_api.getProductNameFromTrans(args);
@@ -185,28 +186,21 @@ const get_product_by_id = (args, callback) => {
 //   }
 //
 
-const activate_product = (args, callback) => {
-  helper.activation_engine(args, (data) => {
-    // going to create a barcode callback to be able to add the barcode to the transaction log
-    if (data.status) {
-      const barcodeInput = {
-        product_id: args.PRODUCT_ID,
-        employee: args.EMPLOYEE_NAME,
-        quantity: args.QUANTITY,
-        multiplier: args.MULTIPLIER,
-        product_name: args.PRODUCT_NAME,
-        employee_id: args.EMPLOYEE_ID,
-        src: "Active/Passive",
-        id: constants.generateRandomID(8),
-        TRANSACTIONID: args.TRANSACTIONID,
-      };
-      generate_barcode(barcodeInput, (barcodeData) => {
-        return callback({ ...data, barcodeBuffer: barcodeData });
-      });
-    } else {
-      return callback(data);
-    }
-  });
+const activate_product = async (args) => {
+  db_api.addTransaction({ src: "activation", args: args });
+  const barcodeInput = {
+    product_id: args.PRODUCT_ID,
+    employee: args.EMPLOYEE_NAME,
+    quantity: args.QUANTITY,
+    multiplier: args.MULTIPLIER,
+    product_name: args.PRODUCT_NAME,
+    employee_id: args.EMPLOYEE_ID,
+    src: "Active/Passive",
+    id: constants.generateRandomID(8),
+    TRANSACTIONID: args.TRANSACTIONID,
+  };
+  const coreExec = await core_exec(args, barcodeInput);
+  return coreExec;
 };
 
 const get_products_info = (callback) => {
@@ -398,10 +392,8 @@ class controller {
         });
       });
     },
-    activate_product: (args, callback) => {
-      activate_product(args, (data) => {
-        return callback(data);
-      });
+    activate_product: async (args) => {
+      return await activate_product(args);
     },
   };
   label_print_controller = {

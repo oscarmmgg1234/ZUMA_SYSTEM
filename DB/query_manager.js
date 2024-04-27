@@ -1,13 +1,12 @@
 const fs = require("fs");
 const tls = require("tls");
-const process = require("process")
+const process = require("process");
 
 const sslOptions = {
   ca: fs.readFileSync("./Certs/DigiCertGlobalRootCA.crt.pem"), // CA certificate
   rejectUnauthorized: true, // Reject unauthorized connections
   secureProtocol: "TLSv1_2_method", // Specify the TLS version
 };
-
 
 exports.query_manager = require("knex")({
   client: "mysql",

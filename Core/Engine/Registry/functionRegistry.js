@@ -23,14 +23,15 @@ class FunctionRegistry {
       class: "AC",
       proto: async (db_handle, args, value, auxiliary) => {
         //insert new record into activation table
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "INSERT INTO inventory_activation (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
           [
             value,
             auxiliary.auxiliaryParam
-              ? parseFloat(auxiliary.auxiliaryParam)
-              : args.quantity,
-            args.employee_id,
+              ? parseFloat(auxiliary.auxiliaryParam) * multiplier
+              : args.QUANTITY * multiplier,
+            args.EMPLOYEE_ID,
             args.TRANSACTIONID,
           ]
         );
@@ -40,14 +41,15 @@ class FunctionRegistry {
       class: "RD",
       proto: async (db_handle, args, value, auxiliary) => {
         //insert new record into consumption table
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
           [
             value,
             auxiliary.auxiliaryParam
-              ? parseFloat(auxiliary.auxiliaryParam)
-              : args.quantity,
-            args.employee_id,
+              ? parseFloat(auxiliary.auxiliaryParam) * multiplier
+              : args.QUANTITY * multiplier,
+            args.EMPLOYEE_ID,
             args.TRANSACTIONID,
           ]
         );
@@ -57,12 +59,13 @@ class FunctionRegistry {
       class: "UP",
       proto: async (db_handle, args, value, auxiliary) => {
         // update product quantity stored
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
-          "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK + ? WHERE PRODUCT_ID = ?",
+          "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [
             auxiliary.auxiliaryParam
-              ? parseFloat(auxiliary.auxiliaryParam)
-              : args.quantity,
+              ? parseFloat(auxiliary.auxiliaryParam) * multiplier
+              : args.QUANTITY * multiplier,
             value,
           ]
         );
@@ -72,12 +75,13 @@ class FunctionRegistry {
       class: "UP",
       proto: async (db_handle, args, value, auxiliary) => {
         // update product quantity active
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "UPDATE product_inventory SET ACTIVE_STOCK = ACTIVE_STOCK + ? WHERE PRODUCT_ID = ?",
           [
             auxiliary.auxiliaryParam
-              ? parseFloat(auxiliary.auxiliaryParam)
-              : args.quantity,
+              ? parseFloat(auxiliary.auxiliaryParam) * multiplier
+              : args.QUANTITY * multiplier,
             value,
           ]
         );
@@ -87,6 +91,7 @@ class FunctionRegistry {
       class: "RD",
       proto: async (db_handle, args, value, auxiliary) => {
         //insert a liquid product into the consumption table
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
           [
@@ -95,10 +100,10 @@ class FunctionRegistry {
               parseFloat(auxiliary.auxiliaryParam),
               parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
-                ? parseFloat(auxiliary.lastAuxiliaryParam)
-                : args.quantity
+                ? parseFloat(auxiliary.lastAuxiliaryParam) * multiplier
+                : args.QUANTITY * multiplier
             ),
-            args.employee_id,
+            args.EMPLOYEE_ID,
             args.TRANSACTIONID,
           ]
         );
@@ -108,14 +113,17 @@ class FunctionRegistry {
       class: "RD",
       proto: async (db_handle, args, value, auxiliary) => {
         // insert a capsule product into the consumption table auxilary param is the quantity of the product, next auxilary param for the consumption ratio
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
           [
             value,
             auxiliary.auxiliaryParam
-              ? parseFloat(auxiliary.auxiliaryParam) * args.quantity
-              : args.quantity,
-            args.employee_id,
+              ? parseFloat(auxiliary.auxiliaryParam) *
+                args.QUANTITY *
+                multiplier
+              : args.QUANTITY * multiplier,
+            args.EMPLOYEE_ID,
             args.TRANSACTIONID,
           ]
         );
@@ -125,6 +133,7 @@ class FunctionRegistry {
       class: "UP",
       proto: async (db_handle, args, value, auxiliary) => {
         // update product quantity stored liquid
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [
@@ -132,8 +141,8 @@ class FunctionRegistry {
               parseFloat(auxiliary.auxiliaryParam),
               parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
-                ? parseFloat(auxiliary.lastAuxiliaryParam)
-                : args.quantity
+                ? parseFloat(auxiliary.lastAuxiliaryParam) * multiplier
+                : args.QUANTITY * multiplier
             ),
             value,
           ]
@@ -144,12 +153,15 @@ class FunctionRegistry {
       class: "UP",
       proto: async (db_handle, args, value, auxiliary) => {
         // update product quantity stored capsule
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [
             auxiliary.auxiliaryParam
-              ? parseFloat(auxiliary.auxiliaryParam) * args.quantity
-              : args.quantity,
+              ? parseFloat(auxiliary.auxiliaryParam) *
+                args.QUANTITY *
+                multiplier
+              : args.QUANTITY * multiplier,
             value,
           ]
         );
@@ -159,9 +171,10 @@ class FunctionRegistry {
       class: "UP",
       proto: async (db_handle, args, value, auxiliary) => {
         // update product quantity active glycerin
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         const glycerinConsump = await this.Utils.glycerinCompsumption(
           db_handle,
-          args.quantity,
+          args.QUANTITY * multiplier,
           parseFloat(auxiliary.auxiliaryParam),
           parseFloat(auxiliary.nextAuxiliaryParam)
         );
@@ -175,15 +188,16 @@ class FunctionRegistry {
       class: "RD",
       // insert into consumption table glycerin
       proto: async (db_handle, args, value, auxiliary) => {
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         const glycerinConsump = await this.Utils.glycerinCompsumption(
           db_handle,
-          args.quantity,
+          args.QUANTITY * multiplier,
           parseFloat(auxiliary.auxiliaryParam),
           parseFloat(auxiliary.nextAuxiliaryParam)
         );
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
-          [value, glycerinConsump, args.employee_id, args.TRANSACTIONID]
+          [value, glycerinConsump, args.EMPLOYEE_ID, args.TRANSACTIONID]
         );
       },
     });

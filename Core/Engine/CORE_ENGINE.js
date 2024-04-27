@@ -30,7 +30,7 @@ const core_engine = async (args) => {
           lastAuxiliaryParam: current.lastAuxiliaryParam,
         };
         //execute the function
-        await current.proto(db_handle, args.args, current.value, auxiliary);
+        await current.proto(db_handle, args, current.value, auxiliary);
         protocol.next();
       }
 
@@ -43,6 +43,7 @@ const core_engine = async (args) => {
     if (db_handle) {
       await db_handle.rollback();
     }
+    console.error("Error during core engine execution:", error);
     return false;
   }
 };
