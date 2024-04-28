@@ -26,6 +26,7 @@ class parseBarcode {
     const arg_arr = args.barcode.split(">");
     this.BARCODE_ID = arg_arr[0] ? arg_arr[0] : 0;
     this.TRANSACTIONID = arg_arr[1] ? arg_arr[1] : 0;
+    this.newTransactionID = constants.generateRandomID(8);
   }
 }
 

@@ -201,6 +201,46 @@ class FunctionRegistry {
         );
       },
     });
+    this.registry_map.set("9ied", {
+      class: "BC",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update barcode status
+        await db_handle.raw(
+          "UPDATE barcode_log SET Employee = ? WHERE BarcodeID = ?",
+          [args.EMPLOYEE_RESPONSIBLE, args.BARCODE_ID]
+        );
+      },
+    });
+    this.registry_map.set("549d", {
+      class: "BC",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // Reduction init process
+
+        const barcodeData = await db_handle.raw(
+          "SELECT * FROM barcode_log WHERE BarcodeID = ?",
+          [args.BARCODE_ID]
+        );
+        await db_handle.raw(
+          "INSERT INTO transaction_log (TRANSACTIONID, ACTIVATION_STACK, RELEASE_STACK,BARCODE_STACK, SHIPMENT_STACK, REVERSED, ACTION, EMPLOYEE_ID, PRODUCT_ID, QUANTITY) VALUES (?,?,?,?,?,?,?,?,?,?)",
+          [
+            args.newTransactionID,
+            JSON.stringify([]),
+            JSON.stringify([]),
+            JSON.stringify([]),
+            JSON.stringify([]),
+            0,
+            "consumption",
+            args.EMPLOYEE_RESPONSIBLE,
+            barcodeData[0][0].PRODUCT_ID,
+            barcodeData[0][0].Quantity,
+          ]
+        );
+        await db_handle.raw(
+          "UPDATE transaction_log SET BARCODE_STACK = JSON_ARRAY_APPEND(BARCODE_STACK, '$', ?) WHERE TRANSACTIONID = ?",
+          [args.BARCODE_ID, args.newTransactionID]
+        );
+      },
+    });
   }
 
   getFunction(id) {

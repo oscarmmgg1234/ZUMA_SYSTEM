@@ -3,14 +3,15 @@ const { res_interface } = require("../Models/INTERFACE/res/res_interface.js");
 const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
 const { Constants } = require("../Constants/Tools_Interface.js");
-const { core_engine } = require("../Core/Engine/CORE_ENGINE.js");
 const { core_exec } = require("../Core/Engine/CORE.js");
+const { query_manager } = require("../DB/query_manager.js");
 
 const constants = new Constants();
 const helper = Helper();
 const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
+const knex = query_manager;
 
 // core_engine({
 //   process_token:
@@ -187,7 +188,6 @@ const get_product_by_id = (args, callback) => {
 //
 
 const activate_product = async (args) => {
-  console.log("args", args);
   db_api.addTransaction({ src: "activation", args: args });
   const barcodeInput = {
     product_id: args.PRODUCT_ID,
@@ -228,18 +228,31 @@ const generate_barcode = (args, callback) => {
   });
 };
 
-const product_reduction = (args, callback) => {
-  db_api.checkBarcodeStatus(args, (data) => {
-    if (
-      data[0].Status === "Active/Passive" ||
-      data[0].Status === "Manually Printed"
-    ) {
-      helper.reduction_engine(args, (data) => {});
-      return callback({ status: true, message: "Product Reduced" });
-    } else {
-      return callback({ status: false, message: "Product Already Reduced" });
+const product_reduction = async (args, callback) => {
+  const validator = await knex.raw(
+    "SELECT * FROM barcode_log WHERE BarcodeID = ?",
+    [args.BARCODE_ID]
+  );
+  if (
+    validator[0][0].Status === "Active/Passive" ||
+    validator[0][0].Status === "Manually Printed"
+  ) {
+    const retriveToken = await knex.raw(
+      "SELECT product.REDUCTION_TOKEN FROM product INNER JOIN transaction_log ON product.PRODUCT_ID = transaction_log.PRODUCT_ID WHERE transaction_log.TRANSACTIONID = ?",
+      [args.TRANSACTIONID]
+    );
+    const core_args = {
+      ...args,
+      process_token: retriveToken[0][0].REDUCTION_TOKEN,
+    };
+    const result = await core_exec(core_args);
+    if (result.status === "error") {
+      return callback({ status: false, message: "Product Reduction Failed" });
     }
-  });
+    return callback({ status: true, message: "Product Reduced" });
+  } else {
+    return callback({ status: false, message: "Product Already Reduced" });
+  }
 };
 
 const shipment_add = async (args, callback) => {
