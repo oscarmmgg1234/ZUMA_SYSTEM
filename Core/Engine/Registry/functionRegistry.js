@@ -59,10 +59,26 @@ class FunctionRegistry {
     this.registry_map.set("23hs", {
       class: "UP",
       proto: async (db_handle, args, value, auxiliary) => {
-        // update product quantity stored
+        // update product quantity stored substract
         const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
+          [
+            auxiliary.auxiliaryParam
+              ? parseFloat(auxiliary.auxiliaryParam) * multiplier
+              : args.QUANTITY * multiplier,
+            value,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("235s", {
+      class: "UP",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update product quantity stored add
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
+        await db_handle.raw(
+          "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK + ? WHERE PRODUCT_ID = ?",
           [
             auxiliary.auxiliaryParam
               ? parseFloat(auxiliary.auxiliaryParam) * multiplier
@@ -297,6 +313,16 @@ class FunctionRegistry {
         await db_handle.raw(
           "UPDATE product_inventory SET ACTIVE_STOCK = ACTIVE_STOCK - ? WHERE PRODUCT_ID = ?",
           [barcodeData[0][0].Quantity, value]
+        );
+      },
+    });
+    this.registry_map.set("38dh", {
+      class: "SH",
+      proto: async (db_handle, args, value, auxiliary) => {
+        //insert into shipment log
+        await db_handle.raw(
+          "INSERT INTO shipment_log ( QUANTITY, COMPANY_ID, TYPE, EMPLOYEE_ID, PRODUCT_ID, TRANSACTIONID) VALUES ( ?, ?, ?, ?, ?, ?)",
+          args.to_arr()
         );
       },
     });

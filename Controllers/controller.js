@@ -259,6 +259,9 @@ const product_reduction = async (args) => {
 
 const shipment_add = async (args) => {
   try {
+    for (const shipmentObject of args) {
+      db_api.addTransaction({ src: "shipment", args: shipmentObject });
+    }
     let shipmentFullfillmentFlag = true;
     const barcodeInputs = [];
 
@@ -329,8 +332,7 @@ const shipment_add = async (args) => {
         message: "Error preparing barcode inputs or no valid inputs found",
       };
     }
-    
-    
+
     // Wait for all shipment operations to complete
   } catch (error) {
     // Handle any errors from the shipment operations
