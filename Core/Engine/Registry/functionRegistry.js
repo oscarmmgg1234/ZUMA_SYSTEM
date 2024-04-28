@@ -204,7 +204,7 @@ class FunctionRegistry {
     this.registry_map.set("9ied", {
       class: "BC",
       proto: async (db_handle, args, value, auxiliary) => {
-        // update barcode status
+        // update barcode status preprocessor reduction init
         await db_handle.raw(
           "UPDATE barcode_log SET Employee = ? WHERE BarcodeID = ?",
           [args.EMPLOYEE_RESPONSIBLE, args.BARCODE_ID]
@@ -214,7 +214,7 @@ class FunctionRegistry {
     this.registry_map.set("549d", {
       class: "BC",
       proto: async (db_handle, args, value, auxiliary) => {
-        // Reduction init process
+        // Reduction init process - preprocessor
 
         const barcodeData = await db_handle.raw(
           "SELECT * FROM barcode_log WHERE BarcodeID = ?",
