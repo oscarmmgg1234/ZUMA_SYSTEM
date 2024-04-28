@@ -17,12 +17,23 @@ const core_exec = async (args, barcodeInput) => {
       console.log("Core success:", coreSuccess);
     }
     if (!coreSuccess) {
-      return { status: "error", message: "Core engine failed" };
+      return {
+        status: "error",
+        message: "Core engine failed",
+        product: {
+          id: args.PRODUCT_ID ? args.PRODUCT_ID : "Unknown",
+          name: args.PRODUCT_NAME ? args.PRODUCT_NAME : "Unknown",
+        },
+      };
     }
 
     const success = {
       status: "success",
       message: "Transaction completed successfully",
+      product: {
+        id: args.PRODUCT_ID ? args.PRODUCT_ID : "Unknown",
+        name: args.PRODUCT_NAME ? args.PRODUCT_NAME : "Unknown",
+      },
     };
 
     if (barcodeInput) {
@@ -35,12 +46,26 @@ const core_exec = async (args, barcodeInput) => {
           }
         });
       });
-      return { ...success, barcodeBuffer: barcodeData };
+      return {
+        ...success,
+        barcodeBuffer: barcodeData,
+        product: {
+          id: args.PRODUCT_ID ? args.PRODUCT_ID : "Unknown",
+          name: args.PRODUCT_NAME ? args.PRODUCT_NAME : "Unknown",
+        },
+      };
     }
 
     return success;
   } catch (error) {
-    return { status: "error", message: `Error: ${error.message}` };
+    return {
+      status: "error",
+      message: `Error: ${error.message}`,
+      product: {
+        id: args.PRODUCT_ID ? args.PRODUCT_ID : "Unknown",
+        name: args.PRODUCT_NAME ? args.PRODUCT_NAME : "Unknown",
+      },
+    };
   }
 };
 

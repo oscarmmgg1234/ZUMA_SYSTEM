@@ -6,6 +6,7 @@ Function Registry
 This module is used to store the functions that will be used by the core engine.
 ============================================
 */
+const { lstat } = require("fs");
 const { util } = require("../../Utility/Constants");
 
 class FunctionRegistry {
@@ -238,6 +239,64 @@ class FunctionRegistry {
         await db_handle.raw(
           "UPDATE transaction_log SET BARCODE_STACK = JSON_ARRAY_APPEND(BARCODE_STACK, '$', ?) WHERE TRANSACTIONID = ?",
           [args.BARCODE_ID, args.newTransactionID]
+        );
+      },
+    });
+    this.registry_map.set("93je", {
+      class: "BC",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update barcode status post processor reduction init preprocessor
+        await db_handle.raw(
+          "UPDATE barcode_log SET Status = ? WHERE BarcodeID = ?",
+          ["Deducted", args.BARCODE_ID]
+        );
+      },
+    });
+    this.registry_map.set("50wk", {
+      class: "CM",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // consumption reduction row addition
+        const barcodeData = await db_handle.raw(
+          "SELECT * FROM barcode_log WHERE BarcodeID = ?",
+          [args.BARCODE_ID]
+        );
+        await db_handle.raw(
+          "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID, ORIGIN) VALUES (?, ?, ?, ?, ?)",
+          [
+            value,
+            barcodeData[0][0].Quantity,
+            args.EMPLOYEE_RESPONSIBLE,
+            args.newTransactionID,
+            "activation",
+          ]
+        );
+      },
+    });
+    this.registry_map.set("10fj", {
+      class: "CMUP",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update product quantity stored
+        const barcodeData = await db_handle.raw(
+          "SELECT * FROM barcode_log WHERE BarcodeID = ?",
+          [args.BARCODE_ID]
+        );
+        await db_handle.raw(
+          "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
+          [barcodeData[0][0].Quantity, value]
+        );
+      },
+    });
+    this.registry_map.set("13g4", {
+      class: "CMUP",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update product quantity active
+        const barcodeData = await db_handle.raw(
+          "SELECT * FROM barcode_log WHERE BarcodeID = ?",
+          [args.BARCODE_ID]
+        );
+        await db_handle.raw(
+          "UPDATE product_inventory SET ACTIVE_STOCK = ACTIVE_STOCK - ? WHERE PRODUCT_ID = ?",
+          [barcodeData[0][0].Quantity, value]
         );
       },
     });

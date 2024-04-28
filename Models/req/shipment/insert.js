@@ -1,4 +1,3 @@
-
 function generateRandomID(length) {
   // Create a random ID with a specified length
   let result = "";
@@ -20,8 +19,9 @@ class insert_shipment {
     this.TYPE = args.TYPE;
     this.EMPLOYEE_ID = args.EMPLOYEE_ID;
     this.PRODUCT_ID = args.PRODUCT_ID;
-    this.SHIPMENT_TYPE = args.SHIPMENT_TYPE;
+    this.PRODUCT_NAME = args.PRODUCT_NAME;
     this.TRANSACTIONID = generateRandomID(8);
+    this.process_token = args.PROCESS_TOKEN;
   }
   to_arr() {
     return [
@@ -30,7 +30,7 @@ class insert_shipment {
       this.TYPE,
       this.EMPLOYEE_ID,
       this.PRODUCT_ID,
-      this.TRANSACTIONID
+      this.TRANSACTIONID,
     ];
   }
 }

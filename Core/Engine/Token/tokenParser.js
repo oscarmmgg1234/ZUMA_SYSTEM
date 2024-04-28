@@ -12,7 +12,7 @@ const parser = (data) => {
     const tokenObject = {
       key: inputToken[0],
       id: inputToken[1],
-      value: inputToken[2],
+      value: inputToken[2] ? inputToken[2] : null,
       auxiliaryParam: inputToken[3] ? inputToken[3] : null,
       nextAuxiliaryParam: inputToken[4] ? inputToken[4] : null,
       lastAuxiliaryParam: inputToken[5] ? inputToken[5] : null,

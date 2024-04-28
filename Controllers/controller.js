@@ -5,6 +5,7 @@ const { init_services } = require("../Services/Services.js");
 const { Constants } = require("../Constants/Tools_Interface.js");
 const { core_exec } = require("../Core/Engine/CORE.js");
 const { query_manager } = require("../DB/query_manager.js");
+const { error } = require("console");
 
 const constants = new Constants();
 const helper = Helper();
@@ -228,7 +229,7 @@ const generate_barcode = (args, callback) => {
   });
 };
 
-const product_reduction = async (args, callback) => {
+const product_reduction = async (args) => {
   const validator = await knex.raw(
     "SELECT * FROM barcode_log WHERE BarcodeID = ?",
     [args.BARCODE_ID]
@@ -241,101 +242,102 @@ const product_reduction = async (args, callback) => {
       "SELECT product.REDUCTION_TOKEN FROM product INNER JOIN transaction_log ON product.PRODUCT_ID = transaction_log.PRODUCT_ID WHERE transaction_log.TRANSACTIONID = ?",
       [args.TRANSACTIONID]
     );
+    console.log(retriveToken[0][0].REDUCTION_TOKEN);
     const core_args = {
       ...args,
       process_token: retriveToken[0][0].REDUCTION_TOKEN,
     };
     const result = await core_exec(core_args);
     if (result.status === "error") {
-      return callback({ status: false, message: "Product Reduction Failed" });
+      return { status: false, message: "Product Reduction Failed" };
     }
-    return callback({ status: true, message: "Product Reduced" });
+    return { status: true, message: "Product Reduced" };
   } else {
-    return callback({ status: false, message: "Product Already Reduced" });
+    return { status: false, message: "Product Already Reduced" };
   }
 };
 
-const shipment_add = async (args, callback) => {
-  let shipmentFullfillmentFlag = true;
-  const barcodeInputs = [];
-
+const shipment_add = async (args) => {
   try {
-    const shipmentPromises = args.map(
-      (element) =>
-        new Promise((resolve, reject) => {
-          helper.shipment_engine(element, (data) => {
-            if (data.status) {
-              resolve(data);
-            } else {
-              reject("Shipment failed");
-            }
-          });
-        })
-    );
+    let shipmentFullfillmentFlag = true;
+    const barcodeInputs = [];
 
-    // Wait for all shipment operations to complete
-    await Promise.all(shipmentPromises);
-
-    // Now handle the barcode inputs preparation
+    const errorProducts = new Map();
+    for (const shipmentObject of args) {
+      const coreExec = await core_exec(shipmentObject);
+      if (coreExec.status === "error") {
+        errorProducts.set(coreExec.product.id, coreExec.product.name);
+      }
+    }
+    if (errorProducts.size == args.length) {
+      return {
+        status: false,
+        message: "Products failed to process",
+        errorProducts: Array.from(errorProducts.values()),
+      };
+    }
     for (const element of args) {
-      if (element.TYPE === "33") {
+      if (element.TYPE === "33" && !errorProducts.has(element.PRODUCT_ID)) {
         try {
           const employeeData = await new Promise((resolve, reject) => {
             db_api.getEmployeeInfoByID(element.EMPLOYEE_ID, resolve, reject);
           });
-
-          const productData = await new Promise((resolve, reject) => {
-            db_api.get_product_by_id(element.PRODUCT_ID, resolve, reject);
-          });
-
           const barcodeInput = {
             PRODUCT_ID: element.PRODUCT_ID,
             NAME: employeeData[0].NAME,
             QUANTITY: 1,
             MULTIPLIER: `${element.QUANTITY}`,
-            PRODUCT_NAME: productData[0].NAME,
+            PRODUCT_NAME: element.PRODUCT_NAME,
             EMPLOYEE_ID: element.EMPLOYEE_ID,
             SRC: "Active/Passive",
             TRANSACTIONID: element.TRANSACTIONID,
           };
-
           barcodeInputs.push(barcodeInput);
         } catch (error) {
-          shipmentFullfillmentFlag = false;
-          break; // Stop processing further if any error occurs
+          shipmentFullfillmentFlag = false; // Stop processing further if any error occurs
         }
       }
     }
-
     // Proceed only if all operations were successful
     if (shipmentFullfillmentFlag) {
-      services.multiItemBarcodeGen(barcodeInputs, (data) => {
-        if (data.length > 0) {
-          callback({
-            status: true,
-            message: "Labels printed successfully",
-            barcodeBuffers: data,
+      try {
+        const data = await new Promise((resolve, reject) => {
+          services.multiItemBarcodeGen(barcodeInputs, (result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject("Failed to generate barcodes");
+            }
           });
-        } else {
-          callback({
-            status: true,
-            message: "Sucess no barcodes needed to be printed.",
-            barcodeBuffers: [],
-          });
-        }
-      });
+        });
+
+        return {
+          status: true,
+          message: "Labels printed successfully",
+          barcodeBuffers: data,
+          errorProducts: Array.from(errorProducts.values()),
+        };
+      } catch (error) {
+        return {
+          status: false,
+          message: error,
+        };
+      }
     } else {
-      callback({
+      return {
         status: false,
         message: "Error preparing barcode inputs or no valid inputs found",
-      });
+      };
     }
+    
+    
+    // Wait for all shipment operations to complete
   } catch (error) {
     // Handle any errors from the shipment operations
-    callback({
+    return {
       status: false,
       message: error instanceof Error ? error.message : error,
-    });
+    };
   }
 };
 
@@ -374,10 +376,8 @@ class controller {
         return callback(data);
       });
     },
-    insert_shipment: (args, callback) => {
-      shipment_add(args, (data) => {
-        return callback(data);
-      });
+    insert_shipment: async (args) => {
+      return await shipment_add(args);
     },
     update_shipment: (args) => {
       update_shipment_log(args);
@@ -437,10 +437,8 @@ class controller {
       return await getProductNameFromTrans(args);
     },
 
-    product_reduction: (args, callback) => {
-      product_reduction(args, (data) => {
-        return callback(data);
-      });
+    product_reduction: async (args) => {
+      return await product_reduction(args);
     },
   };
   services = {

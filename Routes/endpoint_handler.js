@@ -27,10 +27,13 @@ class http_handler {
         }
       });
     },
-    shimpent_insert: (req, res) => {
-      controller.shipment_controller.insert_shipment(req.req_data, (data) => {
-        res.send(new success_handling(data, "Shipment Inserted").getSuccess());
-      });
+    shimpent_insert: async (req, res) => {
+      const response = await controller.shipment_controller.insert_shipment(
+        req.req_data
+      );
+      res.send(
+        new success_handling(response, "Shipment Inserted").getSuccess()
+      );
     },
     get_company_info: (req, res) => {
       controller.shipment.getCompanyInfo((data) => {
@@ -124,10 +127,9 @@ class http_handler {
         res.send(err.getError());
       }
     },
-    release_product: (req, res) => {
-      controller.reduction.product_reduction(req.req_data, (result) => {
-        res.send(new success_handling(result, "Product Released").getSuccess());
-      });
+    release_product: async (req, res) => {
+      const result = await controller.reduction.product_reduction(req.req_data);
+      res.send(new success_handling(result, "Product Released").getSuccess());
     },
   };
 
