@@ -17,7 +17,7 @@ const parser = (data) => {
       nextAuxiliaryParam: inputToken[4] ? inputToken[4] : null,
       lastAuxiliaryParam: inputToken[5] ? inputToken[5] : null,
     };
-    if (process.argv[2] == "dev") {
+    if (process.env.NODE_ENV === "development") {
       console.log("Token object: ", tokenObject);
     }
     list.append(tokenObject);

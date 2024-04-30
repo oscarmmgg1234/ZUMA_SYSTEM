@@ -6,7 +6,6 @@ const sslOptions = {
   rejectUnauthorized: true, // Reject unauthorized connections
   secureProtocol: "TLSv1_2_method", // Specify the TLS version
 };
-
 exports.query_manager = require("knex")({
   client: "mysql",
   connection: {
@@ -20,4 +19,7 @@ exports.query_manager = require("knex")({
   debug: false,
 });
 
-console.log("DB connection established successfully!, mode: ", process.env.NODE_ENV)
+console.log(
+  "DB connection established successfully!, mode:" ,
+  process.env.NODE_ENV + "🔐"
+);

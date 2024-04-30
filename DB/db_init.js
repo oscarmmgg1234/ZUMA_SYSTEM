@@ -1,9 +1,8 @@
-const process = require("process");
+
 const mysql = require("mysql2");
 const fs = require("fs");
 const tls = require("tls");
 
-console.log(process.env.NODE_ENV);
 
 const sslOptions = {
   ca: fs.readFileSync("./Certs/DigiCertGlobalRootCA.crt.pem"), // CA certificate
@@ -13,10 +12,10 @@ const sslOptions = {
 
 // Create a pool of connections to your MySQL database
 const pool = mysql.createPool({
-  host: "zuma.mysql.database.azure.com",
-  user: "oscar",
-  port: 3306,
-  password: "Omariscool1234!",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  port: process.env.DB_PORT,
+  password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: sslOptions,
   waitForConnections: true, // Whether to wait for connections or immediately throw an error

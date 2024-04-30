@@ -4,7 +4,7 @@
   "description": "work with inventory db to keep stock of inventory",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "cross-env NODE_ENV=development mocha",
     "start": "cross-env NODE_ENV=production node index.js",
     "typeorm": "typeorm-ts-node-commonjs",
     "dev": "cross-env NODE_ENV=development node index.js"

@@ -8,8 +8,6 @@ require("dotenv").config({
       : ".env.development",
 });
 
-
-
 const init_sock_server = require("./Sockets/SystemStatusSocket");
 const middleware = require("./MiddleWare/middleware");
 const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");

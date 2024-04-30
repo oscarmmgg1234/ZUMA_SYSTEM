@@ -21,7 +21,7 @@ const symbolTable = (req_token, registry) => {
       let current = list.getData();
       //process
       let functionReg = registry.getFunction(current.id).proto;
-      if (process.argv[2] == "dev") {
+      if (process.env.NODE_ENV === "development") {
         console.log("Function registry:", functionReg);
       }
       if (!functionReg) {
