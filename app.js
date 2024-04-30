@@ -1,31 +1,27 @@
+// app.js (previously index.js or server.js)
 const express = require("express");
-const server = express();
 const cors = require("cors");
-const init_sock_server = require("./Sockets/SystemStatusSocket");
 
+const init_sock_server = require("./Sockets/SystemStatusSocket");
 const middleware = require("./MiddleWare/middleware");
 const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");
 const service_endpoints = require("./Routes/Endpoints/serviceEndpoints");
 const reduction_endpoints = require("./Routes/Endpoints/reductionEndpoints");
 const shipment_endpoints = require("./Routes/Endpoints/shipmentEndpoints");
 const dashboard_endpoints = require("./Routes/Endpoints/dashboardEndpoints");
-const { register } = require("ts-node");
-const PORT = process.env.PORT || 3001;
 
-server.use(cors());
-server.use(express.json());
-server.use(middleware);
-server.use(activation_endpoints);
-server.use(service_endpoints);
-server.use(reduction_endpoints);
-server.use(shipment_endpoints);
-server.use(dashboard_endpoints);
+const app = express(); // Change 'server' to 'app' for clarity
 
+app.use(cors());
+app.use(express.json());
+app.use(middleware);
+app.use(activation_endpoints);
+app.use(service_endpoints);
+app.use(reduction_endpoints);
+app.use(shipment_endpoints);
+app.use(dashboard_endpoints);
 
-
-//init websocket server
+// Initialize WebSocket server (if needed for testing, else mock it)
 init_sock_server();
 
-server.listen(PORT, () => {
-  console.log(`API is running on port ${PORT}`);
-});
+module.exports = app;
