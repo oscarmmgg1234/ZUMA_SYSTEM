@@ -1,6 +1,5 @@
 const fs = require("fs");
 const tls = require("tls");
-const process = require("process");
 
 const sslOptions = {
   ca: fs.readFileSync("./Certs/DigiCertGlobalRootCA.crt.pem"), // CA certificate
@@ -11,12 +10,14 @@ const sslOptions = {
 exports.query_manager = require("knex")({
   client: "mysql",
   connection: {
-    host: "zuma.mysql.database.azure.com",
-    user: "oscar",
-    port: 3306,
-    password: "Omariscool1234!",
-    database: process.argv[2] == "dev" ? "zuma_development" : "zuma_main",
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    port: process.env.DB_PORT,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     ssl: sslOptions,
   },
   debug: false,
 });
+
+console.log("DB connection established successfully!, mode: ", process.env.NODE_ENV)

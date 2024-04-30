@@ -3,11 +3,7 @@ const mysql = require("mysql2");
 const fs = require("fs");
 const tls = require("tls");
 
-console.log(
-  process.argv[2] == "dev"
-    ? "system using development db"
-    : "system using production db"
-);
+console.log(process.env.NODE_ENV);
 
 const sslOptions = {
   ca: fs.readFileSync("./Certs/DigiCertGlobalRootCA.crt.pem"), // CA certificate
@@ -21,7 +17,7 @@ const pool = mysql.createPool({
   user: "oscar",
   port: 3306,
   password: "Omariscool1234!",
-  database: process.argv[2] == "dev" ? "zuma_development" : "zuma_main",
+  database: process.env.DB_NAME,
   ssl: sslOptions,
   waitForConnections: true, // Whether to wait for connections or immediately throw an error
   connectionLimit: 300, // The maximum number of connections to create at once

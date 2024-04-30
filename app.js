@@ -1,6 +1,14 @@
 // app.js (previously index.js or server.js)
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config({
+  path:
+    process.env.NODE_ENV === "production"
+      ? ".env.production"
+      : ".env.development",
+});
+
+
 
 const init_sock_server = require("./Sockets/SystemStatusSocket");
 const middleware = require("./MiddleWare/middleware");

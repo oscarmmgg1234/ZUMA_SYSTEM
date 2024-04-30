@@ -2,6 +2,9 @@ const express = require("express");
 const server = express();
 const cors = require("cors");
 const init_sock_server = require("./Sockets/SystemStatusSocket");
+require("dotenv").config();
+
+
 
 const middleware = require("./MiddleWare/middleware");
 const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");
