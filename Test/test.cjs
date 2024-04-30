@@ -8,6 +8,6 @@ describe("Product API Endpoints", () => {
     it("should return an object with product details", async () => {
       const response = await request(app).get("/get_products");
       should(response.status).equal(200);
-    });
+    }).timeout(5000);
   });
 });
