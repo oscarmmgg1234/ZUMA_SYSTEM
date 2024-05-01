@@ -9,6 +9,8 @@ class Controller {
   _getTemplate(templateName) {
     return templates.getTemplate(templateName);
   }
+  async generateA4PDF(args) {}
+  async generateA4PDFMultiple(args) {}
 }
 
 module.exports = new Controller();

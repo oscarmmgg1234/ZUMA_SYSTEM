@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const handler = require("../RoutesHandler/routeHandler");
 
-router.get("/PDFA4_Generate", (req, res) => {});
+router.post("/PDFA4_Generate", async (req, res) => {});
+router.post("/PDFA4_GenerateMultiple", async (req, res) => {});
 
 //example input /PRINT/PDFA4_Generate
 // body = {data: {}, template: "TIMESHEET"}
