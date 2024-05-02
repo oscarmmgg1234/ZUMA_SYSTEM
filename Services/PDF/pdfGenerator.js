@@ -32,17 +32,17 @@ class pdf_generator {
     return await mergedPdf.save();
   }
 
-  async generateMultiplePDF(products) {
+  async generateMultiplePDF(products, template = "INVENTORY_SHEET") {
     const batches = [];
-    for (let i = 0; i < products.length; i += this.productsPerBatch) {
-      const batch = products.slice(i, i + this.productsPerBatch);
-      const pdfBlob = await this.inventoryPDFA4(batch);
+    for (let i = 0; i < products.products.length; i += this.productsPerBatch) {
+      const batch = products.products.slice(i, i + this.productsPerBatch);
+      const pdfBlob = await this.inventoryPDFA4(batch, template, products.company);
       batches.push(Buffer.from(pdfBlob));
     }
     return await this.merge_pdf(batches);
   }
 
-  async inventoryPDFA4(batch) {
+  async inventoryPDFA4(batch, template = "INVENTORY_SHEET", company) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     var requestOptions = {
@@ -52,6 +52,7 @@ class pdf_generator {
       cache: "no-cache",
       body: JSON.stringify({
         data: {
+          company: company ? company : null,
           product: batch.map((item) => ({
             id: item.PRODUCT_ID,
             product: item.PRODUCT_NAME,
@@ -60,7 +61,7 @@ class pdf_generator {
             stored: item.STORED_STOCK,
           })),
         },
-        template: "INVENTORY_SHEET",
+        template: template,
       }),
     };
 
@@ -84,6 +85,23 @@ ORDER BY product.TYPE;
 `);
     const products = inventory[0];
     return await this.generateMultiplePDF(products);
+  }
+
+  async generateInventoryByCompany(company_id) {
+    const inventory =
+      await knex.raw(`SELECT product_inventory.*, product.COMPANY
+FROM product_inventory
+JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
+WHERE product.COMPANY = ${company_id}`);
+    const company = await knex.raw(
+      `SELECT NAME FROM company WHERE COMPANY_ID = ${company_id}`
+    );
+
+    const products = inventory[0];
+    return await this.generateMultiplePDF(
+      { products, company: company[0][0].NAME },
+      "INVENTORY_BY_COMPANY_SHEET"
+    );
   }
 }
 

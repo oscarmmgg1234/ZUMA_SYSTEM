@@ -11,6 +11,9 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const generate_inv_by_company_pdf = async (args) => {
+  return await pdf_generator.generateInventoryByCompany(args);
+};
 const generate_inv_pdf = async () => {
   return await pdf_generator.generatePDFsForAllProducts();
 };
@@ -475,6 +478,9 @@ class controller {
   };
 
   dashboard_controller = {
+    generate_inv_by_company_pdf: async (args) => {
+      return await generate_inv_by_company_pdf(args);
+    },
     generate_inv_pdf: async () => {
       return await generate_inv_pdf();
     },
