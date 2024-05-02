@@ -36,7 +36,11 @@ class pdf_generator {
     const batches = [];
     for (let i = 0; i < products.products.length; i += this.productsPerBatch) {
       const batch = products.products.slice(i, i + this.productsPerBatch);
-      const pdfBlob = await this.inventoryPDFA4(batch, template, products.company);
+      const pdfBlob = await this.inventoryPDFA4(
+        batch,
+        template,
+        products.company
+      );
       batches.push(Buffer.from(pdfBlob));
     }
     return await this.merge_pdf(batches);
@@ -67,7 +71,7 @@ class pdf_generator {
 
     try {
       const process = await fetch(
-        "http://localhost:3003/PDF/PDFA4_Generate",
+        "http://192.168.1.176:3003/PDF/PDFA4_Generate",
         requestOptions
       );
       const response = await process.arrayBuffer();
@@ -84,7 +88,7 @@ JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
 ORDER BY product.TYPE;
 `);
     const products = inventory[0];
-    return await this.generateMultiplePDF({products});
+    return await this.generateMultiplePDF({ products });
   }
 
   async generateInventoryByCompany(company_id) {
