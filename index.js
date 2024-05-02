@@ -13,7 +13,7 @@ const dashboard_endpoints = require("./Routes/Endpoints/dashboardEndpoints");
 const PORT = process.env.PORT || 3001;
 
 
-server.use(cors(corsOptions));
+server.use(cors());
 server.use(express.json());
 server.use(middleware);
 server.use(activation_endpoints);
