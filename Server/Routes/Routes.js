@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const handler = require("../RoutesHandler/routeHandler");
+const handler = require("../RoutesHandler/RouteHandler");
 
 router.post("/PDFA4_Generate", async (req, res) => {
   await handler.generatePDFA4(req, res);
