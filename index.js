@@ -12,7 +12,12 @@ const shipment_endpoints = require("./Routes/Endpoints/shipmentEndpoints");
 const dashboard_endpoints = require("./Routes/Endpoints/dashboardEndpoints");
 const PORT = process.env.PORT || 3001;
 
-server.use(cors());
+  const corsOptions = {
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+server.use(cors(corsOptions));
 server.use(express.json());
 server.use(middleware);
 server.use(activation_endpoints);
