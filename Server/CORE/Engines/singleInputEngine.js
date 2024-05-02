@@ -1,4 +1,4 @@
-const Handlebars = require("handlebars");
+
 const wkhtmltopdf = require("wkhtmltopdf");
 
 module.exports.singleInputEngine = async function (data, template) {
