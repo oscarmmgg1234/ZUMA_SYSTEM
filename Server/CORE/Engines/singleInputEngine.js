@@ -3,8 +3,8 @@ const wkhtmltopdf = require("wkhtmltopdf");
 
 module.exports.singleInputEngine = async function (data, template) {
   return new Promise((Resolve, Reject) => {
-    var templateSRC = Handlebars.compile(template);
-    const output_html = templateSRC(data);
+    //input data to compiled template
+    const output_html = template(data);
     let buffers = [];
     wkhtmltopdf(
       output_html,

@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const Handlebars = require("handlebars");
 
 class templates {
   constructor() {
@@ -17,7 +18,7 @@ class templates {
         `./Templates/EMPLOYEE/${file}`,
         "utf-8"
       );
-      this.templates.set(templateName, templateContent);
+      this.templates.set(templateName, Handlebars.compile(templateContent));
     });
     fs.readdirSync("./Templates/INVENTORY").forEach((file) => {
       let templateName = path.basename(file, ".HTML");
@@ -25,7 +26,7 @@ class templates {
         `./Templates/INVENTORY/${file}`,
         "utf-8"
       );
-      this.templates.set(templateName, templateContent);
+      this.templates.set(templateName, Handlebars.compile(templateContent));
     });
   }
   getTemplate(templateName) {
