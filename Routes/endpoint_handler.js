@@ -5,14 +5,10 @@ const { controller_interface } = require("../Controllers/controller.js");
 const controller = controller_interface();
 const { ErrorHandling } = require("../Error/error_handling");
 const { success_handling } = require("../Error/success_handling");
-const { InMemoryCache } = require("../MiddleWare/CACHE/in_memory_cache");
 
 class http_handler {
   constructor() {
     this.init = true;
-    this.ProductCache = new InMemoryCache();
-    this.CompanyCache = new InMemoryCache();
-    this.ProductInventoryCache = new InMemoryCache();
   }
 
   shipment = {
@@ -70,7 +66,6 @@ class http_handler {
 
   activation = {
     activate_prod: (req, res) => {
-      this.ProductInventoryCache.systemChange = true;
       controller.product_activation_controller.activate_product(
         req.req_data,
         (data) => {
@@ -131,7 +126,6 @@ class http_handler {
       }
     },
     release_product: (req, res) => {
-      this.ProductInventoryCache.systemChange = true;
       controller.reduction.product_reduction(req.req_data, (result) => {
         res.send(new success_handling(result, "Product Released").getSuccess());
       });
@@ -185,27 +179,17 @@ class http_handler {
       res.send({ status: true });
     },
     getProducts: (req, res) => {
-      if (!this.ProductCache.getCacheStatus()) {
-        controller.label_print_controller.get_products_info((data) => {
-          const err = new ErrorHandling(data, "Error getting products");
-          if (err.isValid()) {
-            this.ProductCache.setCache(data);
-            this.ProductCache.systemChange = false;
-            res.send(
-              new success_handling(data, "Retrieved Products").getSuccess()
-            );
-          } else {
-            res.send(err.getError());
-          }
-        });
-      } else {
-        res.send(
-          new success_handling(
-            this.ProductCache.getCache(),
-            "Retrieved Products"
-          ).getSuccess()
-        );
-      }
+      controller.label_print_controller.get_products_info((data) => {
+        const err = new ErrorHandling(data, "Error getting products");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Products").getSuccess()
+          );
+        }
+        else {
+          res.send(err.getError());
+        }
+      });
     },
     getHistoryLog: (req, res) => {
       controller.services.getHistoryLog((data) => {
@@ -300,19 +284,16 @@ class http_handler {
       });
     },
     addCompany: (req, res) => {
-      this.CompanyCache.systemChange = true;
       controller.dashboard_controller.addCompany(req.req_data, (status) => {
         res.send(new success_handling(status, "Company Added").getSuccess());
       });
     },
     deleteCompany: (req, res) => {
-      this.CompanyCache.systemChange = true;
       controller.dashboard_controller.deleteCompany(req.req_data, (status) => {
         res.send(new success_handling(status, "Company Deleted").getSuccess());
       });
     },
     updateTracking: (req, res) => {
-      this.ProductCache.systemChange = true;
       controller.dashboard_controller.updateTracking(req.req_data);
       res.send(
         new success_handling(
@@ -323,68 +304,31 @@ class http_handler {
     },
 
     getCompanies: (req, res) => {
-      if (!this.CompanyCache.getCacheStatus()) {
-        controller.dashboard_controller.getCompaniesZuma((data) => {
-          const err = new ErrorHandling(data, "Error getting companies");
-          if (err.isValid()) {
-            this.CompanyCache.setCache(data);
-            this.CompanyCache.systemChange = false;
-            res.send(
-              new success_handling(data, "Retrieved Companies").getSuccess()
-            );
-          } else {
-            res.send(err.getError());
-          }
-        });
-      } else {
-        res.send(
-          new success_handling(
-            this.CompanyCache.getCache(),
-            "Retrieved Companies"
-          ).getSuccess()
-        );
-      }
+      controller.dashboard_controller.getCompaniesZuma((data) => {
+        const err = new ErrorHandling(data, "Error getting companies");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Companies").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
     },
     getInventory: (req, res) => {
-      if (req.body?.Mobile) {
-        controller.dashboard_controller.getInventory((data) => {
-          const err = new ErrorHandling(data, "Error getting inventory");
-          if (err.isValid()) {
-            res.send(
-              new success_handling(data, "Retrieved Inventory").getSuccess()
-            );
-          } else {
-            res.send(err.getError());
-          }
-        });
-      } else {
-        if (!this.ProductInventoryCache.getCacheStatus()) {
-          controller.dashboard_controller.getInventory((data) => {
-            const err = new ErrorHandling(data, "Error getting inventory");
-            if (err.isValid()) {
-              this.ProductInventoryCache.setCache(data);
-              this.ProductInventoryCache.systemChange = false;
-              res.send(
-                new success_handling(data, "Retrieved Inventory").getSuccess()
-              );
-            } else {
-              res.send(err.getError());
-            }
-          });
-        } else {
+      controller.dashboard_controller.getInventory((data) => {
+        const err = new ErrorHandling(data, "Error getting inventory");
+        if (err.isValid()) {
           res.send(
-            new success_handling(
-              this.ProductInventoryCache.getCache(),
-              "Retrieved Inventory"
-            ).getSuccess()
+            new success_handling(data, "Retrieved Inventory").getSuccess()
           );
+        } else {
+          res.send(err.getError());
         }
-      }
+      });
     },
     addProduct: (req, res) => {
       controller.dashboard_controller.addProduct(req.req_data, (data) => {
-        this.ProductInventoryCache.systemChange = true;
-        this.ProductCache.systemChange = true;
         const err = new ErrorHandling(data, "Error adding product");
         if (err.isValid()) {
           res.send(new success_handling(data, "Added Product").getSuccess());
@@ -395,8 +339,6 @@ class http_handler {
     },
     deleteProduct: (req, res) => {
       controller.dashboard_controller.deleteProduct(req.req_data, (data) => {
-        this.ProductInventoryCache.systemChange = true;
-        this.ProductCache.systemChange = true;
         const err = new ErrorHandling(data, "Error deleting product");
         if (err.isValid()) {
           res.send(new success_handling(data, "Deleted Product").getSuccess());
@@ -448,7 +390,6 @@ class http_handler {
       );
     },
     modifyActiveStock: (req, res) => {
-      this.ProductInventoryCache.systemChange = true;
       controller.dashboard_controller.modifyActiveStock(
         req.req_data,
         (status) => {
@@ -462,7 +403,6 @@ class http_handler {
       );
     },
     modifyStoredStock: (req, res) => {
-      this.ProductInventoryCache.systemChange = true;
       controller.dashboard_controller.modifyStoredStock(
         req.req_data,
         (status) => {
@@ -476,27 +416,16 @@ class http_handler {
       );
     },
     get_products: (req, res) => {
-      if (!this.ProductCache.getCacheStatus()) {
-        controller.label_print_controller.get_products_info((data) => {
-          const err = new ErrorHandling(data, "Error getting products");
-          if (err.isValid()) {
-            this.ProductCache.setCache(data);
-            this.ProductCache.systemChange = false;
-            res.send(
-              new success_handling(data, "Retrieved Products").getSuccess()
-            );
-          } else {
-            res.send(err.getError());
-          }
-        });
-      } else {
-        res.send(
-          new success_handling(
-            this.ProductCache.getCache(),
-            "Retrieved Products"
-          ).getSuccess()
-        );
-      }
+      controller.label_print_controller.get_products_info((data) => {
+        const err = new ErrorHandling(data, "Error getting products");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Products").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
     },
     get_product_analytics: (req, res) => {
       controller.dashboard_controller.getProductAnalytics(
