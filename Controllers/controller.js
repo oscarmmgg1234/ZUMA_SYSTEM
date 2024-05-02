@@ -2,7 +2,8 @@ const { db_interface } = require("../DB/interface.js");
 const { res_interface } = require("../Models/INTERFACE/res/res_interface.js");
 const { Helper } = require("../Helpers/helper_interface.js");
 const { init_services } = require("../Services/Services.js");
-const {Constants} = require("../Constants/Tools_Interface.js")
+const { Constants } = require("../Constants/Tools_Interface.js");
+const pdf_generator = require("../Services/PDF/pdfGenerator.js");
 
 const constants = new Constants();
 const helper = Helper();
@@ -10,6 +11,9 @@ const res = res_interface();
 const db_api = db_interface();
 const services = init_services();
 
+const generate_inv_pdf = async () => {
+  return await pdf_generator.generatePDFsForAllProducts();
+};
 const getProductNameFromTrans = async (args) => {
   return await db_api.getProductNameFromTrans(args);
 };
@@ -471,6 +475,9 @@ class controller {
   };
 
   dashboard_controller = {
+    generate_inv_pdf: async () => {
+      return await generate_inv_pdf();
+    },
     getGlycerinGlobal: async (callback) => {
       return callback(await getGlycerinGlobal());
     },

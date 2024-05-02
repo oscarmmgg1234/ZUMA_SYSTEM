@@ -139,6 +139,11 @@ class http_handler {
   };
 
   services = {
+    gen_inventory_pdf: async (req, res) => {
+      res.setHeader("Content-Type", "application/pdf");
+      const pdf = await controller.dashboard_controller.generate_inv_pdf();
+      res.send(Buffer.from(pdf, "base64"));
+    },
     get_barcode_data: (req, res) => {
       controller.tools.getBarcodeData(req.req_data, (data) => {
         const err = new ErrorHandling(data, "Error getting barcode data");

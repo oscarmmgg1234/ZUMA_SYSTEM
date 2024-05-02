@@ -4,6 +4,10 @@ const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
 
+dashboard_router.post("/gen_inv_pdf_A4", async (req, res) => {
+  await endpoint_handler.services.gen_inventory_pdf(req, res);
+});
+
 dashboard_router.post("/get_products_dash", (req, res) => {
   endpoint_handler.dashboard.get_products(req, res);
 });
