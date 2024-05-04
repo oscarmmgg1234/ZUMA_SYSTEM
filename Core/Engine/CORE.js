@@ -7,6 +7,9 @@ Api Engine 2.0
 const { core_engine } = require("./CORE_ENGINE");
 const { init_services } = require("../../Services/Services.js");
 const process = require("process");
+const translateAndGenerateToken = require("./translateCurrentProduct");
+
+translateAndGenerateToken();
 
 const services = init_services();
 
