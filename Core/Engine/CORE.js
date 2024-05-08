@@ -9,8 +9,8 @@ const { init_services } = require("../../Services/Services.js");
 const process = require("process");
 const translateAndGenerateToken = require("./translateCurrentProduct");
 
-translateAndGenerateToken();
 
+translateAndGenerateToken();
 const services = init_services();
 
 const core_exec = async (args, barcodeInput) => {
@@ -71,5 +71,7 @@ const core_exec = async (args, barcodeInput) => {
     };
   }
 };
-
 exports.core_exec = core_exec;
+
+
+
