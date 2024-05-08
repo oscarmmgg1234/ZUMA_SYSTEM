@@ -4,10 +4,13 @@ const knex = query_manager;
 
 const handler = async (output) => {
   for (let commit of output) {
-    if(!commit) continue;
-    console.log("Committing token for product:", commit?.id ? commit.id : "null obeject");
+    if (!commit) continue;
+    console.log(
+      "Committing token for product:",
+      commit?.id ? commit.id : "null obeject"
+    );
     await knex.raw(
-      "UPDATE product SET REDUCTION_TOKEN = ? WHERE PRODUCT_ID = ?",
+      "UPDATE product SET ACTIVATION_TOKEN = ? WHERE PRODUCT_ID = ?",
       [commit.token, commit.id]
     );
   }
@@ -16,20 +19,14 @@ const handler = async (output) => {
 const translateAndGenerateToken = async () => {
   const products = await knex.raw("SELECT * FROM product");
   const shipmentProducts = products[0].filter(
-    (product) => product.REDUCTION_TYPE > 0
+    (product) => product.TYPE == "44" ||product.TYPE ==  "122"
   );
+  console.log("Shipment products:", shipmentProducts.length);
   const output = shipmentProducts.map((product) => {
-    if (product.REDUCTION_TYPE === 1) {
+    if (product.PROCESS_TYPE == 1) {
       return {
         name: product.NAME,
-        token: `BC:9ied BC:549d BC:93je CM:50wk:${product.PRODUCT_ID} CMUP:13g4:${product.PRODUCT_ID}`,
-        id: product.PRODUCT_ID,
-      };
-    }
-    if (product.REDUCTION_TYPE === 2) {
-      return {
-        name: product.NAME,
-        token: `BC:9ied BC:549d BC:93je CM:50wk:${product.PRODUCT_ID} CMUP:10fj:${product.PRODUCT_ID}`,
+        token: `AC:1023:${product.PRODUCT_ID} RD:10fd:${product.PRODUCT_ID} UP:23hs:${product.PRODUCT_ID} UP:2j3w:${product.PRODUCT_ID}`,
         id: product.PRODUCT_ID,
       };
     } else {
@@ -37,8 +34,8 @@ const translateAndGenerateToken = async () => {
     }
   });
   // Remove null values from the array
-  
-  await handler(output);
+
+  //await handler(output);
   console.log("Translation and token generation complete for shipment");
 };
 
