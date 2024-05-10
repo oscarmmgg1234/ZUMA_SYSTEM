@@ -6,7 +6,6 @@ Function Registry
 This module is used to store the functions that will be used by the core engine.
 ============================================
 */
-const { lstat } = require("fs");
 const { util } = require("../../Utility/Constants");
 
 class FunctionRegistry {
@@ -66,6 +65,44 @@ class FunctionRegistry {
           [
             auxiliary.auxiliaryParam
               ? parseFloat(auxiliary.auxiliaryParam) * multiplier
+              : args.QUANTITY * multiplier,
+            value,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("739e", {
+      class: "RD",
+      proto: async (db_handle, args, value, auxiliary) => {
+        //insert new record into consumption table partial consumption of same products with diffrent quantities
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
+        await db_handle.raw(
+          "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
+          [
+            value,
+            auxiliary.auxiliaryParam
+              ? parseFloat(auxiliary.auxiliaryParam) *
+                args.QUANTITY *
+                multiplier
+              : args.QUANTITY * multiplier,
+            args.EMPLOYEE_ID,
+            args.TRANSACTIONID,
+          ]
+        );
+      },
+    });
+    this.registry_map.set("38hw", {
+      class: "UP",
+      proto: async (db_handle, args, value, auxiliary) => {
+        // update product quantity of product stored by either full amount or partial of that specified amount example agaricus
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
+        await db_handle.raw(
+          "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
+          [
+            auxiliary.auxiliaryParam
+              ? parseFloat(auxiliary.auxiliaryParam) *
+                args.QUANTITY *
+                multiplier
               : args.QUANTITY * multiplier,
             value,
           ]

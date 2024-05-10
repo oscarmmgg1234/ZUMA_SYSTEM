@@ -19,7 +19,7 @@ const handler = async (output) => {
 const translateAndGenerateToken = async () => {
   const products = await knex.raw("SELECT * FROM product");
   const shipmentProducts = products[0].filter(
-    (product) => product.TYPE == "44" ||product.TYPE ==  "122"
+    (product) => product.TYPE == "44" || product.TYPE == "122"
   );
   console.log("Shipment products:", shipmentProducts.length);
   const output = shipmentProducts.map((product) => {
@@ -40,3 +40,4 @@ const translateAndGenerateToken = async () => {
 };
 
 module.exports = translateAndGenerateToken;
+

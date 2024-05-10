@@ -10,7 +10,7 @@ const process = require("process");
 const translateAndGenerateToken = require("./translateCurrentProduct");
 
 
-translateAndGenerateToken();
+//translateAndGenerateToken();
 const services = init_services();
 
 const core_exec = async (args, barcodeInput) => {
