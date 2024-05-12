@@ -11,16 +11,6 @@ let product = new Map();
 let trackedProducts = new Map();
 let testProduct = new Map();
 
-// constructor(args) {
-//   this.EMPLOYEE_ID = args.EMPLOYEE_ID;
-//   this.PRODUCT_ID = args.PRODUCT_ID;
-//   this.PRODUCT_NAME = args.PRODUCT_NAME;
-//   this.QUANTITY = parseInt(args.QUANTITY);
-//   this.MULTIPLIER = args.MULTIPLIER;
-//   this.EMPLOYEE_NAME = args.EMPLOYEE_NAME;
-//   this.TRANSACTIONID = constants.generateRandomID(8);
-//   this.process_token = args.PROCESS_TOKEN;
-// }
 
 const get_process_data = async (id) => {
   const data = await knex.raw("SELECT * FROM product WHERE PRODUCT_ID = ?", [id]);
@@ -39,15 +29,6 @@ const get_process_data = async (id) => {
     },
   };
 };
-
-const inventory_end = async (product) => {
-  const inv = await knex.raw(
-    "SELECT * FROM product_inventory WHERE PRODUCT_ID = ?",
-    [product.PRODUCT_ID]
-  );
-  return inv[0][0];
-};
-
 const init = async () => {
   const test = await knex.raw(
     `SELECT * FROM product WHERE TYPE = "44" || TYPE = "122"`
