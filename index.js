@@ -4,9 +4,9 @@ const cors = require("cors");
 const init_sock_server = require("./Sockets/SystemStatusSocket");
 require("dotenv").config({
   path:
-    process.env.NODE_ENV === "production"
-      ? ".env.production"
-      : ".env.development",
+    process.env.NODE_ENV === "development"
+      ? ".env.development"
+      : ".env.production",
 });
 
 
