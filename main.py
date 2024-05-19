@@ -1,49 +1,65 @@
 import asyncio
-from bleak import BleakClient
+from bleak import BleakClient, BleakError
 
 addresses = ["ab:3b:00:23:de:c5", "xx:xx:xx:xx:xx:xx"]  # Add more as needed
 queue = asyncio.Queue()
 
-def notification_handler(sender, data):
-    """Handler for processing incoming notification data."""
-    try:
-        barcode = data.decode('utf-8')
-        print(f"Received decoded data from {sender}: {barcode}")
-        asyncio.create_task(queue.put(barcode))
-    except UnicodeDecodeError:
-        raw_data = data.hex()
-        print(f"Received raw data from {sender}: {raw_data}")
-        asyncio.create_task(queue.put(f"RAW DATA: {raw_data}"))
+class ScannerState:
+    def __init__(self):
+        self.current_user = None
 
-async def connect_and_listen(address):
-    client = BleakClient(address)
-    try:
-        await client.connect()
-        print(f"Connected to {address}")
-        await client.start_notify('00002af0-0000-1000-8000-00805f9b34fb', notification_handler)
-        while client.is_connected:
-            await asyncio.sleep(1)  # Maintain connection checks every second
-    except Exception as e:
-        print(f"An error occurred with {address}: {e}")
-    finally:
-        if client.is_connected:
-            await client.stop_notify('00002af0-0000-1000-8000-00805f9b34fb')
-            await client.disconnect()
-        print(f"Disconnected cleanly from {address}.")
+def notification_handler(state):
+    def handler(sender, data):
+        """Handler for processing incoming notification data."""
+        try:
+            barcode = data.decode('utf-8')
+            formatted_barcode = barcode.strip().replace("\x00", "")
+            if len(formatted_barcode) == 6:
+                state.current_user = formatted_barcode
+            elif len(formatted_barcode) == 17 and state.current_user is not None:
+                user_id = state.current_user
+                asyncio.create_task(queue.put((formatted_barcode, user_id)))
+        except UnicodeDecodeError:
+            raw_data = data.hex()
+            asyncio.create_task(queue.put((f"RAW DATA: {raw_data}", None)))
+    return handler
+
+async def connect_and_listen(address, state):
+    while True:
+        client = BleakClient(address)
+        try:
+            print(f"Connecting to {address}")
+            await client.connect()
+            print(f"Connected to {address}")
+            await client.start_notify('00002af0-0000-1000-8000-00805f9b34fb', notification_handler(state))
+
+            while client.is_connected:
+                await asyncio.sleep(4)  # Maintain connection checks every second
+
+        except BleakError as e:
+            print(f"BleakError with scanner {address}: {e}")
+        except Exception as e:
+            print(f"Error with scanner {address}: {e}")
+        finally:
+            if client.is_connected:
+                await client.stop_notify('00002af0-0000-1000-8000-00805f9b34fb')
+                await client.disconnect()
+            print(f"Disconnected from {address}")
+
+        print(f"Reconnecting to {address} in 5 seconds")
+        await asyncio.sleep(5)
 
 async def maintain_connection(address):
+    state = ScannerState()  # Create a new state for each scanner
     while True:
-        print(f"Trying to connect to {address}")
-        await connect_and_listen(address)
-        print(f"Disconnected from {address}, attempting to reconnect...")
-        await asyncio.sleep(1)  # Delay before trying to reconnect to this scanner only
+        await connect_and_listen(address, state)
 
 async def process_queue():
     while True:
-        barcode = await queue.get()
-        print(f"Processing barcode: {barcode}")
+        barcode, user_id = await queue.get()
+        print(f"Processed barcode: {barcode}")
+        print(f"User ID: {user_id}")
         queue.task_done()
-        await asyncio.sleep(2) 
 
 async def main():
     # Create queue and all tasks within the same event loop context
