@@ -1,5 +1,6 @@
 import asyncio
 from bleak import BleakClient, BleakError
+import requests
 
 addresses = ["ab:3b:00:23:de:c5"]  # Add more as needed
 queue = asyncio.Queue()
@@ -48,9 +49,20 @@ async def maintain_connection(address):
     while True:
         await connect_and_listen(address, state)
 
+def send_request(data):
+    url = "http://192.168.0.166:3001/product_reduction"
+    response = requests.post(url, json=data)
+    response.raise_for_status()  # Raise an exception for HTTP errors
+    return response
+
 async def process_queue():
     while True:
         barcode, user_id = await queue.get()
+        data = {"barcode": barcode, "employee": user_id}
+        try:
+            await asyncio.to_thread(send_request, data)
+        except Exception as e:
+            print(f"Failed to send request: {e}")
         queue.task_done()
 
 async def main():
