@@ -2,7 +2,7 @@ import asyncio
 from bleak import BleakClient, BleakError
 import requests
 
-addresses = ["ab:3b:00:23:de:c5"]  # Add more as needed
+addresses = ["ab:3b:00:23:de:c5", "ab:3b:00:23:de:dc"]  # Add more as needed
 queue = asyncio.Queue()
 
 class ScannerState:
