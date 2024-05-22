@@ -4,35 +4,27 @@ import "./mainView.css";
 function MainView() {
   const [time, setTime] = useState(new Date());
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
     // Function to fetch data
     const fetchData = async () => {
       try {
         const response = await fetch("http://192.168.0.166:3001/Reductions"); // Replace with your actual API endpoint
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
         const result = await response.json();
         setData(result.data);
-        setLoading(false);
-        setError(false);
       } catch (error) {
+        setData([]);
         console.error("Error fetching data:", error);
-        setError(true);
-        setLoading(false);
       }
     };
 
     // Initial data fetch
     fetchData();
 
-    // Polling interval set to 1 minute
+    // Polling interval set to 1 second
     const intervalId = setInterval(() => {
       fetchData();
-    }, 1000); // 60000 ms = 1 minute
+    }, 700); // 1000 ms = 1 second
 
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, []);
@@ -49,10 +41,8 @@ function MainView() {
       <div className="top-content">
         <h1 className="header">Recent Reductions</h1>
         <div className="ListCont">
-          {loading ? (
+          {data.length === 0 ? (
             <p className="loading">Waiting for server...</p>
-          ) : error ? (
-            <p className="error">Unable to fetch data from server.</p>
           ) : (
             <ul className="horizontal-list">
               {data.map((item, index) => {
