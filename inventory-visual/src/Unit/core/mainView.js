@@ -9,7 +9,7 @@ function MainView() {
     // Function to fetch data
     const fetchData = async () => {
       try {
-        const response = await fetch("http://192.168.0.166:3001/Reductions"); // Replace with your actual API endpoint
+        const response = await fetch("http://192.168.1.176:3001/Reductions"); // Replace with your actual API endpoint
         const result = await response.json();
         setData(result.data);
       } catch (error) {
