@@ -97,8 +97,6 @@ function MainView() {
       </div>
       <div className="bottom-right">
         <h1 className="logo">ZUMA VISUAL</h1>
-        <p className="version">Author: Oscar Maldonado</p>
-        <p className="version">Version 1.1</p>
       </div>
     </div>
   );
