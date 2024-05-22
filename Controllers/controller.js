@@ -20,6 +20,12 @@ const knex = query_manager;
 //   args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
 // });
 
+const getRecentReductions = async () => {
+  const response = await knex.raw(
+    "SELECT * FROM inventory_consumption ORDER BY DATETIME DESC LIMIT 3"
+  );
+  return { data: response[0] };
+};
 const generate_inv_by_company_pdf = async (args) => {
   return await pdf_generator.generateInventoryByCompany(args);
 };
@@ -452,6 +458,9 @@ class controller {
     },
   };
   services = {
+    getRecentReductions: async () => {
+      return await getRecentReductions();
+    },
     get_inventory_by_company_pdf: async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       const pdf =

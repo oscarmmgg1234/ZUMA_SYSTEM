@@ -3,6 +3,9 @@ const service_router = express.Router();
 const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
+service_router.get("/reductions", async (req, res) => {
+  await endpoint_handler.services.getRecentReductions(req, res);
+});
 
 service_router.post("/gen_barcode", (req, res) => {
   endpoint_handler.services.barcode_gen(req, res);

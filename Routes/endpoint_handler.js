@@ -134,6 +134,10 @@ class http_handler {
   };
 
   services = {
+    getRecentReductions: async (req, res) => {
+      const data = await controller.services.getRecentReductions();
+      res.send(data);
+    },
     get_inventory_by_company_pdf: async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       const pdf =
