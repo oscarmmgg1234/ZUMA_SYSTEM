@@ -5,6 +5,7 @@ const { controller_interface } = require("../Controllers/controller.js");
 const controller = controller_interface();
 const { ErrorHandling } = require("../Error/error_handling");
 const { success_handling } = require("../Error/success_handling");
+const { get } = require("http");
 
 class http_handler {
   constructor() {
@@ -134,6 +135,10 @@ class http_handler {
   };
 
   services = {
+    getRecentActivations: async (req, res) => {
+      const data = await controller.services.getRecentActivations();
+      res.send(data);
+    },
     getRecentReductions: async (req, res) => {
       const data = await controller.services.getRecentReductions();
       res.send(data);

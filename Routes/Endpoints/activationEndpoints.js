@@ -4,6 +4,10 @@ const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
 
+activation_router.get("/Activations", async (req, res) => {
+  await endpoint_handler.services.getRecentActivations(req, res);
+});
+
 activation_router.post("/activate_product", async (req, res) => {
   await endpoint_handler.activation.activate_prod(req, res);
 });
