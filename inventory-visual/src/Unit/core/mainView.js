@@ -1,88 +1,213 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./mainView.css";
 
 function MainView() {
   const [time, setTime] = useState(new Date());
-  const [data, setData] = useState([]);
+  const [reductions, setReductions] = useState([]);
+  const [activations, setActivations] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [notification, setNotification] = useState(null);
+  const notificationQueue = useRef([]);
+  const [lastShownNotification, setLastShownNotification] = useState({
+    reduction: null,
+    activation: null,
+  });
 
   useEffect(() => {
-    // Function to fetch data
-    const fetchData = async () => {
+    const fetchData = async (endpoint, setState) => {
       try {
-        const response = await fetch("http://192.168.1.176:3001/Reductions"); // Replace with your actual API endpoint
+        const response = await fetch(endpoint);
         const result = await response.json();
-        setData(result.data);
+        console.log(`Data fetched successfully from ${endpoint}:`, result);
+
+        if (result.data && Array.isArray(result.data)) {
+          setState(result.data);
+        } else if (Array.isArray(result)) {
+          setState(result);
+        } else {
+          setState([]);
+        }
       } catch (error) {
-        setData([]);
-        console.error("Error fetching data:", error);
+        setState([]);
+        console.error(`Error fetching data from ${endpoint}:`, error);
+      }
+    };
+    const url = `http://192.168.1.176`;
+    fetchData(`${url}:3001/Reductions`, setReductions);
+    fetchData(`${url}:3001/Activations`, setActivations);
+    fetchData(`${url}:3004/productAlerts`, setAlerts);
+
+    const reductionActivationInterval = setInterval(() => {
+      fetchData(`${url}:3001/Reductions`, setReductions);
+      fetchData(`${url}:3001/Activations`, setActivations);
+    }, 700);
+
+    const alertsInterval = setInterval(() => {
+      fetchData(`${url}:3004/productAlerts`, setAlerts);
+    }, 600000);
+
+    return () => {
+      clearInterval(reductionActivationInterval);
+      clearInterval(alertsInterval);
+    };
+  }, []);
+
+  useEffect(() => {
+    const timeInterval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+    return () => clearInterval(timeInterval);
+  }, []);
+
+  useEffect(() => {
+    const checkForUpdates = () => {
+      const newNotifications = [];
+
+      if (reductions[0]) {
+        const reductionNotification = `Reduction: ${reductions[0].PRODUCT_NAME} by ${reductions[0].EMPLOYEE_NAME}`;
+        if (reductionNotification !== lastShownNotification.reduction) {
+          newNotifications.push(reductionNotification);
+          setLastShownNotification((prev) => ({
+            ...prev,
+            reduction: reductionNotification,
+          }));
+        }
+      }
+
+      if (activations[0]) {
+        const activationNotification = `Activation: ${activations[0].PRODUCT_NAME} by ${activations[0].EMPLOYEE_NAME}`;
+        if (activationNotification !== lastShownNotification.activation) {
+          newNotifications.push(activationNotification);
+          setLastShownNotification((prev) => ({
+            ...prev,
+            activation: activationNotification,
+          }));
+        }
+      }
+
+      if (newNotifications.length > 0) {
+        notificationQueue.current.push(...newNotifications);
+        if (!notification) {
+          showNextNotification();
+        }
       }
     };
 
-    // Initial data fetch
-    fetchData();
+    checkForUpdates();
+  }, [reductions, activations]);
 
-    // Polling interval set to 1 second
-    const intervalId = setInterval(() => {
-      fetchData();
-    }, 700); // 1000 ms = 1 second
+  const showNextNotification = () => {
+    if (notificationQueue.current.length > 0) {
+      const nextNotification = notificationQueue.current.shift();
+      setNotification(nextNotification);
+      setTimeout(() => {
+        setNotification(null);
+        if (notificationQueue.current.length > 0) {
+          showNextNotification();
+        }
+      }, 5000);
+    }
+  };
 
-    return () => clearInterval(intervalId); // Cleanup on unmount
-  }, []);
+  const formatTime = (date) => {
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return {
+      hours: hours < 10 ? `0${hours}` : `${hours}`,
+      minutes: minutes < 10 ? `0${minutes}` : `${minutes}`,
+      seconds: seconds < 10 ? `0${seconds}` : `${seconds}`,
+      ampm,
+    };
+  };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date());
-    }, 1000); // Update every second
-    return () => clearInterval(interval);
-  }, []);
+  const { hours, minutes, seconds, ampm } = formatTime(time);
+
+  const renderList = (data, title) => (
+    <div className="section">
+      <h1 className="header">{title}</h1>
+      <div className="ListCont">
+        {data.length === 0 ? (
+          <p className="loading">Waiting for server...</p>
+        ) : (
+          <ul className="horizontal-list">
+            {data.map((item, index) => {
+              const firstName = item.EMPLOYEE_NAME.split(" ")[0];
+              let listClass = "";
+              if (index === 0) {
+                listClass = "listItem mostRecent";
+              } else if (index === data.length - 1) {
+                listClass = "listItem lastItem";
+              } else {
+                listClass = "listItem pastItem";
+              }
+              return (
+                <li className={listClass} key={index}>
+                  <div className="listContent">
+                    <p className="listStatus">
+                      {index === 0 ? "MOST RECENT" : `PAST ${index}`}
+                    </p>
+                    <p>
+                      <strong>Product:</strong> {item.PRODUCT_NAME}
+                    </p>
+                    <p>
+                      <strong>Employee:</strong> {firstName}
+                    </p>
+                    <p>
+                      <strong>Quantity:</strong> {item.QUANTITY}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderAlerts = (data) => (
+    <ul className="alerts-list">
+      {data.length === 0 ? (
+        <p className="loading">No alerts available</p>
+      ) : (
+        data.map((alert, index) => (
+          <li key={index} className="alert-item">
+            <p>
+              <strong>Product Name:</strong> {alert.NAME}
+            </p>
+            <p>
+              <strong>Stock:</strong> {alert.stock.STOCK}
+            </p>
+          </li>
+        ))
+      )}
+    </ul>
+  );
 
   return (
     <div className="main-container">
-      <div className="top-content">
-        <h1 className="header">Recent Reductions</h1>
-        <div className="ListCont">
-          {data.length === 0 ? (
-            <p className="loading">Waiting for server...</p>
-          ) : (
-            <ul className="horizontal-list">
-              {data.map((item, index) => {
-                const firstName = item.EMPLOYEE_NAME.split(" ")[0];
-                let listClass = "";
-                if (index === 0) {
-                  listClass = "listItem mostRecent";
-                } else if (index === data.length - 1) {
-                  listClass = "listItem lastItem";
-                } else {
-                  listClass = "listItem pastItem";
-                }
-                return (
-                  <li className={listClass} key={index}>
-                    <div className="listContent">
-                      <p className="listStatus">
-                        {index === 0 ? "MOST RECENT" : `PAST ${index}`}
-                      </p>
-                      <p>
-                        <strong>Product:</strong> {item.PRODUCT_NAME}
-                      </p>
-                      <p>
-                        <strong>Employee:</strong> {firstName}
-                      </p>
-                      <p>
-                        <strong>Quantity:</strong> {item.QUANTITY}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+      {notification && (
+        <div className="notification-banner">{notification}</div>
+      )}
+      <div className="left-content">
+        <div className="product-alerts">
+          <h1 className="header">Product Alerts</h1>
+          {renderAlerts(alerts)}
+        </div>
+        <div className="time-view">
+          <div className="digital-clock">
+            {hours}:{minutes}:{seconds} {ampm}
+          </div>
         </div>
       </div>
-      <div className="bottom-left">
-        <div className="time-view">
-          {time.toLocaleTimeString("en-US", {
-            timeZone: "America/Los_Angeles",
-          })}
+      <div className="right-content">
+        <div className="content-wrapper">
+          {renderList(reductions, "Recent Reductions")}
+          {renderList(activations, "Recent Activations")}
         </div>
       </div>
       <div className="bottom-right">
