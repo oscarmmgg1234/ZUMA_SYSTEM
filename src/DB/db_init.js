@@ -1,5 +1,3 @@
-
-
 const mysql = require("mysql2");
 // // exports.db = db;
 const fs = require("fs");
@@ -25,5 +23,7 @@ const db = mysql.createConnection({
   database: process.argv[2] == "dev" ? "zuma_development" : "zuma_main",
   ssl: sslOptions,
 });
+
+
 
 exports.db = db;
