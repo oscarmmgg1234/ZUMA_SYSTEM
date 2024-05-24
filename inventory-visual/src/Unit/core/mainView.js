@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./mainView.css";
+import { playNotificationSound } from "../../utils/audio";
 
 function MainView() {
   const [time, setTime] = useState(new Date());
@@ -100,6 +101,7 @@ function MainView() {
     if (notificationQueue.current.length > 0) {
       const nextNotification = notificationQueue.current.shift();
       setNotification(nextNotification);
+      playNotificationSound(); // Play the notification sound
       setTimeout(() => {
         setNotification(null);
         if (notificationQueue.current.length > 0) {
