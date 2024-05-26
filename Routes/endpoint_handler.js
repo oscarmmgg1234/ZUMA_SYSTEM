@@ -135,6 +135,14 @@ class http_handler {
   };
 
   services = {
+    getScanners: async (req, res) => {
+      const scanners = await controller.services.getScannerStatus();
+      res.send(scanners);
+    },
+    setScannerStatus: async (req, res) => {
+      const response = await controller.services.setScannerStatus(req.body);
+      res.send(response);
+    },
     getRecentActivations: async (req, res) => {
       const data = await controller.services.getRecentActivations();
       res.send(data);

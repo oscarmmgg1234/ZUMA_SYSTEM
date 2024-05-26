@@ -21,13 +21,24 @@ const knex = query_manager;
 //   args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
 // });
 
+const setScannerStatus = async (args) => {
+  const status = await knex.raw("UPDATE scanners SET status = ? WHERE id = ?", [
+    args.status,
+    args.id,
+  ]);
+  return { status: "sucess", message: "Scanner status updated" };
+};
+
+const getScannerStatus = async () => {
+  const scanners = await knex.raw("SELECT status, id FROM scanners");
+  return { scanners: scanners[0] };
+};
 const getRecentActivations = async () => {
   const response = await knex.raw(
     "SELECT * FROM inventory_activation ORDER BY DATE DESC LIMIT 3"
   );
   return { data: response[0] };
-
-}
+};
 
 const getRecentReductions = async () => {
   const response = await knex.raw(
@@ -467,6 +478,12 @@ class controller {
     },
   };
   services = {
+    setScannerStatus: async (args) => {
+      return await setScannerStatus(args);
+    },
+    getScannerStatus: async () => {
+      return await getScannerStatus();
+    },
     getRecentActivations: async () => {
       return await getRecentActivations();
     },

@@ -3,6 +3,12 @@ const service_router = express.Router();
 const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
+service_router.get("/get_scanners", async (req, res) => {
+  await endpoint_handler.services.getScanners(req, res);
+});
+service_router.post("/setScanner", async (req, res) => {
+  await endpoint_handler.services.setScannerStatus(req, res);
+});
 service_router.get("/reductions", async (req, res) => {
   await endpoint_handler.services.getRecentReductions(req, res);
 });
