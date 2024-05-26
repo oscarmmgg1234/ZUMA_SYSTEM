@@ -74,7 +74,7 @@ html,
 
 .alert-item {
     background-color: #1211169d;
-    border: 2px solid #ccc;
+    border: 1px solid #ccc;
     color: white;
     margin: 3px 0;
     padding: 3px;
@@ -108,7 +108,7 @@ html,
 .ListCont {
     border: 5px solid #cccccc;
     background-color: #1211169d;
-    padding: 20px;
+    padding: 12px;
     box-sizing: border-box;
     width: 100%;
     overflow-x: auto;
@@ -133,7 +133,7 @@ html,
     padding: 10px 20px;
     margin-right: 20px;
     border: 2px solid #ccc;
-    font-size: 24px;
+    font-size: 23px;
     background-color: #fff;
     white-space: normal;
     color: black;
@@ -235,4 +235,60 @@ html,
         top: -50px;
         opacity: 0;
     }
+}
+
+.small-section {
+    max-height: 150px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.scanner-list-wrapper {
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    background-color: #1211169d;
+    margin-left: 20px;
+}
+
+.scanner-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1px;
+    background-color: rgba(192, 192, 192, 0.363);
+    padding: 2px 10px;
+    margin-right: 14px;
+    border-radius: 5px;
+    border: 2px solid;
+    /* To ensure the border changes color */
+}
+
+.scanner-id {
+    margin-right: 10px;
+    font-size: 14px;
+    color: white;
+}
+
+.scanner-status {
+    font-size: 20px;
+}
+
+.connected {
+    color: green;
+    border-color: green;
+    /* Change border color when connected */
+}
+
+.disconnected {
+    color: red;
+    border-color: red;
+    /* Change border color when disconnected */
+}
+
+.scannerTitle {
+    font-size: 24px;
+    color: white;
 }

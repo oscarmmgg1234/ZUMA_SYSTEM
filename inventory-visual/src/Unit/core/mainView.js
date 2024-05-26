@@ -7,6 +7,7 @@ function MainView() {
   const [reductions, setReductions] = useState([]);
   const [activations, setActivations] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [scanners, setScanners] = useState([]);
   const [notification, setNotification] = useState(null);
   const notificationQueue = useRef([]);
   const [lastShownNotification, setLastShownNotification] = useState({
@@ -33,10 +34,22 @@ function MainView() {
         console.error(`Error fetching data from ${endpoint}:`, error);
       }
     };
+
+    const fetchScanners = async () => {
+      try {
+        const response = await fetch("http://192.168.1.176:3001/get_scanners");
+        const result = await response.json();
+        setScanners(result.scanners);
+      } catch (error) {
+        console.error(`Error fetching scanners:`, error);
+      }
+    };
+
     const url = `http://192.168.1.176`;
     fetchData(`${url}:3001/Reductions`, setReductions);
     fetchData(`${url}:3001/Activations`, setActivations);
     fetchData(`${url}:3004/productAlerts`, setAlerts);
+    fetchScanners();
 
     const reductionActivationInterval = setInterval(() => {
       fetchData(`${url}:3001/Reductions`, setReductions);
@@ -47,9 +60,12 @@ function MainView() {
       fetchData(`${url}:3004/productAlerts`, setAlerts);
     }, 600000);
 
+    const scannersInterval = setInterval(fetchScanners, 500);
+
     return () => {
       clearInterval(reductionActivationInterval);
       clearInterval(alertsInterval);
+      clearInterval(scannersInterval);
     };
   }, []);
 
@@ -190,6 +206,31 @@ function MainView() {
     </ul>
   );
 
+  const renderScanners = (data) => (
+    <div className="section small-section">
+      <h1 className="scannerTitle">Scanners</h1>
+      <div className="scanner-list-wrapper">
+        {data.map((scanner, index) => (
+          <div
+            className={`scanner-item ${
+              scanner.status === 1 ? "connected" : "disconnected"
+            }`}
+            key={index}
+          >
+            <span className="scanner-id">{scanner.id}</span>
+            <span
+              className={`scanner-status ${
+                scanner.status === 1 ? "connected" : "disconnected"
+              }`}
+            >
+              ●
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="main-container">
       {notification && (
@@ -213,6 +254,7 @@ function MainView() {
         <div className="content-wrapper">
           {renderList(reductions, "Recent Reductions")}
           {renderList(activations, "Recent Activations")}
+          {renderScanners(scanners)}
         </div>
       </div>
     </div>
