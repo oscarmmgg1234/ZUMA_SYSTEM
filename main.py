@@ -24,33 +24,45 @@ def notification_handler(state):
             asyncio.create_task(queue.put((f"RAW DATA: {raw_data}", None)))
     return handler
 
+async def send_status(scanner_id, status):
+    url = "http://192.168.1.176:3001/setScanner"
+    data = {"id": scanner_id, "status": status}
+    try:
+        await asyncio.to_thread(requests.post, url, json=data)
+        print(f"Scanner {scanner_id} status updated to {status}")
+    except requests.RequestException as e:
+        print(f"Failed to send status for scanner {scanner_id}: {e}")
+
 async def connect_and_listen(address, state):
+    client = BleakClient(address)
     while True:
-        client = BleakClient(address)
         try:
             await client.connect()
+            await send_status(address, 1)  # Send connected status
             await client.start_notify('00002af0-0000-1000-8000-00805f9b34fb', notification_handler(state))
 
             while client.is_connected:
                 await asyncio.sleep(4)
-        except BleakError:
-            pass
-        except Exception:
-            pass
+
+        except BleakError as e:
+            print(f"BleakError: {e}")
+        except Exception as e:
+            print(f"Exception: {e}")
+
         finally:
             if client.is_connected:
                 await client.stop_notify('00002af0-0000-1000-8000-00805f9b34fb')
                 await client.disconnect()
+            await send_status(address, 0)  # Send disconnected status
 
-        await asyncio.sleep(5)
+        await asyncio.sleep(5)  # Wait before attempting to reconnect
 
 async def maintain_connection(address):
     state = ScannerState()
-    while True:
-        await connect_and_listen(address, state)
+    await connect_and_listen(address, state)
 
 def send_request(data):
-    url = "http://192.168.0.166:3001/product_reduction"
+    url = "http://192.168.1.176:3001/product_reduction"
     response = requests.post(url, json=data)
     response.raise_for_status()  # Raise an exception for HTTP errors
     return response
