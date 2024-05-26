@@ -41,7 +41,7 @@ function MainView() {
     const reductionActivationInterval = setInterval(() => {
       fetchData(`${url}:3001/Reductions`, setReductions);
       fetchData(`${url}:3001/Activations`, setActivations);
-    }, 700);
+    }, 850);
 
     const alertsInterval = setInterval(() => {
       fetchData(`${url}:3004/productAlerts`, setAlerts);
@@ -107,7 +107,7 @@ function MainView() {
         if (notificationQueue.current.length > 0) {
           showNextNotification();
         }
-      }, 5000);
+      }, 3000);
     }
   };
 
@@ -197,6 +197,9 @@ function MainView() {
       )}
       <div className="left-content">
         <div className="product-alerts">
+          <div className="bottom-right">
+            <h1 className="logo">ZUMA VISUAL</h1>
+          </div>
           <h1 className="header">Product Alerts</h1>
           {renderAlerts(alerts)}
         </div>
@@ -211,9 +214,6 @@ function MainView() {
           {renderList(reductions, "Recent Reductions")}
           {renderList(activations, "Recent Activations")}
         </div>
-      </div>
-      <div className="bottom-right">
-        <h1 className="logo">ZUMA VISUAL</h1>
       </div>
     </div>
   );
