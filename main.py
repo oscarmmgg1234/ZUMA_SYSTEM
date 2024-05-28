@@ -73,6 +73,7 @@ def notification_handler(state):
                         print("No user selected, ignoring combined barcode")
                         state.prev_barcode = ""  # Reset previous barcode
                 else:
+                    print("fourth")
                     state.prev_barcode = formatted_barcode
                     print(f"Partial barcode stored: {state.prev_barcode}")
 
