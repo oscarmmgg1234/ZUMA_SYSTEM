@@ -42,16 +42,13 @@ def notification_handler(state):
             # Handle full 17-character barcode
             if len(formatted_barcode) >= 17:
                 if state.current_user is not None:
-                    # Check if we have a partial barcode from a previous notification
                     if state.prev_barcode:
                         # Combine and send the complete barcode
-                        combined_barcode = formatted_barcode + state.prev_barcode
+                        combined_barcode = state.prev_barcode + formatted_barcode
                         asyncio.create_task(queue.put((combined_barcode, state.current_user)))
-                        print(f"Complete barcode added to queue: {combined_barcode}")
+                        print(f"Combined barcode added to queue: {combined_barcode}")
                         state.prev_barcode = ""  # Reset previous barcode after combining
                     else:
-                        # Process and send the 17-character barcode normally
-                        state.prev_barcode = formatted_barcode
                         asyncio.create_task(queue.put((formatted_barcode, state.current_user)))
                         print(f"17-character barcode added to queue: {formatted_barcode}")
                 else:
