@@ -39,8 +39,17 @@ def notification_handler(state):
                 print(f"Current user set to: {state.current_user}")
                 return
             
+            if len(formatted_barcode) == 17:
+                if state.current_user is not None:
+                    print("fourth")
+                    state.prev_barcode = ""
+                    asyncio.create_task(queue.put((formatted_barcode, state.current_user)))
+                    print(f"17-character barcode added to queue: {formatted_barcode}")
+                else:
+                    print("No user selected, ignoring 17-character barcode")
+                
             # Handle full 17-character barcode
-            if len(formatted_barcode) >= 17:
+            if len(formatted_barcode) > 17:
                 if state.current_user is not None:
                     if state.prev_barcode:
                         # Combine and send the complete barcode
