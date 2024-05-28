@@ -44,7 +44,7 @@ def notification_handler(state):
                 if state.current_user is not None:
                     if state.prev_barcode:
                         # Combine and send the complete barcode
-                        combined_barcode = state.prev_barcode + formatted_barcode
+                        combined_barcode = formatted_barcode + state.prev_barcode
                         asyncio.create_task(queue.put((combined_barcode, state.current_user)))
                         print(f"Combined barcode added to queue: {combined_barcode}")
                         state.prev_barcode = ""  # Reset previous barcode after combining
