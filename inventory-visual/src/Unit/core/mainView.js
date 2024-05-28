@@ -81,7 +81,7 @@ function MainView() {
       const newNotifications = [];
 
       if (reductions[0]) {
-        const reductionNotification = `Reduction: ${reductions[0].PRODUCT_NAME} by ${reductions[0].EMPLOYEE_NAME}`;
+        const reductionNotification = `Reduction: ${reductions[0].PRODUCT_NAME} by ${reductions[0].EMPLOYEE_NAME} -- notificationID: ${Math.floor(Math.random() % 1000000)}`;
         if (reductionNotification !== lastShownNotification.reduction) {
           newNotifications.push(reductionNotification);
           setLastShownNotification((prev) => ({
