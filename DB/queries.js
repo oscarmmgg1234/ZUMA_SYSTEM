@@ -66,6 +66,7 @@ const label_print = {
 };
 
 const tools = {
+  getEmployeeIDS: "SELECT EMPLOYEE_ID FROM employee",
   get_product_by_id: "SELECT * FROM product WHERE PRODUCT_ID = ?",
   shipment_log:
     "SELECT * FROM shipment_log WHERE DATE(SHIPMENT_DATE) = DATE(NOW()) ORDER BY SHIPMENT_DATE DESC",

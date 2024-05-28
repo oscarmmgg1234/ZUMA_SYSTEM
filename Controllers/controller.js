@@ -6,7 +6,6 @@ const { Constants } = require("../Constants/Tools_Interface.js");
 const { core_exec } = require("../Core/Engine/CORE.js");
 const { query_manager } = require("../DB/query_manager.js");
 const pdf_generator = require("../Services/PDF/pdfGenerator.js");
-const { get } = require("http");
 
 const constants = new Constants();
 const helper = Helper();
@@ -20,6 +19,11 @@ const knex = query_manager;
 //     "AC:1023:fa5ceae5:20 RD:10fd:fa5ceae5:20 UP:23hs:fa5ceae5:-20 UP:2j3w:fa5ceae5:20 RD:2js2:fe260002:1:50 RD:234d:fa5ceae5:0.25 UP:2a1k:2e2f02c5:0.25 RD:2j2h:fe260002:1:50 UP:2q3e:14aa3aba:50:26 RD:2tyu:14aa3aba:50:26",
 //   args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
 // });
+
+const getEmployeeIDS = async () => {
+  const employeeIDS = await knex.raw("SELECT EMPLOYEE_ID FROM employee");
+  return { data: employeeIDS[0] };
+};
 
 const setScannerStatus = async (args) => {
   const status = await knex.raw("UPDATE scanners SET status = ? WHERE id = ?", [
@@ -478,6 +482,9 @@ class controller {
     },
   };
   services = {
+    getEmployeeIDS: async () => {
+      return await getEmployeeIDS();
+    },
     setScannerStatus: async (args) => {
       return await setScannerStatus(args);
     },

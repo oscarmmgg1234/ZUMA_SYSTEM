@@ -3,6 +3,10 @@ const service_router = express.Router();
 const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
+
+service_router.get("/getIDs", async (req, res) => {
+  await endpoint_handler.services.getEmployeeIDS(req, res);
+});
 service_router.get("/get_scanners", async (req, res) => {
   await endpoint_handler.services.getScanners(req, res);
 });

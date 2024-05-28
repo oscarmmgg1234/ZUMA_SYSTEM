@@ -6,6 +6,9 @@ const controller = controller_interface();
 const { ErrorHandling } = require("../Error/error_handling");
 const { success_handling } = require("../Error/success_handling");
 const { get } = require("http");
+const {
+  getEmployee,
+} = require("../Models/res/product_activation/getEmployee.js");
 
 class http_handler {
   constructor() {
@@ -135,6 +138,10 @@ class http_handler {
   };
 
   services = {
+    getEmployeeIDS: async (req, res) => {
+      const data = await controller.services.getEmployeeIDS();
+      res.send(data);
+    },
     getScanners: async (req, res) => {
       const scanners = await controller.services.getScannerStatus();
       res.send(scanners);
