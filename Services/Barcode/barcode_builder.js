@@ -99,36 +99,33 @@ const barcode_builder = (args, callback) => {
               year: "numeric",
               month: "short",
               day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
               timeZone: "America/Los_Angeles",
             });
             const timePrinted = await sharp(
               Buffer.from(
-                `<svg width="300" height="20"><text x="0" y="9" font-family="Verdana" font-size="9"><tspan>Created:</tspan><tspan font-weight="bold">${time}</tspan></text></svg>`
+                `<svg width="300" height="20"><text x="0" y="17" font-family="Verdana" font-size="16"><tspan font-weight="bold">${time}</tspan></text></svg>`
               )
             ).toBuffer();
 
             const employeeText = await sharp(
               Buffer.from(
-                `<svg width="300" height="20"><text x="0" y="11" font-family="Verdana" font-size="11"><tspan>Created by:</tspan><tspan font-weight="bold">${args.employee.substr(
+                `<svg width="300" height="20"><text x="0" y="16" font-family="Verdana" font-size="16"><tspan font-weight="bold">${args.employee.substr(
                   0,
-                  10
+                  16
                 )}</tspan></text></svg>`
               )
             ).toBuffer();
             const productText = await sharp(
               Buffer.from(
-                `<svg width="300" height="20"><text x="0" y="11" font-family="Verdana" font-size="11"><tspan>Prod:</tspan><tspan font-weight="bold">${args.product_name.substr(
+                `<svg width="300" height="20"><text x="0" y="17" font-family="Verdana" font-size="17"><tspan font-weight="bold">${args.product_name.substr(
                   0,
-                  13
+                  15
                 )}</tspan></text></svg>`
               )
             ).toBuffer();
             const quantityText = await sharp(
               Buffer.from(
-                `<svg width="300" height="20"><text x="0" y="11" font-family="Verdana" font-size="11"><tspan>Quantity:</tspan><tspan font-weight="bold">${args.quantity.toString()}</tspan></text></svg>`
+                `<svg width="300" height="20"><text x="0" y="16" font-family="Verdana" font-size="16"><tspan>Quantity:</tspan><tspan font-weight="bold">${args.quantity.toString()}</tspan></text></svg>`
               )
             ).toBuffer();
 
