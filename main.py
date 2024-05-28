@@ -134,8 +134,9 @@ async def process_queue():
         try:
             await asyncio.to_thread(send_request, data)
         except Exception:
-            pass  # Log error if needed
-        queue.task_done()
+            pass  # Expected errors can be ignored
+        finally:
+            queue.task_done()  # Ensure queue moves to the next item
 
 async def main():
     global queue, tasks, employee_ids
