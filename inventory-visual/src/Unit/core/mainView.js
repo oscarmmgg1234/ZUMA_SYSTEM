@@ -10,17 +10,14 @@ function MainView() {
   const [scanners, setScanners] = useState([]);
   const [notification, setNotification] = useState(null);
   const notificationQueue = useRef([]);
-  const [lastShownNotification, setLastShownNotification] = useState({
-    reduction: null,
-    activation: null,
-  });
+  const shownReductionNotifications = useRef(new Set());
+  const shownActivationNotifications = useRef(new Set());
 
   useEffect(() => {
     const fetchData = async (endpoint, setState) => {
       try {
         const response = await fetch(endpoint);
         const result = await response.json();
-        console.log(`Data fetched successfully from ${endpoint}:`, result);
 
         if (result.data && Array.isArray(result.data)) {
           setState(result.data);
@@ -31,7 +28,6 @@ function MainView() {
         }
       } catch (error) {
         setState([]);
-        console.error(`Error fetching data from ${endpoint}:`, error);
       }
     };
 
@@ -80,28 +76,22 @@ function MainView() {
     const checkForUpdates = () => {
       const newNotifications = [];
 
-      if (reductions[0]) {
-        const notificationID = Date.now();
-        const reductionNotification = `Reduction: ${reductions[0].PRODUCT_NAME} by ${reductions[0].EMPLOYEE_NAME} -- notificationID: ${notificationID}`;
-        if (reductionNotification !== lastShownNotification.reduction) {
-          newNotifications.push(reductionNotification);
-          setLastShownNotification((prev) => ({
-            ...prev,
-            reduction: reductionNotification,
-          }));
-        }
+      if (
+        reductions[0] &&
+        !shownReductionNotifications.current.has(reductions[0].CONSUMP_ID)
+      ) {
+        const reductionNotification = `Reduction: ${reductions[0].PRODUCT_NAME} by ${reductions[0].EMPLOYEE_NAME}`;
+        newNotifications.push(reductionNotification);
+        shownReductionNotifications.current.add(reductions[0].CONSUMP_ID);
       }
 
-      if (activations[0]) {
-        const notificationID = Date.now();
-        const activationNotification = `Activation: ${activations[0].PRODUCT_NAME} by ${activations[0].EMPLOYEE_NAME} -- notificationID: ${notificationID}`;
-        if (activationNotification !== lastShownNotification.activation) {
-          newNotifications.push(activationNotification);
-          setLastShownNotification((prev) => ({
-            ...prev,
-            activation: activationNotification,
-          }));
-        }
+      if (
+        activations[0] &&
+        !shownActivationNotifications.current.has(activations[0].ACTIVATION_ID)
+      ) {
+        const activationNotification = `Activation: ${activations[0].PRODUCT_NAME} by ${activations[0].EMPLOYEE_NAME}`;
+        newNotifications.push(activationNotification);
+        shownActivationNotifications.current.add(activations[0].ACTIVATION_ID);
       }
 
       if (newNotifications.length > 0) {
