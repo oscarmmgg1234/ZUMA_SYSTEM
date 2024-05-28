@@ -267,12 +267,16 @@ const generate_barcode = (args, callback) => {
 };
 
 const product_reduction = async (args) => {
-  const validator = await knex.raw(
-    "SELECT * FROM barcode_log WHERE BarcodeID = ?",
-    [args.BARCODE_ID]
-  );
+  try {
+    const validator = await knex.raw(
+      "SELECT * FROM barcode_log WHERE BarcodeID = ?",
+      [args.BARCODE_ID]
+    );
 
-  if(validator[0].length === 0){
+    if (validator[0].length === 0) {
+      return { status: false, message: "Barcode not found" };
+    }
+  } catch (error) {
     return { status: false, message: "Barcode not found" };
   }
   if (
@@ -283,7 +287,6 @@ const product_reduction = async (args) => {
       "SELECT product.REDUCTION_TOKEN FROM product INNER JOIN barcode_log ON product.PRODUCT_ID = barcode_log.PRODUCT_ID WHERE barcode_log.TRANSACTIONID = ?",
       [args.TRANSACTIONID]
     );
-
 
     const core_args = {
       ...args,
