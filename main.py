@@ -40,7 +40,7 @@ def notification_handler(state):
                 return
             
             # Handle full 17-character barcode
-            if len(formatted_barcode) == 17:
+            if len(formatted_barcode) >= 17:
                 if state.current_user is not None:
                     # Check if we have a partial barcode from a previous notification
                     if state.prev_barcode:
