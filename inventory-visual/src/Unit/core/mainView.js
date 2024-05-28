@@ -81,7 +81,8 @@ function MainView() {
       const newNotifications = [];
 
       if (reductions[0]) {
-        const reductionNotification = `Reduction: ${reductions[0].PRODUCT_NAME} by ${reductions[0].EMPLOYEE_NAME} -- notificationID: ${Math.floor(Math.random() % 1000000)}`;
+        const notificationID = Date.now();
+        const reductionNotification = `Reduction: ${reductions[0].PRODUCT_NAME} by ${reductions[0].EMPLOYEE_NAME} -- notificationID: ${notificationID}`;
         if (reductionNotification !== lastShownNotification.reduction) {
           newNotifications.push(reductionNotification);
           setLastShownNotification((prev) => ({
@@ -92,7 +93,8 @@ function MainView() {
       }
 
       if (activations[0]) {
-        const activationNotification = `Activation: ${activations[0].PRODUCT_NAME} by ${activations[0].EMPLOYEE_NAME}`;
+        const notificationID = Date.now();
+        const activationNotification = `Activation: ${activations[0].PRODUCT_NAME} by ${activations[0].EMPLOYEE_NAME} -- notificationID: ${notificationID}`;
         if (activationNotification !== lastShownNotification.activation) {
           newNotifications.push(activationNotification);
           setLastShownNotification((prev) => ({
