@@ -237,13 +237,14 @@ function MainView() {
         <div className="notification-banner">{notification}</div>
       )}
       <div className="left-content">
+        <div className="bottom-right">
+          <h1 className="logo">ZUMA VISUAL</h1>
+        </div>
         <div className="product-alerts">
-          <div className="bottom-right">
-            <h1 className="logo">ZUMA VISUAL</h1>
-          </div>
           <h1 className="header">Product Alerts</h1>
           {renderAlerts(alerts)}
         </div>
+        {renderScanners(scanners)}
         <div className="time-view">
           <div className="digital-clock">
             {hours}:{minutes}:{seconds} {ampm}
@@ -254,7 +255,6 @@ function MainView() {
         <div className="content-wrapper">
           {renderList(reductions, "Recent Reductions")}
           {renderList(activations, "Recent Activations")}
-          {renderScanners(scanners)}
         </div>
       </div>
     </div>
