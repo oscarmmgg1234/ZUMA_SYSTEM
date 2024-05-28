@@ -51,6 +51,7 @@ def notification_handler(state):
                         state.prev_barcode = ""  # Reset previous barcode after combining
                     else:
                         print("second")
+                        state.prev_barcode = formatted_barcode
                         asyncio.create_task(queue.put((formatted_barcode, state.current_user)))
                         print(f"17-character barcode added to queue: {formatted_barcode}")
                 else:
@@ -73,7 +74,8 @@ def notification_handler(state):
                         print("No user selected, ignoring combined barcode")
                         state.prev_barcode = ""  # Reset previous barcode
                 else:
-                    print("fourth")
+                    combined_barcode = state.prev_barcode + formatted_barcode
+                    asyncio.create_task(queue.put((combined_barcode, state.current_user)))
                     state.prev_barcode = formatted_barcode
                     print(f"Partial barcode stored: {state.prev_barcode}")
 
