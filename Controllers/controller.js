@@ -276,9 +276,6 @@ const product_reduction = async (args) => {
     if (validator[0].length === 0) {
       return { status: false, message: "Barcode not found" };
     }
-  } catch (error) {
-    return { status: false, message: "Barcode not found" };
-  }
   if (
     validator[0][0].Status === "Active/Passive" ||
     validator[0][0].Status === "Manually Printed"
@@ -300,6 +297,9 @@ const product_reduction = async (args) => {
   } else {
     return { status: false, message: "Product Already Reduced" };
   }
+} catch (error) {
+  return { status: false, message: error.message };
+}
 };
 
 const shipment_add = async (args) => {
