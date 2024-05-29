@@ -46,7 +46,14 @@ const getRecentActivations = async () => {
 
 const getRecentReductions = async () => {
   const response = await knex.raw(
-    "SELECT * FROM inventory_consumption ORDER BY DATETIME DESC LIMIT 3"
+    `
+    SELECT ic.*
+    FROM inventory_consumption ic
+    JOIN product p ON ic.PRODUCT_ID = p.PRODUCT_ID
+    WHERE p.TYPE IN ('33', '122', '44')
+    ORDER BY ic.DATETIME DESC
+    LIMIT 3;
+`
   );
   return { data: response[0] };
 };
@@ -276,30 +283,30 @@ const product_reduction = async (args) => {
     if (validator[0].length === 0) {
       return { status: false, message: "Barcode not found" };
     }
-  if (
-    validator[0][0].Status === "Active/Passive" ||
-    validator[0][0].Status === "Manually Printed"
-  ) {
-    const retriveToken = await knex.raw(
-      "SELECT product.REDUCTION_TOKEN FROM product INNER JOIN barcode_log ON product.PRODUCT_ID = barcode_log.PRODUCT_ID WHERE barcode_log.TRANSACTIONID = ?",
-      [args.TRANSACTIONID]
-    );
+    if (
+      validator[0][0].Status === "Active/Passive" ||
+      validator[0][0].Status === "Manually Printed"
+    ) {
+      const retriveToken = await knex.raw(
+        "SELECT product.REDUCTION_TOKEN FROM product INNER JOIN barcode_log ON product.PRODUCT_ID = barcode_log.PRODUCT_ID WHERE barcode_log.TRANSACTIONID = ?",
+        [args.TRANSACTIONID]
+      );
 
-    const core_args = {
-      ...args,
-      process_token: retriveToken[0][0].REDUCTION_TOKEN,
-    };
-    const result = await core_exec(core_args);
-    if (result.status === "error") {
-      return { status: false, message: "Product Reduction Failed" };
+      const core_args = {
+        ...args,
+        process_token: retriveToken[0][0].REDUCTION_TOKEN,
+      };
+      const result = await core_exec(core_args);
+      if (result.status === "error") {
+        return { status: false, message: "Product Reduction Failed" };
+      }
+      return { status: true, message: "Product Reduced" };
+    } else {
+      return { status: false, message: "Product Already Reduced" };
     }
-    return { status: true, message: "Product Reduced" };
-  } else {
-    return { status: false, message: "Product Already Reduced" };
+  } catch (error) {
+    return { status: false, message: error.message };
   }
-} catch (error) {
-  return { status: false, message: error.message };
-}
 };
 
 const shipment_add = async (args) => {
