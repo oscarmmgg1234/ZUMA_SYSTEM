@@ -41,7 +41,7 @@ function MainView() {
       }
     };
 
-    const url = `http://192.168.1.176`;
+    const url = `http://localhost`;
     fetchData(`${url}:3001/Reductions`, setReductions);
     fetchData(`${url}:3001/Activations`, setActivations);
     fetchData(`${url}:3004/productAlerts`, setAlerts);

@@ -124,6 +124,7 @@ html,
     flex-direction: row;
     flex-wrap: nowrap;
     overflow-x: auto;
+    justify-content: space-between;
 }
 
 .listItem {
