@@ -170,6 +170,18 @@ router.use("/get_activation_product_type", (req, res, next) => {
   });
 });
 
+router.use("/act-red-product", (req, res, next) => {
+  req_model.activation(req.body, (data) => {
+    const err = new ErrorRequest(data);
+    if (err.isValid()) {
+      res.send(err.getError());
+    } else {
+      req.req_data = data;
+      next();
+    }
+  });
+});
+
 router.use("/activate_product", (req, res, next) => {
   req_model.activation(req.body, (data) => {
     const err = new ErrorRequest(data);

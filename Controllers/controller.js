@@ -20,6 +20,22 @@ const knex = query_manager;
 //   args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
 // });
 
+const product_act_release = async (args) => {
+  const result = await activate_product(args);
+  const barcodeData = await knex.raw(
+    "SELECT * FROM barcode_log WHERE TRANSACTIONID = ?",
+    [args.TRANSACTIONID]
+  );
+  const contructedRedInput = {
+    EMPLOYEE_RESPONSIBLE: args.EMPLOYEE_ID,
+    BARCODE_ID: barcodeData[0][0].BarcodeID,
+    TRANSACTIONID: args.TRANSACTIONID,
+    newTransactionID: constants.generateRandomID(8),
+  };
+  await product_reduction(contructedRedInput);
+  return result;
+};
+
 const getEmployeeIDS = async () => {
   const employeeIDS = await knex.raw("SELECT EMPLOYEE_ID FROM employee");
   return { data: employeeIDS[0] };
@@ -462,6 +478,9 @@ class controller {
     },
     activate_product: async (args) => {
       return await activate_product(args);
+    },
+    product_act_release: async (args) => {
+      return await product_act_release(args);
     },
   };
   label_print_controller = {

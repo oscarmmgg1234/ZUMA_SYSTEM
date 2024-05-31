@@ -4,6 +4,10 @@ const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
 
+activation_router.use("/act-red-product", async (req, res) => {
+  await endpoint_handler.activation.activate_release_product(req, res);
+});
+
 activation_router.get("/Activations", async (req, res) => {
   await endpoint_handler.services.getRecentActivations(req, res);
 });

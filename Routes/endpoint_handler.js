@@ -72,6 +72,15 @@ class http_handler {
   };
 
   activation = {
+    activate_release_product: async (req, res) => {
+      const response =
+        await controller.product_activation_controller.product_act_release(
+          req.req_data
+        );
+      res.send(
+        new success_handling(response, "Product Activated").getSuccess()
+      );
+    },
     activate_prod: async (req, res) => {
       const response =
         await controller.product_activation_controller.activate_product(
