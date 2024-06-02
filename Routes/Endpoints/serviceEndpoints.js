@@ -4,6 +4,15 @@ const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
 
+service_router.get("/getFuncRegistry", (req, res) => {
+  endpoint_handler.services.getFunctionRegistry(req, res);
+});
+service_router.post("/commitChanges", async (req, res) => {
+  await endpoint_handler.services.commitChanges(req, res);
+});
+service_router.get("/getProductTypes", async (req, res) => {
+  await endpoint_handler.services.getProductTypes(req, res);
+});
 service_router.get("/getIDs", async (req, res) => {
   await endpoint_handler.services.getEmployeeIDS(req, res);
 });

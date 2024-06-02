@@ -147,6 +147,18 @@ class http_handler {
   };
 
   services = {
+    getFunctionRegistry: (req, res) => {
+      const data = controller.services.getFuncRegistry();
+      res.send(data);
+    },
+    commitChanges: async (req, res) => {
+      const response = await controller.services.commitProdChanges(req.body);
+      res.send(response);
+    },
+    getProductTypes: async (req, res) => {
+      const data = await controller.services.getProductTypes();
+      res.send(data);
+    },
     getEmployeeIDS: async (req, res) => {
       const data = await controller.services.getEmployeeIDS();
       res.send(data);

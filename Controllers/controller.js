@@ -6,6 +6,10 @@ const { Constants } = require("../Constants/Tools_Interface.js");
 const { core_exec } = require("../Core/Engine/CORE.js");
 const { query_manager } = require("../DB/query_manager.js");
 const pdf_generator = require("../Services/PDF/pdfGenerator.js");
+const commitProductChanges = require("../Helpers/editProducts.js");
+const {
+  FunctionRegistry,
+} = require("../Core/Engine/Registry/functionRegistry.js");
 
 const constants = new Constants();
 const helper = Helper();
@@ -19,6 +23,23 @@ const knex = query_manager;
 //     "AC:1023:fa5ceae5:20 RD:10fd:fa5ceae5:20 UP:23hs:fa5ceae5:-20 UP:2j3w:fa5ceae5:20 RD:2js2:fe260002:1:50 RD:234d:fa5ceae5:0.25 UP:2a1k:2e2f02c5:0.25 RD:2j2h:fe260002:1:50 UP:2q3e:14aa3aba:50:26 RD:2tyu:14aa3aba:50:26",
 //   args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
 // });
+
+const getFuncRegistry = () => {
+  return FunctionRegistry._getRegistry();
+};
+
+const commitProdChanges = async (args) => {
+  const _status = await commitProductChanges(args);
+  if (_status) {
+    return { status: true, message: "Product updated successfully" };
+  }
+  return { status: false, message: "Product update failed" };
+};
+
+const getProductTypes = async () => {
+  const types = await knex.raw("SELECT * FROM product_type");
+  return { data: types[0] };
+};
 
 const product_act_release = async (args) => {
   const result = await activate_product(args);
@@ -515,6 +536,15 @@ class controller {
     },
   };
   services = {
+    getFuncRegistry: () => {
+      return getFuncRegistry();
+    },
+    commitProdChanges: async (args) => {
+      return await commitProdChanges(args);
+    },
+    getProductTypes: async () => {
+      return await getProductTypes();
+    },
     getEmployeeIDS: async () => {
       return await getEmployeeIDS();
     },
