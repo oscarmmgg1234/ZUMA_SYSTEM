@@ -6,13 +6,11 @@ const controller = Controller;
 const _dbHandle = dev_query_manager;
 
 async function initializeGlobalProductMap(ids, status) {
-  console.log("Initializing global product map...");
   const products = await _dbHandle.raw("SELECT * FROM product");
   return new Map(products[0].map((product) => [product.PRODUCT_ID, product]));
 }
 
 const cleanUp = async (args, _dbHandle) => {
-  console.log("Starting cleanup...");
   try {
     await _dbHandle.raw("DELETE FROM product WHERE PRODUCT_ID = ?", [
       args.generatedIDs[0],
@@ -22,10 +20,8 @@ const cleanUp = async (args, _dbHandle) => {
         args.generatedIDs[1],
       ]);
     }
-    console.log("Cleanup completed successfully.");
     return true;
   } catch (e) {
-    console.error("Cleanup error:", e);
     return false;
   }
 };
@@ -41,9 +37,6 @@ function generateRandomID(length) {
 }
 
 const insertNewProduct = async (db_handle, args, tokenData) => {
-  console.log("Inserting new product...");
-  console.log("tokenData:", tokenData);
-
   try {
     // Insert main product
     await db_handle.raw(
@@ -74,11 +67,9 @@ const insertNewProduct = async (db_handle, args, tokenData) => {
         "", // MIN_STORED_DESC
       ]
     );
-    console.log("Main product inserted:", args.generatedIDs[0]);
 
-    // Insert label product if crateLabel is true
+    // Insert label product if createLabel is true
     if (args.createLabel === true) {
-      console.log("Inserting label product...");
       await db_handle.raw(
         "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION, COMPANY, ACTIVATION_TOKEN, REDUCTION_TOKEN, SHIPMENT_TOKEN, PROCESS_TYPE, PROCESS_COMPONENT_TYPE, REDUCTION_TYPE, SHIPMENT_TYPE, UNIT_TYPE, MIN_LIMIT, PILL_Ratio, GLYCERIN_RATIO_OZ, Product_Volume, Product_Base_Gallon, MIN_LIMIT_ACTIVE, MIN_ACTIVE_DESC, MIN_STORED_DESC) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         [
@@ -107,12 +98,8 @@ const insertNewProduct = async (db_handle, args, tokenData) => {
           "", // MIN_STORED_DESC
         ]
       );
-      console.log("Label product inserted:", args.generatedIDs[1]);
     }
-
-    console.log("Product insertion completed successfully.");
   } catch (error) {
-    console.error("Product insertion failed:", error);
     throw error;
   }
 };
@@ -130,7 +117,6 @@ const getProductNames = async (_productTrackerIds, _GlobalProductMap) => {
 
 const getInventory = async () => {
   const transactionUnit = await _dbHandle.transaction();
-  console.log("Fetching inventory...");
   const _inventory = await transactionUnit.raw(
     "SELECT * FROM product_inventory"
   );
@@ -146,7 +132,6 @@ const runInventoryCheck = async (
   _GlobalProductMap
 ) => {
   const transactionUnit = await _dbHandle.transaction();
-  console.log("Running inventory check...");
   let _output = `${header}:\nTest quantity: 10\nSome products might have a different difference as they use formulas. Reference documentation to see if the outcome is correct.\n`;
   const _productTrackerMap = await getProductNames(
     _productTrackerIds,
@@ -182,9 +167,7 @@ const activationTest = async (
   _transactionID,
   _GlobalProductMap
 ) => {
-  console.log("Running activation test...");
   if (!tokenData) {
-    console.error("No token data provided for activation test.");
     return;
   }
 
@@ -208,7 +191,6 @@ const activationTest = async (
     "Activation Test",
     _GlobalProductMap
   );
-  console.log("Activation test log:", log);
   return log;
 };
 
@@ -219,16 +201,13 @@ const reductionTest = async (
   _transactionID,
   _GlobalProductMap
 ) => {
-  console.log("Running reduction test...");
   if (!tokenData) {
-    console.error("No token data provided for reduction test.");
     return;
   }
 
   const initInventory = await getInventory();
   const _productTrackerIds = disectProductIds(tokenData);
   const generatedBarcodeID = generateRandomID(8);
-  console.log("Generated barcode ID:", generatedBarcodeID);
   await transactionUnit.raw(
     "INSERT INTO barcode_log (BarcodeID, Employee, Quantity, Status, TRANSACTIONID, PRODUCT_ID) VALUES (?,?,?,?,?,?)",
     [
@@ -240,7 +219,6 @@ const reductionTest = async (
       args.generatedIDs[0],
     ]
   );
-  console.log("Barcode log inserted for reduction test.");
 
   const _inputParams = {
     EMPLOYEE_RESPONSIBLE: "000002",
@@ -257,7 +235,6 @@ const reductionTest = async (
     "Reduction Test",
     _GlobalProductMap
   );
-  console.log("Reduction test log:", log);
   return log;
 };
 
@@ -268,9 +245,7 @@ const shipmentTest = async (
   _transactionID,
   _GlobalProductMap
 ) => {
-  console.log("Running shipment test...");
   if (!tokenData) {
-    console.error("No token data provided for shipment test.");
     return;
   }
 
@@ -304,7 +279,6 @@ const shipmentTest = async (
     "Shipment Test",
     _GlobalProductMap
   );
-  console.log("Shipment test log:", log);
   return log;
 };
 
@@ -315,7 +289,6 @@ const runTest = async (
   _transactionID,
   _GlobalProductMap
 ) => {
-  console.log("Running tests...");
   let _output = "New Product Test:\n";
   const _activation = await activationTest(
     transactionUnit,
@@ -348,29 +321,23 @@ const runTest = async (
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 const testToken = async (args) => {
-  console.log("Starting testToken...");
   const tokenData = tokenGenerator({
     activationTokens: args.activationTokens,
     reductionTokens: args.reductionTokens,
     shipmentTokens: args.shipmentTokens,
   });
-  console.log("Generated token data:", tokenData);
   const _transactionID = generateRandomID(8);
-  console.log("Generated transaction ID:", _transactionID);
 
   const insertProductTransaction = await _dbHandle.transaction();
   try {
-    console.log("Inserting new product...");
     await insertNewProduct(insertProductTransaction, args, tokenData);
     await insertProductTransaction.commit();
   } catch (error) {
     await insertProductTransaction.rollback();
-    console.error("Product insertion failed:", error);
     throw error;
   }
 
   await delay(2000);
-  console.log("Transaction committed after product insertion.");
 
   const testTransaction = await _dbHandle.transaction();
   try {
@@ -379,7 +346,6 @@ const testToken = async (args) => {
       args.createLabel
     );
 
-    console.log("Running tests...");
     const _testResult = await runTest(
       testTransaction,
       args,
@@ -388,10 +354,8 @@ const testToken = async (args) => {
       _GlobalProductMap
     );
 
-    console.log("Tests completed. Cleaning up...");
     const _result = await cleanUp(args, _dbHandle);
     if (_result) {
-      console.log("Cleanup successful.");
       await testTransaction.commit();
       return { status: true, log: _testResult };
     } else {
@@ -399,7 +363,6 @@ const testToken = async (args) => {
     }
   } catch (error) {
     await testTransaction.rollback();
-    console.error("Test failed:", error);
     return { status: false, log: error.toString() };
   }
 };
