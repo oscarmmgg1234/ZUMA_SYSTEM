@@ -24,6 +24,7 @@ const knex = query_manager;
 //   args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
 // });
 
+
 const getFuncRegistry = () => {
   return FunctionRegistry._getRegistry();
 };
@@ -461,6 +462,11 @@ const getBarcodeData = (args, callback) => {
 };
 
 class controller {
+  constructor() {
+    if (!controller.instance) {
+      controller.instance = this;
+    }
+  }
   shipment_controller = {
     select_all_shipment: (callback) => {
       select_all_shipment_log((data) => {
@@ -536,6 +542,9 @@ class controller {
     },
   };
   services = {
+    RuntimeTests: async (args) => {
+      return await RuntimeTests(args);
+    },
     getFuncRegistry: () => {
       return getFuncRegistry();
     },
@@ -695,6 +704,8 @@ class controller {
   };
 }
 
-exports.controller_interface = () => {
+function controller_interface() {
   return new controller();
-};
+}
+
+module.exports = { controller_interface, Controller: new controller() };

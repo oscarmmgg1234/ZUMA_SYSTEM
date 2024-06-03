@@ -5,7 +5,8 @@ const { controller_interface } = require("../Controllers/controller.js");
 const controller = controller_interface();
 const { ErrorHandling } = require("../Error/error_handling");
 const { success_handling } = require("../Error/success_handling");
-const { get } = require("http");
+const {TestInterface} = require("../Core/Tests/RuntimeTests/TestInterface.js");
+const runtimeTest = TestInterface
 const {
   getEmployee,
 } = require("../Models/res/product_activation/getEmployee.js");
@@ -147,6 +148,10 @@ class http_handler {
   };
 
   services = {
+    runtimeTest: async (req, res) => {
+      const response = await runtimeTest.runTest(req.body);
+      res.send(response);
+    },
     getFunctionRegistry: (req, res) => {
       const data = controller.services.getFuncRegistry();
       res.send(data);

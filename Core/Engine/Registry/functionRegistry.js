@@ -580,6 +580,11 @@ class FunctionRegistry {
     return registryArray;
   }
 
+  _getRegistryMap() {
+    return this.registry_map;
+  }
+
+
   getFunction(id) {
     return this.registry_map.get(id);
   }

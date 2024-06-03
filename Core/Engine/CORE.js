@@ -72,6 +72,3 @@ const core_exec = async (args, barcodeInput) => {
   }
 };
 exports.core_exec = core_exec;
-
-
-

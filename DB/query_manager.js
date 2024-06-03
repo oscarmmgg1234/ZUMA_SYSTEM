@@ -20,6 +20,19 @@ exports.query_manager = require("knex")({
 });
 
 console.log(
-  "DB connection established successfully!, mode:" ,
+  "DB connection established successfully!, mode:",
   process.env.NODE_ENV + "🔐"
 );
+
+exports.dev_query_manager = require("knex")({
+  client: "mysql",
+  connection: {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    port: process.env.DB_PORT,
+    password: process.env.DB_PASSWORD,
+    database: "zuma_development",
+    ssl: sslOptions,
+  },
+  debug: false,
+});
