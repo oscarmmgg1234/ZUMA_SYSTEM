@@ -3,6 +3,11 @@ const service_router = express.Router();
 const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
+service_router.post("/addProdProcess", async (req, res) => {
+  await endpoint_handler.services.addProductProcess(req, res);
+});
+
+
 service_router.post("/runtimeTest", async (req, res) => {
   await endpoint_handler.services.runtimeTest(req, res);
 });

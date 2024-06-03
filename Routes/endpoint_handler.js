@@ -148,6 +148,10 @@ class http_handler {
   };
 
   services = {
+    addProductProcess: async (req, res) => {
+      const response = await runtimeTest.runAddProduct(req.body);
+      res.send(response);
+    },
     runtimeTest: async (req, res) => {
       const response = await runtimeTest.runTest(req.body);
       res.send(response);

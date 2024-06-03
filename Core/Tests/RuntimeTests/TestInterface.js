@@ -1,5 +1,5 @@
-
 const { testToken } = require("./tokenTest");
+const {addProdProcess} = require("../../../Helpers/addProduct");
 
 class TestInterface {
   constructor() {
@@ -8,9 +8,12 @@ class TestInterface {
     }
   }
 
+  async runAddProduct(args) {
+    return await addProdProcess(args);
+  }
   async runTest(args) {
     return await testToken(args);
   }
 }
 
-module.exports = {TestInterface: new TestInterface()};
+module.exports = { TestInterface: new TestInterface() };
