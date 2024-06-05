@@ -25,6 +25,28 @@ const knex = query_manager;
 // });
 
 
+const getPastYearShipments = async () => {
+  const currentDate = new Date();
+  const pastYearsDate = new Date();
+  pastYearsDate.setMonth(currentDate.getMonth() - 12);
+
+  const shipments = await knex.raw(
+    "SELECT DISTINCT DATE(SHIPMENT_DATE) AS SHIPMENT_DATE FROM shipment_log WHERE SHIPMENT_DATE BETWEEN ? AND ?",
+    [
+      pastYearsDate.toISOString().split("T")[0],
+      currentDate.toISOString().split("T")[0],
+    ]
+  );
+
+  // Extract shipment dates and remove duplicates
+  const uniqueShipments = shipments[0].map(
+    (shipment) => shipment.SHIPMENT_DATE
+  );
+
+  return { data: uniqueShipments };
+};
+
+
 const getFuncRegistry = () => {
   return FunctionRegistry._getRegistry();
 };
@@ -521,6 +543,9 @@ class controller {
     },
   };
   shipment = {
+    getPastYearShipments: async () => {
+      return await getPastYearShipments();
+    },
     getProductsByCompany: (args, callback) => {
       get_products_by_company(args, (data) => {
         return callback(data);

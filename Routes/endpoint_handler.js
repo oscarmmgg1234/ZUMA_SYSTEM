@@ -17,6 +17,11 @@ class http_handler {
   }
 
   shipment = {
+    getPastYearShipments: async (req, res) => {
+      const reponse = await controller.shipment.getPastYearShipments()
+      res.send(reponse)
+    },
+
     get_shipment_by_date: (req, res) => {
       controller.shipment_controller.getShipmentByDate(req.req_data, (data) => {
         const err = new ErrorHandling(data, "Error getting shipment by date");

@@ -29,7 +29,6 @@ const glycerinCompsumption = async (
   const productGlycerinAmountOZ_toMill = ratioOZ * 29.5735;
   const totalMillInMixture =
     glycerinBottleAmountGALLONS_toMill + productGlycerinAmountOZ_toMill;
-
   return (
     (((productBottleSizeML * productQuantity) / totalMillInMixture) *
       productGlycerinAmountOZ_toMill) /

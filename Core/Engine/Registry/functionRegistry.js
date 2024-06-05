@@ -399,6 +399,7 @@ class FunctionRegistry {
           args.QUANTITY * multiplier,
           parseFloat(auxiliary.auxiliaryParam),
           parseFloat(auxiliary.nextAuxiliaryParam)
+          
         );
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
