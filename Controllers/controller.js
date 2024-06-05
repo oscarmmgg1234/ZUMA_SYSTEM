@@ -24,6 +24,30 @@ const knex = query_manager;
 //   args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
 // });
 
+const delProduct = async (args) => {
+  try {
+    const result = await knex("product")
+      .where("PRODUCT_ID", args.PRODUCT_ID)
+      .del();
+
+    // Check the number of affected rows
+    if (result > 0) {
+      return { status: true, message: "Product deleted successfully" };
+    }
+
+    return {
+      status: false,
+      message: "Product deletion failed: No matching product found",
+    };
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return {
+      status: false,
+      message: "An error occurred while deleting the product",
+    };
+  }
+};
+
 
 const getPastYearShipments = async () => {
   const currentDate = new Date();
@@ -45,7 +69,6 @@ const getPastYearShipments = async () => {
 
   return { data: uniqueShipments };
 };
-
 
 const getFuncRegistry = () => {
   return FunctionRegistry._getRegistry();
@@ -567,6 +590,9 @@ class controller {
     },
   };
   services = {
+    delProduct: async (args) => {
+      return await delProduct(args);
+    },
     RuntimeTests: async (args) => {
       return await RuntimeTests(args);
     },

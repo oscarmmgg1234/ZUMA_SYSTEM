@@ -4,15 +4,17 @@ const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
 
+service_router.post("/delProduct", async (req, res) => {
+  await endpoint_handler.services.deleteProd(req, res);
+});
+
 service_router.get("/getPastYearShipments", async (req, res) => {
   await endpoint_handler.shipment.getPastYearShipments(req, res);
 });
 
-
 service_router.post("/addProdProcess", async (req, res) => {
   await endpoint_handler.services.addProductProcess(req, res);
 });
-
 
 service_router.post("/runtimeTest", async (req, res) => {
   await endpoint_handler.services.runtimeTest(req, res);

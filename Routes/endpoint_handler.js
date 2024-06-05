@@ -153,6 +153,10 @@ class http_handler {
   };
 
   services = {
+    deleteProd: async (req, res) => {
+      const response = await controller.services.delProduct(req.body);
+      res.send(response);
+    },
     addProductProcess: async (req, res) => {
       const response = await runtimeTest.runAddProduct(req.body);
       res.send(response);
