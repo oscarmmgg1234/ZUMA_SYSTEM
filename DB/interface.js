@@ -121,7 +121,27 @@ const getProductInventory = (callback) => {
     if (err) {
       console.log(err);
     }
-    return callback(result);
+    db("SELECT * FROM product", (err, result2) => {
+      if (err) {
+        console.log(err);
+      }
+
+      const product_map = new Map(result2.map((x) => [x.PRODUCT_ID, x]));
+      //console.log(product_map.entries());
+      const inventory_map = new Map(result.map((x) => [x.PRODUCT_ID, x]));
+      result.forEach((x) => {
+        if (product_map.get(x.PRODUCT_ID).ReferenceStockProduct) {
+          // console.log(product_map.has(x.PRODUCT_ID).ReferenceStockProduct);
+          const active = inventory_map.get(x.PRODUCT_ID).ACTIVE_STOCK;
+          const newStored = inventory_map.get(
+            product_map.get(x.PRODUCT_ID).ReferenceStockProduct
+          ).STORED_STOCK;
+          x.STORED_STOCK = newStored;
+          x.STOCK = active + newStored;
+        }
+      });
+      return callback(result);
+    });
   });
 };
 
