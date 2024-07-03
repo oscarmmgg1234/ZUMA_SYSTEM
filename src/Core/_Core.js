@@ -1,4 +1,4 @@
-const { is } = require("date-fns/locale");
+const { is, ca } = require("date-fns/locale");
 const { query_manager } = require("../Database/_DBManager");
 const {
   format,
@@ -63,7 +63,7 @@ class Core {
       await this._loadShipmentHistory();
       await this._loadEmployees();
       await this._initProcess();
-      
+      await this._pushperhourDB();
       console.timeEnd("Initialization time");
     } catch (error) {
       console.error("Initialization error:", error);
@@ -512,6 +512,41 @@ class Core {
   }
   getTotalMetrics() {
     return this._total;
+  }
+  generateRandomID = (length) => {
+    // Create a random ID with a specified length
+    let result = "";
+    // Define the characters that can be included in the ID
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      // Append a random character from the characters string
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
+  async _pushperhourDB() {
+    const generateTransID = this.generateRandomID(14);
+    const metrics = this._getAllMetrics();
+    try {
+      //init entry
+      await this._dbExecutor("metrics").insert({
+        metricID: generateTransID,
+        date: new Date(),
+        globalMetrics: JSON.stringify({
+          perHourWeekTimeFrame: metrics.perHourWeekTimeFrame,
+          perHourMonthTimeFrame: metrics.perHourMonthTimeFrame,
+          perHourTrimesterTimeFrame: metrics.perHourTrimesterTimeFrame,
+          perHourHalfYearTimeFrame: metrics.perHourHalfYearTimeFrame,
+          perHourYearTimeFrame: metrics.perHourYearTimeFrame,
+        }),
+        employeeMetrics: JSON.stringify(metrics.employeeRates),
+        totalMetrics: JSON.stringify(metrics.perHourWholeStore),
+      });
+    } catch (error) {
+      console.error("Error pushing to DB", error);
+    }
   }
 }
 
