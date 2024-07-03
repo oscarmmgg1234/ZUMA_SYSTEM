@@ -7,7 +7,7 @@ require("dotenv").config({
       ? ".env.development"
       : ".env.production",
 });
-
+const Core = require("./src/Core/_Core");
 const analytics_router = require("./src/Routes/_Endpoints");
 
 const PORT = process.env.PORT || 3002;
@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3002;
 server.use(cors());
 server.use(express.json());
 server.use(analytics_router);
+
 
 
 

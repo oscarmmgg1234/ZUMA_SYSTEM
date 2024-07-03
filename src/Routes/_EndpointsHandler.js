@@ -1,3 +1,5 @@
+const controller = require("../Controller/_Controller");
+
 class EndpointsHandler {
   constructor() {
     if (EndpointsHandler.instance instanceof EndpointsHandler) {
@@ -6,7 +8,18 @@ class EndpointsHandler {
   }
 
   _RouteHandler = {
-    //route logic
+    getMetricsAll: (req, res) => {
+      res.send(controller.getMetricsAll());
+    },
+    getMetricsByEmployee: (req, res) => {
+      res.send(controller.getMetricsByEmployee(req.params.id));
+    },
+    getGlobalMetrics: (req, res) => {
+      res.send(controller.getGlobalMetrics());
+    },
+    getTotalMetrics: (req, res) => {
+      res.send(controller.getTotalMetrics());
+    },
   };
 }
 

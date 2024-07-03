@@ -1,8 +1,7 @@
 const fs = require("fs");
 const tls = require("tls");
-
 const sslOptions = {
-  ca: fs.readFileSync("./Assets/Certs/DigiCertGlobalRootCA.crt.pem"), // CA certificate
+  ca: fs.readFileSync("../ZUMA_SYSTEM/src/Assets/Certs/DigiCertGlobalRootCA.crt.pem"), // CA certificate
   rejectUnauthorized: true, // Reject unauthorized connections
   secureProtocol: "TLSv1_2_method", // Specify the TLS version
 };
