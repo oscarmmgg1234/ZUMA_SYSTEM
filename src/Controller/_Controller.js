@@ -14,11 +14,6 @@ class Controller {
   getTotalMetrics() {
     return metrics._getTotalMetrics();
   }
-  async getMetricHistory() {
-    const data = await metrics.getDBMETRICS();
-
-    return data;
-  }
   async getMetricHistoryByDate(rangeStart, rangeEnd) {
     return await metrics.getDBMETRICSByDate(rangeStart, rangeEnd);
   }

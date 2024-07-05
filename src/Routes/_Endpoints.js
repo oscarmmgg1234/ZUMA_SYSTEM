@@ -17,9 +17,6 @@ analytics_routes.get("/metrics/global", (req, res) => {
 analytics_routes.get("/metrics/total", (req, res) => {
   RouteHandler._RouteHandler.getTotalMetrics(req, res);
 });
-analytics_routes.get("/metrics/history", async (req, res) => {
-  await RouteHandler._RouteHandler.getMetricHistory(req, res);
-});
 analytics_routes.get(
   "/metrics/history/:rangeStart/:rangeEnd",
   async (req, res) => {

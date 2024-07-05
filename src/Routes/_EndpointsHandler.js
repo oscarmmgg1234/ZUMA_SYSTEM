@@ -21,10 +21,6 @@ class EndpointsHandler {
     getTotalMetrics: (req, res) => {
       res.send(controller.getTotalMetrics());
     },
-    getMetricHistory: async (req, res) => {
-      const data = await controller.getMetricHistory();
-      res.send(data);
-    },
     getMetricHistoryByDate: async (req, res) => {
       const data = await controller.getMetricHistoryByDate(
         req.params.rangeStart,
