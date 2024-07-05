@@ -44,12 +44,15 @@ class Core {
 
     this.storeHours = { start: 8, end: 17 };
 
+    this.history = null;
+
     this._product_inventory = null;
     this._activation_history = null;
     this._reduction_history = null;
     this._shipment_history = null;
     this._employees = null;
     this._initFetch();
+
     Core.instance = this;
   }
 
@@ -64,6 +67,7 @@ class Core {
       await this._loadEmployees();
       await this._initProcess();
       await this._pushperhourDB();
+      //await this._loadHistory();
       console.timeEnd("Initialization time");
     } catch (error) {
       console.error("Initialization error:", error);
@@ -159,6 +163,27 @@ class Core {
         });
       }
     }
+  }
+  async _loadHistory() {
+    let newHistory = [];
+
+    const metrics = await this._dbExecutor("metrics").select("*");
+    const sortMetrics = metrics.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+    let counter = 0;
+    for (let metric of sortMetrics) {
+      let historyStruct = {
+        index: counter,
+        date: format(new Date(metric.date), "yyyy-MM-dd"),
+        globalMetrics: JSON.parse(metric.globalMetrics),
+        employeeMetrics: JSON.parse(metric.employeeMetrics),
+        totalMetrics: JSON.parse(metric.totalMetrics),
+      };
+      newHistory.push(historyStruct);
+      counter++;
+    }
+    this.history = newHistory;
   }
   async _initProcess() {
     const currentDate = new Date();
@@ -510,7 +535,7 @@ class Core {
     }
     return output;
   }
-  getTotalMetrics() {
+  _getTotalMetrics() {
     return this._total;
   }
   generateRandomID = (length) => {
@@ -531,6 +556,16 @@ class Core {
     const metrics = this._getAllMetrics();
     try {
       //init entry
+      // const currentDate = new Date();
+      // const formatCurrentDate = format(currentDate, "yyyy-MM-dd");
+      // const check = await this._dbExecutor.raw(
+      //   "SELECT * FROM metrics where DATE(date) = ?",
+      //   formatCurrentDate
+      // );
+      // if (check[0].length > 0) {
+      //   return;
+      // }
+
       await this._dbExecutor("metrics").insert({
         metricID: generateTransID,
         date: new Date(),
@@ -547,6 +582,229 @@ class Core {
     } catch (error) {
       console.error("Error pushing to DB", error);
     }
+  }
+  async getDBMETRICS() {
+    let historyOutput = [];
+    const metrics = await this._dbExecutor("metrics").select("*");
+
+    for (let metric of metrics) {
+      let historyStruct = {
+        date: metric.date,
+        globalMetrics: JSON.parse(metric.globalMetrics),
+        employeeMetrics: JSON.parse(metric.employeeMetrics),
+        totalMetrics: JSON.parse(metric.totalMetrics),
+      };
+      historyOutput.push(historyStruct);
+    }
+    return historyOutput;
+  }
+  //create a by timeFrame function so that we can minimize the amount of data we are pulling and increase performance
+  //increase filtering to reduce the amount of data we are pulling to perTrimester? or perMonth idk maybe allow user to specify
+
+  async getDBMETRICSEMPLOYEEbyDate(rangeStart, rangeEnd) {
+    let start = format(new Date(rangeStart + "T00:00:00"), "yyyy-MM-dd");
+    let end = format(new Date(rangeEnd + "T00:00:00"), "yyyy-MM-dd");
+    let historyOutput = [];
+    const isSame = isSameDay(start, end);
+    if (isSame) {
+      const metrics = await this._dbExecutor.raw(
+        "SELECT * FROM metrics WHERE DATE(date) = ?",
+        [start]
+      );
+      if (metrics.length === 0) {
+        return [];
+      }
+      for (let metric of metrics[0]) {
+        let historyStruct = {
+          date: metric.date,
+          employeeMetrics: JSON.parse(metric.employeeMetrics),
+        };
+
+        historyOutput.push(historyStruct);
+      }
+      return historyOutput;
+    }
+    const metrics = await this._dbExecutor.raw(
+      "SELECT * FROM metrics WHERE DATE(date) BETWEEN ? AND ?",
+      [start, end]
+    );
+    if (metrics.length === 0) {
+      return [];
+    }
+    for (let metric of metrics[0]) {
+      let historyStruct = {
+        date: metric.date,
+        employeeMetrics: JSON.parse(metric.employeeMetrics),
+      };
+      historyOutput.push(historyStruct);
+    }
+    return historyOutput;
+  }
+  async getDBMETRICSEMPLOYEE() {
+    let historyOutput = [];
+
+    const metrics = await this._dbExecutor("metrics").select(
+      "date",
+      "employeeMetrics"
+    );
+
+    for (let metric of metrics) {
+      let historyStruct = {
+        date: metric.date,
+        employeeMetrics: JSON.parse(metric.employeeMetrics),
+      };
+      historyOutput.push(historyStruct);
+    }
+    return history;
+  }
+
+  async getDBMETRICSGLOBALbyDate(rangeStart, rangeEnd) {
+    let start = format(new Date(rangeStart + "T00:00:00"), "yyyy-MM-dd");
+    let end = format(new Date(rangeEnd + "T00:00:00"), "yyyy-MM-dd");
+    let historyOutput = [];
+
+    const isSame = isSameDay(start, end);
+    if (isSame) {
+      const metrics = await this._dbExecutor.raw(
+        "SELECT * FROM metrics WHERE DATE(date) = ?",
+        [start]
+      );
+      if (metrics.length === 0) {
+        return [];
+      }
+      for (let metric of metrics[0]) {
+        let historyStruct = {
+          date: metric.date,
+          globalMetrics: JSON.parse(metric.globalMetrics),
+        };
+        historyOutput.push(historyStruct);
+      }
+      return historyOutput;
+    }
+    const metrics = await this._dbExecutor.raw(
+      "SELECT * FROM metrics WHERE DATE(date) BETWEEN ? AND ?",
+      [start, end]
+    );
+    if (metrics.length === 0) {
+      return [];
+    }
+    for (let metric of metrics[0]) {
+      let historyStruct = {
+        date: metric.date,
+        globalMetrics: JSON.parse(metric.globalMetrics),
+      };
+      historyOutput.push(historyStruct);
+    }
+    return historyOutput;
+  }
+  async getDBMETRICSGLOBAL() {
+    let historyOutput = [];
+
+    const metrics = await this._dbExecutor("metrics").select(
+      "date",
+      "globalMetrics"
+    );
+
+    for (let metric of metrics) {
+      let historyStruct = {
+        date: metric.date,
+        globalMetrics: JSON.parse(metric.globalMetrics),
+      };
+      historyOutput.push(historyStruct);
+    }
+    return history;
+  }
+  async getDBMETRICSTOTALbyDate(rangeStart, rangeEnd) {
+    let start = format(new Date(rangeStart + "T00:00:00"), "yyyy-MM-dd");
+    let end = format(new Date(rangeEnd + "T00:00:00"), "yyyy-MM-dd");
+    let historyOutput = [];
+
+    const isSame = isSameDay(start, end);
+    if (isSame) {
+      const metrics = await this._dbExecutor.raw(
+        "SELECT * FROM metrics WHERE DATE(date) = ?",
+        [start]
+      );
+      if (metrics[0].length === 0) {
+        return [];
+      }
+      metrics[0].forEach((metric) => {
+        let historyStruct = {
+          date: metric.date,
+          totalMetrics: JSON.parse(metric.totalMetrics),
+        };
+        historyOutput.push(historyStruct);
+      });
+      return historyOutput;
+    }
+
+    const metrics = await this._dbExecutor.raw(
+      "SELECT date, totalMetrics FROM metrics WHERE DATE(date) BETWEEN ? AND ?",
+      [start, end]
+    );
+    if (metrics[0].length === 0) {
+      return [];
+    }
+
+    metrics[0].forEach((metric) => {
+      let historyStruct = {
+        date: metric.date,
+        totalMetrics: JSON.parse(metric.totalMetrics),
+      };
+      historyOutput.push(historyStruct);
+    });
+
+    return historyOutput;
+  }
+
+  async getDBMETRICSByDate(rangeStart, rangeEnd) {
+    let historyOutput = [];
+    let historyStruct = {
+      data: "",
+      globalMetrics: [],
+      employeeMetrics: [],
+      totalMetrics: [],
+    };
+    const start = format(new Date(rangeStart + "T00:00:00"), "yyyy-MM-dd");
+    const end = format(new Date(rangeEnd + "T00:00:00"), "yyyy-MM-dd");
+    const isSame = isSameDay(start, end);
+    if (isSame) {
+      const metrics = await this._dbExecutor.raw(
+        "SELECT * FROM metrics WHERE DATE(date) = ?",
+        [start]
+      );
+      if (metrics.length === 0) {
+        return [];
+      }
+      for (let metric of metrics[0]) {
+        let historyStruct = {
+          data: metric.date,
+          globalMetrics: JSON.parse(metric.globalMetrics),
+          employeeMetrics: JSON.parse(metric.employeeMetrics),
+          totalMetrics: JSON.parse(metric.totalMetrics),
+        };
+        historyOutput.push(historyStruct);
+      }
+      return historyOutput;
+    }
+
+    const metrics = await this._dbExecutor.raw(
+      "SELECT * FROM metrics WHERE DATE(date) BETWEEN ? AND ?",
+      [start, end]
+    );
+    if (metrics.length === 0) {
+      return [];
+    }
+    for (let metric of metrics[0]) {
+      let historyStruct = {
+        data: metric.date,
+        globalMetrics: JSON.parse(metric.globalMetrics),
+        employeeMetrics: JSON.parse(metric.employeeMetrics),
+        totalMetrics: JSON.parse(metric.totalMetrics),
+      };
+      historyOutput.push(historyStruct);
+    }
+    return historyOutput;
   }
 }
 

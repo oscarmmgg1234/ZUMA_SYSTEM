@@ -14,6 +14,23 @@ class Controller {
   getTotalMetrics() {
     return metrics._getTotalMetrics();
   }
+  async getMetricHistory() {
+    const data = await metrics.getDBMETRICS();
+
+    return data;
+  }
+  async getMetricHistoryByDate(rangeStart, rangeEnd) {
+    return await metrics.getDBMETRICSByDate(rangeStart, rangeEnd);
+  }
+  async getMetricTotalByDate(rangeStart, rangeEnd) {
+    return await metrics.getDBMETRICSTOTALbyDate(rangeStart, rangeEnd);
+  }
+  async getEmployeeMetricsByDate(rangeStart, rangeEnd) {
+    return await metrics.getDBMETRICSEMPLOYEEbyDate(rangeStart, rangeEnd);
+  }
+  async getGlobalMetricsByDate(rangeStart, rangeEnd) {
+    return await metrics.getDBMETRICSGLOBALbyDate(rangeStart, rangeEnd);
+  }
 }
 
 module.exports = new Controller();
