@@ -1,13 +1,10 @@
-const { is, ca, fi } = require("date-fns/locale");
 const { query_manager } = require("../Database/_DBManager");
 const {
   format,
   subDays,
   subMonths,
   getHours,
-  getMinutes,
   isWeekend,
-  getDay,
   isSameDay,
   differenceInBusinessDays,
   differenceInDays,
@@ -168,6 +165,7 @@ class Core {
   }
   async _loadHistory() {
     let newHistory = [];
+    //limit to 500 days
     const metrics = await this._dbExecutor("metrics").select("*");
     const sortMetrics = metrics.sort((a, b) => {
       return new Date(b.date) - new Date(a.date);
@@ -682,7 +680,7 @@ class Core {
     if (metrics.length === 0) {
       return [];
     }
-    for (let metric of filterHistory) {
+    for (let metric of metrics) {
       let historyStruct = {
         date: metric.date,
         globalMetrics: metric.globalMetrics,
@@ -769,15 +767,15 @@ class Core {
     }
 
     const metrics = this.history.filter((history) => {
-      if (isSameDay(new Date(history.date + "T00:00:00"), new Date(start))) {
+      if (isSameDay(new Date(history.date), start)) {
         return { ...history };
       }
-      if (isSameDay(new Date(history.date + "T00:00:00"), new Date(end))) {
+      if (isSameDay(new Date(history.date), end)) {
         return { ...history };
       }
       if (
-        isAfter(new Date(history.date + "T00:00:00"), new Date(start)) &&
-        isBefore(new Date(history.date + "T00:00:00"), new Date(end))
+        isAfter(new Date(history.date), start) &&
+        isBefore(new Date(history.date), end)
       ) {
         return { ...history };
       }
@@ -785,7 +783,7 @@ class Core {
     if (metrics.length === 0) {
       return [];
     }
-    for (let metric of metrics[0]) {
+    for (let metric of metrics) {
       let historyStruct = {
         data: metric.date,
         globalMetrics: metric.globalMetrics,
