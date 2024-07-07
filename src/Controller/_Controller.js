@@ -26,6 +26,9 @@ class Controller {
   async getGlobalMetricsByDate(rangeStart, rangeEnd) {
     return await metrics.getDBMETRICSGLOBALbyDate(rangeStart, rangeEnd);
   }
+  async getEmployees() {
+    return await metrics.getEmployees()
+  }
 }
 
 module.exports = new Controller();

@@ -10,7 +10,32 @@ const {
   differenceInDays,
   isAfter,
   isBefore,
+  eachDayOfInterval,
+  startOfWeek,
+  endOfWeek,
 } = require("date-fns");
+const highContrastColors = [
+  "rgb(230, 25, 75)", // Red
+  "rgb(60, 180, 75)", // Green
+  "rgb(255, 225, 25)", // Yellow
+  "rgb(0, 130, 200)", // Blue
+  "rgb(245, 130, 48)", // Orange
+  "rgb(145, 30, 180)", // Purple
+  "rgb(70, 240, 240)", // Cyan
+  "rgb(240, 50, 230)", // Magenta
+  "rgb(210, 245, 60)", // Lime
+  "rgb(250, 190, 190)", // Pink
+  "rgb(0, 128, 128)", // Teal
+  "rgb(230, 190, 255)", // Lavender
+  "rgb(170, 110, 40)", // Brown
+  "rgb(255, 250, 200)", // Beige
+  "rgb(128, 0, 0)", // Maroon
+  "rgb(170, 255, 195)", // Mint
+  "rgb(128, 128, 0)", // Olive
+  "rgb(255, 215, 180)", // Coral
+  "rgb(0, 0, 128)", // Navy
+  "rgb(128, 128, 128)", // Grey
+];
 
 class Core {
   constructor() {
@@ -556,6 +581,9 @@ class Core {
     try {
       //init entry
       const currentDate = new Date();
+      if (isWeekend(currentDate)) {
+        return;
+      }
       const formatCurrentDate = format(currentDate, "yyyy-MM-dd");
       const check = await this._dbExecutor.raw(
         "SELECT * FROM metrics where DATE(date) = ?",
@@ -590,47 +618,117 @@ class Core {
   //create a by timeFrame function so that we can minimize the amount of data we are pulling and increase performance
   //increase filtering to reduce the amount of data we are pulling to perTrimester? or perMonth idk maybe allow user to specify
 
+  formatEmployeeMetricsForChart(employeeMetrics) {
+    let outData = [];
+    const currentDate = new Date();
+    const startOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const endOfCurrentWeek = endOfWeek(currentDate, { weekStartsOn: 1 });
+
+    let chartData = [];
+
+    // Aggregate totals for each employee for each day
+    employeeMetrics.forEach((record) => {
+      const date = record.date;
+      record.employeeMetrics.forEach((empMetric) => {
+        const empId = empMetric.employeeId;
+        const total = empMetric.perMonth.reduce(
+          (acc, entry) => acc + parseFloat(entry.total),
+          0
+        );
+        chartData.push({ empID: empId, date: date, total: total.toFixed(1) });
+      });
+    });
+
+    // Generate chart-ready data
+    let colorIndex = 0;
+    for (let [key, value] of this._employees.entries()) {
+      let temp = chartData.filter((item) => item.empID === key);
+      const tempData = eachDayOfInterval({
+        start: startOfCurrentWeek,
+        end: endOfCurrentWeek,
+      })
+        .filter((date) => date.getDay() !== 0 && date.getDay() !== 6) // Exclude Saturday and Sunday
+        .map((date) => {
+          const formattedDate = format(date, "yyyy-MM-dd");
+          const item = temp.find((d) => d.date === formattedDate);
+          return {
+            x: date,
+            y: item ? item.total : 0,
+          };
+        });
+
+      let dataSet = {
+        label: value.emp.NAME,
+        data: tempData,
+        fill: false,
+        borderColor: highContrastColors[colorIndex % highContrastColors.length],
+        tension: 0.1,
+      };
+      outData.push(dataSet);
+      colorIndex++;
+    }
+    return outData;
+  }
+  formatProductChartData() {
+    //itarate through globalPerMonth map and get the name of top 5 product and their total rate, im going to use this data in horizantal chart using
+    //chart.js, i want y to be the product name and x to be the total rate
+    let productData = [];
+    for (const [product_id, total] of this._perMonthAll) {
+      productData.push({ product_id, total: parseFloat(total) });
+    }
+
+    // Sort the productData by total and take the top 5 products
+    productData.sort((a, b) => b.total - a.total);
+    const topProducts = productData.slice(0, 5);
+
+    // Prepare the data for the chart
+    const labels = topProducts.map((product) => {
+      const productInfo = this._product_inventory.get(product.product_id);
+      return productInfo ? productInfo.PRODUCT_NAME : product.product_id;
+    });
+
+    const data = {
+      labels,
+      datasets: [
+        {
+          label: "Total Rate",
+          data: topProducts.map((product) => product.total),
+          backgroundColor: highContrastColors.slice(0, 5),
+          borderColor: highContrastColors.slice(0, 5),
+          borderWidth: 1,
+        },
+      ],
+    };
+
+    return data;
+  }
   async getDBMETRICSEMPLOYEEbyDate(rangeStart, rangeEnd) {
     let start = format(new Date(rangeStart + "T00:00:00"), "yyyy-MM-dd");
     let end = format(new Date(rangeEnd + "T00:00:00"), "yyyy-MM-dd");
+    let data = {
+      employeeMetrics: [],
+      chartReadyData: [],
+      productChartData: [],
+      topEmployee: {},
+    };
+
+    const isSame = isSameDay(new Date(start), new Date(end));
     let historyOutput = [];
-    const isSame = isSameDay(start, end);
-    if (isSame) {
-      const filterHistory = this.history.filter((history) => {
-        return isSameDay(new Date(history.date), start);
-      });
-      if (filterHistory.length === 0) {
-        return [];
-      }
 
-      for (let metric of filterHistory) {
-        let historyStruct = {
-          date: metric.date,
-          employeeMetrics: metric.employeeMetrics,
-        };
-
-        historyOutput.push(historyStruct);
-      }
-      return historyOutput;
-    }
     const filterHistory = this.history.filter((history) => {
-      if (isSameDay(new Date(history.date), start)) {
-        return { ...history };
-      }
-      if (isSameDay(new Date(history.date), end)) {
-        return { ...history };
-      }
-      if (
-        isAfter(new Date(history.date), start) &&
-        isBefore(new Date(history.date), end)
-      ) {
-        return { ...history };
-      }
-      ``;
+      const historyDate = new Date(history.date);
+      return isSame
+        ? isSameDay(historyDate, new Date(start))
+        : isSameDay(historyDate, new Date(start)) ||
+            isSameDay(historyDate, new Date(end)) ||
+            (isAfter(historyDate, new Date(start)) &&
+              isBefore(historyDate, new Date(end)));
     });
+
     if (filterHistory.length === 0) {
-      return [];
+      return data;
     }
+
     for (let metric of filterHistory) {
       let historyStruct = {
         date: metric.date,
@@ -638,7 +736,16 @@ class Core {
       };
       historyOutput.push(historyStruct);
     }
-    return historyOutput;
+    data.employeeMetrics = historyOutput;
+
+    // Process chart data
+    const chartData = this.formatEmployeeMetricsForChart(historyOutput);
+    data.chartReadyData = chartData;
+
+    const productChartData = this.formatProductChartData();
+    data.productChartData = productChartData;
+
+    return data;
   }
 
   async getDBMETRICSGLOBALbyDate(rangeStart, rangeEnd) {
@@ -794,6 +901,10 @@ class Core {
     }
     return historyOutput;
   }
+
+  getEmployees = async () => {
+    return await this._dbExecutor("employee").select("NAME", "EMPLOYEE_ID");
+  };
 }
 
 module.exports = new Core();

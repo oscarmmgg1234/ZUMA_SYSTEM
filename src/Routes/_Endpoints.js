@@ -42,4 +42,8 @@ analytics_routes.get(
   }
 );
 
+analytics_routes.get("/employees", async (req, res) => {
+  await RouteHandler._RouteHandler.getEmployees(req, res);
+});
+
 module.exports = analytics_routes;

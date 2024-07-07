@@ -49,6 +49,10 @@ class EndpointsHandler {
       );
       res.send(data);
     },
+    getEmployees: async (req, res) => {
+      const data = await controller.getEmployees();
+      res.send(data);
+    },
   };
 }
 
