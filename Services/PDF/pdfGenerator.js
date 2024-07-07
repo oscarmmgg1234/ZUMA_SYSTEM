@@ -19,7 +19,7 @@ class pdf_generator {
     if (!pdf_generator.instance) {
       pdf_generator.instance = this;
     }
-    this.productsPerBatch = 30; // Limit of products per PDF
+    this.productsPerBatch = 27; // Limit of products per PDF
   }
 
   async merge_pdf(buffers) {
@@ -85,7 +85,7 @@ class pdf_generator {
     const inventory = await knex.raw(`SELECT product_inventory.*, product.TYPE
 FROM product_inventory
 JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
-ORDER BY product.TYPE;
+ORDER BY product.TYPE, product.NAME ASC
 `);
     const products = inventory[0];
     return await this.generateMultiplePDF({ products });
@@ -96,7 +96,7 @@ ORDER BY product.TYPE;
       await knex.raw(`SELECT product_inventory.*, product.COMPANY
 FROM product_inventory
 JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
-WHERE product.COMPANY = ${company_id}`);
+WHERE product.COMPANY = ${company_id} ORDER BY product.NAME ASC`);
     const company = await knex.raw(
       `SELECT NAME FROM company WHERE COMPANY_ID = ${company_id}`
     );

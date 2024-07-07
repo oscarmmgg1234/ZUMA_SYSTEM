@@ -7,13 +7,12 @@ const tokenGenerator = (args) => {
     
 
     args.activationTokens.forEach((token) => {
-        console.log(token);
       const _params = [
         token.class,
         token.id,
         token.product.id,
         token.param1,
-        token.param2,
+        token.param2, 
         token.param3,
       ];
       _params.forEach((param, index) => {

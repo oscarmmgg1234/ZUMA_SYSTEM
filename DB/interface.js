@@ -140,6 +140,7 @@ const getProductInventory = (callback) => {
           x.STOCK = active + newStored;
         }
       });
+      //sort by ASC order for PRODUCT_NAME
       return callback(result);
     });
   });
