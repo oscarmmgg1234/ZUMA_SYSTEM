@@ -203,6 +203,7 @@ class Core {
         globalMetrics: JSON.parse(metric.globalMetrics),
         employeeMetrics: JSON.parse(metric.employeeMetrics),
         totalMetrics: JSON.parse(metric.totalMetrics),
+        inventorySnapshot: JSON.parse(metric.inventorySnapshot),
       };
       newHistory.push(historyStruct);
       counter++;
@@ -580,18 +581,18 @@ class Core {
     const metrics = this._getAllMetrics();
     try {
       //init entry
-      const currentDate = new Date();
-      if (isWeekend(currentDate)) {
-        return;
-      }
-      const formatCurrentDate = format(currentDate, "yyyy-MM-dd");
-      const check = await this._dbExecutor.raw(
-        "SELECT * FROM metrics where DATE(date) = ?",
-        formatCurrentDate
-      );
-      if (check[0].length > 0) {
-        return;
-      }
+      // const currentDate = new Date();
+      // if (isWeekend(currentDate)) {
+      //   return;
+      // }
+      // const formatCurrentDate = format(currentDate, "yyyy-MM-dd");
+      // const check = await this._dbExecutor.raw(
+      //   "SELECT * FROM metrics where DATE(date) = ?",
+      //   formatCurrentDate
+      // );
+      // if (check[0].length > 0) {
+      //   return;
+      // }
 
       //employee metrics for each employee month
 
@@ -601,6 +602,7 @@ class Core {
           perMonth: employee.perMonth,
         };
       });
+      const workH = this.storeHours.end - this.storeHours.start;
       await this._dbExecutor("metrics").insert({
         metricID: generateTransID,
         date: new Date(),
@@ -611,7 +613,7 @@ class Core {
         totalMetrics: JSON.stringify(metrics.perHourWholeStore),
         inventorySnapshot: JSON.stringify(
           Array.from(this._product_inventory.entries()).map(([key, value]) => {
-            return { product: key, snapshot: value };
+            return { product: key, snapshot: value, projectedNextDayStock: value.STOCK - (parseFloat(this._perMonthAll.get(key)) * workH || 0) };
           })
         ),
       });
