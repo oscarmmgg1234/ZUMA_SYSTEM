@@ -609,6 +609,11 @@ class Core {
         }),
         employeeMetrics: JSON.stringify(employeeMonth),
         totalMetrics: JSON.stringify(metrics.perHourWholeStore),
+        inventorySnapshot: JSON.stringify(
+          Array.from(this._product_inventory.entries()).map(([key, value]) => {
+            return { product: key, snapshot: value };
+          })
+        ),
       });
     } catch (error) {
       console.error("Error pushing to DB", error);
