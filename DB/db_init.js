@@ -17,7 +17,6 @@ const pool = mysql.createPool({
   port: process.env.DB_PORT,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  ssl: sslOptions,
   waitForConnections: true, // Whether to wait for connections or immediately throw an error
   connectionLimit: 300, // The maximum number of connections to create at once
   queueLimit: 5, // The maximum number of connection requests the pool will queue before returning an error

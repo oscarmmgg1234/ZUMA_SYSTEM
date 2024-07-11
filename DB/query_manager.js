@@ -7,14 +7,13 @@ const sslOptions = {
   secureProtocol: "TLSv1_2_method", // Specify the TLS version
 };
 exports.query_manager = require("knex")({
-  client: "mysql",
+  client: "mysql2",
   connection: {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     port: process.env.DB_PORT,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    ssl: sslOptions,
   },
   debug: false,
 });
@@ -25,14 +24,13 @@ console.log(
 );
 
 exports.dev_query_manager = require("knex")({
-  client: "mysql",
+  client: "mysql2",
   connection: {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     port: process.env.DB_PORT,
     password: process.env.DB_PASSWORD,
     database: "zuma_development",
-    ssl: sslOptions,
   },
   debug: false,
 });
