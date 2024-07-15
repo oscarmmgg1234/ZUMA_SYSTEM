@@ -14,7 +14,7 @@ exports.query_manager = require("knex")({
     port: process.env.DB_PORT,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    ssl: sslOptions,
+    // ssl: sslOptions,
   },
   debug: false,
 });
@@ -32,7 +32,7 @@ exports.dev_query_manager = require("knex")({
     port: process.env.DB_PORT,
     password: process.env.DB_PASSWORD,
     database: "zuma_development",
-    ssl: sslOptions,
+    // ssl: sslOptions,
   },
   debug: false,
 });
