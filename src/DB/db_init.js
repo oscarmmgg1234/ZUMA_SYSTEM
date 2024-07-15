@@ -16,12 +16,12 @@ const sslOptions = {
 };
 // Create a connection to your MySQL database
 const db = mysql.createConnection({
-  host: "zuma.mysql.database.azure.com",
+  host: "192.168.1.218",
   user: "oscar",
   port: 3306,
   password: "Omariscool1234!",
   database: process.argv[2] == "dev" ? "zuma_development" : "zuma_main",
-  ssl: sslOptions,
+  // ssl: sslOptions,
 });
 
 
