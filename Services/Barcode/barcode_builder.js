@@ -19,9 +19,7 @@ const barcode_builder = (args, callback) => {
           args.employee_id,
           args.product_name,
           args.quantity,
-          args.src == "Manually Printed"
-            ? "Manually Printed"
-            : "Active/Passive",
+          args.src == "Deducted" ? "Deducted" : "Active/Passive",
           args.TRANSACTIONID,
         ],
         (err, result) => {
@@ -38,9 +36,7 @@ const barcode_builder = (args, callback) => {
           args.employee_id,
           args.product_name,
           args.quantity,
-          args.src == "Manually Printed"
-            ? "Manually Printed"
-            : "Active/Passive",
+          args.src == "Deducted" ? "Deducted" : "Active/Passive",
           args.TRANSACTIONID,
         ],
         (err, result) => {
