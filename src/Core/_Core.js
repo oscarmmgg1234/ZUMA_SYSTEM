@@ -660,7 +660,7 @@ class Core {
           const item = temp.find((d) => d.date === formattedDate);
           return {
             x: date,
-            y: item ? item.total : 0,
+            y: item ? item.total : null,
           };
         });
 
