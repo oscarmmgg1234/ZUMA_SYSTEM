@@ -2,15 +2,28 @@ import asyncio
 import requests
 from bleak import BleakClient, BleakError
 
-addresses = ["ab:3b:00:23:de:c5", "ab:3b:00:23:de:dc"]  # Add more as needed
+addresses = []  # Example addresses
 queue = asyncio.Queue()
 tasks = []  # Track tasks
 employee_ids = set()  # Store employee IDs
+polling_interval = 60  # Interval for polling in seconds
 
 class ScannerState:
     def __init__(self):
         self.current_user = None
         self.prev_barcode = ""  # To store previous barcode
+
+async def fetch_scanners():
+    url = "http://192.168.1.176:3001/getScannerAddresses"
+    try:
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(None, requests.get, url)
+        response.raise_for_status()
+        data = response.json()
+        return data  # Assuming the API returns the list of addresses directly
+    except requests.RequestException as e:
+        print(f"Error fetching scanners: {e}")
+        return []
 
 def fetch_employee_ids():
     url = "http://192.168.1.176:3001/getIDs"
@@ -20,6 +33,7 @@ def fetch_employee_ids():
         data = response.json()
         return {item["EMPLOYEE_ID"] for item in data["data"]}
     except requests.RequestException as e:
+        print(f"Error fetching employee IDs: {e}")
         return set()
 
 def is_employee_id(segment):
@@ -70,13 +84,13 @@ def notification_handler(state):
             asyncio.create_task(queue.put((f"RAW DATA: {raw_data}", None)))
     return handler
 
-async def send_status(scanner_id, status):
+async def send_status(scanner_id, status, employeeID=None):
     url = "http://192.168.1.176:3001/setScanner"
-    data = {"id": scanner_id, "status": status}
+    data = {"id": scanner_id, "status": status, "assigned": employeeID}
     try:
         await asyncio.to_thread(requests.post, url, json=data)
     except requests.RequestException as e:
-        pass
+        print(f"Error sending status: {e}")
 
 async def connect_and_listen(address, state):
     client = BleakClient(address)
@@ -85,16 +99,16 @@ async def connect_and_listen(address, state):
 
     try:
         await client.connect()
-        await send_status(address, 1)  # Send connected status
+        await send_status(address, 1, state.current_user)  # Send connected status
         await client.start_notify('00002af0-0000-1000-8000-00805f9b34fb', notification_handler(state))
 
         while client.is_connected:
             await asyncio.sleep(4)
 
     except BleakError as e:
-        pass
+        print(f"BleakError: {e}")
     except Exception as e:
-        pass
+        print(f"Exception: {e}")
 
     finally:
         if client.is_connected:
@@ -102,8 +116,8 @@ async def connect_and_listen(address, state):
                 await client.stop_notify('00002af0-0000-1000-8000-00805f9b34fb')
                 await client.disconnect()
             except Exception as e:
-                pass
-        await send_status(address, 0)  # Send disconnected status
+                print(f"Error during disconnect: {e}")
+        await send_status(address, 0, None)  # Send disconnected status
 
     tasks.remove(task)  # Remove the task from the list after completion
 
@@ -119,7 +133,7 @@ def send_request(data):
         response = requests.post(url, json=data)
         response.raise_for_status()  # Raise an exception for HTTP errors
     except requests.RequestException as e:
-        pass
+        print(f"Error sending request: {e}")
 
 async def process_queue():
     while True:
@@ -128,19 +142,33 @@ async def process_queue():
         try:
             await asyncio.to_thread(send_request, data)
         except Exception as e:
-            pass  # Log error if needed
+            print(f"Error processing queue: {e}")  # Log error if needed
         finally:
             queue.task_done()  # Ensure queue moves to the next item
 
+async def poll_for_scanners():
+    global addresses
+    while True:
+        await asyncio.sleep(polling_interval)  # Wait for the polling interval
+        new_addresses = await fetch_scanners()
+        if set(new_addresses) != set(addresses):  # Update if addresses are different
+            print("Scanner addresses changed, updating connections...")
+            await shutdown()
+            addresses = new_addresses
+            await main()  # Restart main function with updated addresses
+
 async def main():
-    global queue, tasks, employee_ids
+    global queue, tasks, employee_ids, addresses
+    addresses = await fetch_scanners()
     employee_ids = fetch_employee_ids()  # Fetch employee IDs at startup
     queue = asyncio.Queue()
     processor = asyncio.create_task(process_queue())
     tasks.append(processor)
     scanner_tasks = [asyncio.create_task(maintain_connection(address)) for address in addresses]
     tasks.extend(scanner_tasks)
-    await asyncio.gather(processor, *scanner_tasks, return_exceptions=True)
+    poller = asyncio.create_task(poll_for_scanners())
+    tasks.append(poller)
+    await asyncio.gather(processor, *scanner_tasks, poller, return_exceptions=True)
 
 async def shutdown():
     global tasks
