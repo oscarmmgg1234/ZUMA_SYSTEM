@@ -1,17 +1,109 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import "./mainView.css";
 import { playNotificationSound } from "../../utils/audio";
+import { format, subDays } from "date-fns";
+import ChartComponent from "./Components/EmployeeChart";
+import TopProductsChart from "./Components/ProductChart";
+
+const metrics_base_url = "http://localhost:3002";
 
 function MainView() {
   const [time, setTime] = useState(new Date());
   const [reductions, setReductions] = useState([]);
   const [activations, setActivations] = useState([]);
-  const [alerts, setAlerts] = useState([]);
   const [scanners, setScanners] = useState([]);
   const [notification, setNotification] = useState(null);
   const notificationQueue = useRef([]);
   const shownReductionNotifications = useRef(new Set());
   const shownActivationNotifications = useRef(new Set());
+  const [chartEmployeeData, setEmployeeChartData] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+  const [showEmployeeChart, setShowEmployeeChart] = useState(true);
+
+  const getMetricsHistory = async (params, option) => {
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const baseEnpoint = "/metrics";
+    let accesspoint = "";
+    if (option === "employee") {
+      accesspoint = "/employee";
+    }
+    if (option === "total") {
+      accesspoint = "/total";
+    }
+    if (option === "global") {
+      accesspoint = "/global";
+    }
+
+    const response = await fetch(
+      `${metrics_base_url}${baseEnpoint}${accesspoint}/${params[0]}/${params[1]}`,
+      options
+    );
+    return await response.json();
+  };
+
+  const getEmployeeMetrics = async () => {
+    const weeklyStart = currentDate;
+    let weeklyEnd = currentDate;
+    const getDay = currentDate.getDay();
+
+    if (getDay === 0) {
+      weeklyEnd = subDays(currentDate, 6);
+    } else if (getDay === 6) {
+      weeklyEnd = subDays(currentDate, 5);
+    } else if (getDay === 1) {
+      weeklyEnd = currentDate;
+    } else {
+      weeklyEnd = subDays(currentDate, getDay - 1);
+    }
+
+    const metrics = await getMetricsHistory(
+      [format(weeklyEnd, "yyyy-MM-dd"), format(weeklyStart, "yyyy-MM-dd")],
+      "employee"
+    );
+    console.log("Fetched employee metrics:", metrics);
+    setEmployeeChartData(metrics.chartReadyData);
+    setTopProducts(metrics.productChartData);
+  };
+
+  const scheduleDailyFetch = () => {
+    const now = new Date();
+    const next4am = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + (now.getHours() >= 4 ? 1 : 0),
+      4,
+      0,
+      0,
+      0
+    );
+    const timeUntilNext4am = next4am - now;
+
+    setTimeout(() => {
+      getEmployeeMetrics();
+      setInterval(getEmployeeMetrics, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+    }, timeUntilNext4am);
+  };
+
+  useEffect(() => {
+    scheduleDailyFetch();
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await getEmployeeMetrics();
+      setLoading(false);
+    };
+    init();
+  }, [currentDate]);
 
   useEffect(() => {
     const fetchData = async (endpoint, setState) => {
@@ -41,10 +133,10 @@ function MainView() {
       }
     };
 
-    const url = `http://localhost`;
+    const url = `http://192.168.1.176`;
     fetchData(`${url}:3001/Reductions`, setReductions);
     fetchData(`${url}:3001/Activations`, setActivations);
-    fetchData(`${url}:3004/productAlerts`, setAlerts);
+
     fetchScanners();
 
     const reductionActivationInterval = setInterval(() => {
@@ -52,15 +144,11 @@ function MainView() {
       fetchData(`${url}:3001/Activations`, setActivations);
     }, 850);
 
-    const alertsInterval = setInterval(() => {
-      fetchData(`${url}:3004/productAlerts`, setAlerts);
-    }, 600000);
-
     const scannersInterval = setInterval(fetchScanners, 500);
 
     return () => {
       clearInterval(reductionActivationInterval);
-      clearInterval(alertsInterval);
+
       clearInterval(scannersInterval);
     };
   }, []);
@@ -105,6 +193,13 @@ function MainView() {
     checkForUpdates();
   }, [reductions, activations]);
 
+  useEffect(() => {
+    const chartInterval = setInterval(() => {
+      setShowEmployeeChart((prev) => !prev);
+    }, 60000); // 3 minutes in milliseconds
+    return () => clearInterval(chartInterval);
+  }, []);
+
   const showNextNotification = () => {
     if (notificationQueue.current.length > 0) {
       const nextNotification = notificationQueue.current.shift();
@@ -136,67 +231,49 @@ function MainView() {
 
   const { hours, minutes, seconds, ampm } = formatTime(time);
 
-  const renderList = (data, title) => (
-    <div className="section">
-      <h1 className="header">{title}</h1>
-      <div className="ListCont">
-        {data.length === 0 ? (
-          <p className="loading">Waiting for server...</p>
-        ) : (
-          <ul className="horizontal-list">
-            {data.map((item, index) => {
-              const firstName = item.EMPLOYEE_NAME.split(" ")[0];
-              let listClass = "";
-              if (index === 0) {
-                listClass = "listItem mostRecent";
-              } else if (index === data.length - 1) {
-                listClass = "listItem lastItem";
-              } else {
-                listClass = "listItem pastItem";
-              }
-              return (
-                <li className={listClass} key={index}>
-                  <div className="listContent">
-                    <p className="listStatus">
-                      {index === 0 ? "MOST RECENT" : `PAST ${index}`}
-                    </p>
-                    <p>
-                      <strong>Product:</strong> {item.PRODUCT_NAME}
-                    </p>
-                    <p>
-                      <strong>Employee:</strong> {firstName}
-                    </p>
-                    <p>
-                      <strong>Quantity:</strong> {item.QUANTITY}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    </div>
-  );
+ const renderList = (data, title) => (
+   <div className="section">
+     <h1 className="header">{title}</h1>
+     <div className="ListCont">
+       {data.length === 0 ? (
+         <p className="loading">Waiting for server...</p>
+       ) : (
+         <ul className="horizontal-list">
+           {data.map((item, index) => {
+             const firstName = item.EMPLOYEE_NAME.split(" ")[0];
+             let listClass = "";
+             if (index === 0) {
+               listClass = "listItem mostRecent animated-border";
+             } else if (index === data.length - 1) {
+               listClass = "listItem lastItem";
+             } else {
+               listClass = "listItem pastItem";
+             }
+             return (
+               <li className={listClass} key={index}>
+                 <div className="listContent">
+                   <p className="listStatus">
+                     {index === 0 ? "MOST RECENT" : `PAST ${index}`}
+                   </p>
+                   <p>
+                     <strong>Product:</strong> {item.PRODUCT_NAME}
+                   </p>
+                   <p>
+                     <strong>Employee:</strong> {firstName}
+                   </p>
+                   <p>
+                     <strong>Quantity:</strong> {item.QUANTITY}
+                   </p>
+                 </div>
+               </li>
+             );
+           })}
+         </ul>
+       )}
+     </div>
+   </div>
+ );
 
-  const renderAlerts = (data) => (
-    <ul className="alerts-list">
-      {data.length === 0 ? (
-        <p className="loading">No alerts available</p>
-      ) : (
-        data.map((alert, index) => (
-          <li key={index} className="alert-item">
-            <p>
-              <strong>Product Name:</strong> {alert.NAME}
-            </p>
-            <p>
-              <strong>Stock:</strong> {alert.stock.STOCK}
-            </p>
-          </li>
-        ))
-      )}
-    </ul>
-  );
 
   const renderScanners = (data) => (
     <div className="section small-section">
@@ -209,14 +286,16 @@ function MainView() {
             }`}
             key={index}
           >
-            <span className="scanner-id">{scanner.id}</span>
+            <span className="scanner-id">{scanner.label}</span>
             <span
               className={`scanner-status ${
                 scanner.status === 1 ? "connected" : "disconnected"
               }`}
             >
-              ●
+              {String.fromCharCode(0x2192)}
             </span>
+            
+            <span style={{color: "white", fontSize: 30, marginLeft: 12}}>{scanner.assigned_employee ? scanner.assigned_employee : "Not Assigned"}</span>
           </div>
         ))}
       </div>
@@ -233,9 +312,25 @@ function MainView() {
           <h1 className="logo">ZUMA VISUAL</h1>
         </div>
         <div className="product-alerts">
-          <h1 className="header">Product Alerts</h1>
-          {renderAlerts(alerts)}
+          <h2 className="header">Analytics</h2>
+          <div style={{ width: "100%", height: "70%" }}>
+            <Suspense fallback={<p style={{ color: "grey" }}>loading...</p>}>
+              {!loading && (
+                <>
+                  {showEmployeeChart ? (
+                    <ChartComponent
+                      data={chartEmployeeData}
+                      options={{ responsive: true, maintainAspectRatio: false }}
+                    />
+                  ) : (
+                    <TopProductsChart data={topProducts} />
+                  )}
+                </>
+              )}
+            </Suspense>
+          </div>
         </div>
+
         {renderScanners(scanners)}
         <div className="time-view">
           <div className="digital-clock">

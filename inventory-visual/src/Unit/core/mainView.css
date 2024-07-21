@@ -29,7 +29,7 @@ html,
     border: 5px solid #1c1a25;
     color: white;
     padding: 20px;
-    width: 25%;
+    width: 33%;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     margin: 10px;
@@ -248,7 +248,7 @@ html,
 }
 
 .small-section {
-    max-height: 182px;
+    max-height: 220px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -277,27 +277,49 @@ html,
 
 .scanner-id {
     margin-right: 20px;
-    font-size: 22px;
+    font-size: 25px;
     color: silver;
 }
 
 .scanner-status {
-    font-size: 25px;
+    font-size: 30px;
 }
 
 .connected {
     color: green;
     border-color: green;
+    font-size: 40px;
     /* Change border color when connected */
 }
 
 .disconnected {
     color: red;
     border-color: red;
+    font-size: 40px;
     /* Change border color when disconnected */
 }
 
 .scannerTitle {
-    font-size: 30px;
+    font-size: 25px;
     color: white;
+}
+@keyframes redBorderAnimation {
+    0% {
+        border-color: green;
+        border-width: 10px;
+    }
+
+    50% {
+        border-color: transparent;
+    }
+
+    100% {
+        border-color: green;
+        border: 10px solid green;
+    }
+}
+
+.animated-border {
+    border: 10px solid green;
+    animation: redBorderAnimation 1s infinite;
 }
