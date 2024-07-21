@@ -48,7 +48,6 @@ const delProduct = async (args) => {
   }
 };
 
-
 const getPastYearShipments = async () => {
   const currentDate = new Date();
   const pastYearsDate = new Date();
@@ -109,17 +108,39 @@ const getEmployeeIDS = async () => {
 };
 
 const setScannerStatus = async (args) => {
-  const status = await knex.raw("UPDATE scanners SET status = ? WHERE id = ?", [
-    args.status,
-    args.id,
-  ]);
-  return { status: "sucess", message: "Scanner status updated" };
+  const status = await knex.raw(
+    "UPDATE scanners SET status = ?, assigned_employee = ? WHERE id = ?",
+    [args.status, args.assigned, args.id]
+  );
+  return { status: "success", message: "Scanner status updated" };
+};
+
+const getScannerAddresses = async () => {
+  const addresses = await knex.raw("SELECT id FROM scanners");
+  return addresses[0].map((address) => address.id);
 };
 
 const getScannerStatus = async () => {
-  const scanners = await knex.raw("SELECT status, id FROM scanners");
+  const scanners = await knex.raw(
+    "SELECT * FROM scanners"
+  );
   return { scanners: scanners[0] };
 };
+const getScannerData = async () => {
+  const scanners = await knex.raw("SELECT * FROM scanners");
+  return { scanners: scanners[0] };
+};
+const addScanner = async (args) => {
+  await knex.raw(
+    "INSERT INTO scanners(id, status, type_desc, assigned_employee) VALUES (?,?,?,?)",
+    [args.id, args.status, args.type_desc, args.assigned_employee]
+  );
+};
+
+const deleteScanner = async (id) => {
+  await knex.raw("DELETE FROM scanners WHERE id = ?", [id]);
+};
+
 const getRecentActivations = async () => {
   const response = await knex.raw(
     "SELECT * FROM inventory_activation ORDER BY DATE DESC LIMIT 3"
@@ -614,6 +635,19 @@ class controller {
     getScannerStatus: async () => {
       return await getScannerStatus();
     },
+    getScannerData: async () => {
+      return await getScannerData();
+    },
+    getScannerAddresses: async () => {
+      return await getScannerAddresses();
+    },
+    addScanner: async (args) => {
+      return await addScanner(args);
+    },
+    deleteScanner: async (args) => {
+      return await deleteScanner(args);
+    },
+
     getRecentActivations: async () => {
       return await getRecentActivations();
     },

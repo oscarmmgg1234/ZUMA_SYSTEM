@@ -38,6 +38,18 @@ service_router.get("/get_scanners", async (req, res) => {
 service_router.post("/setScanner", async (req, res) => {
   await endpoint_handler.services.setScannerStatus(req, res);
 });
+service_router.get("/getScannerAddressess", async (req, res) => {
+  await endpoint_handler.services.getScannerAddress(req, res);
+});
+service_router.get("/deleteHarware/:id", async (req, res) => {
+  await endpoint_handler.services.deleteScanner(req, res);
+});
+service_router.post("/addHardware", async (req, res) => {
+  await endpoint_handler.services.addScanner(req, res);
+});
+service_router.get("/getScannerData", async (req, res) => {
+  await endpoint_handler.services.getScannerData(req, res);
+});
 service_router.get("/reductions", async (req, res) => {
   await endpoint_handler.services.getRecentReductions(req, res);
 });

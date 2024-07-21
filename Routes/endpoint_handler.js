@@ -5,8 +5,10 @@ const { controller_interface } = require("../Controllers/controller.js");
 const controller = controller_interface();
 const { ErrorHandling } = require("../Error/error_handling");
 const { success_handling } = require("../Error/success_handling");
-const {TestInterface} = require("../Core/Tests/RuntimeTests/TestInterface.js");
-const runtimeTest = TestInterface
+const {
+  TestInterface,
+} = require("../Core/Tests/RuntimeTests/TestInterface.js");
+const runtimeTest = TestInterface;
 const {
   getEmployee,
 } = require("../Models/res/product_activation/getEmployee.js");
@@ -18,8 +20,8 @@ class http_handler {
 
   shipment = {
     getPastYearShipments: async (req, res) => {
-      const reponse = await controller.shipment.getPastYearShipments()
-      res.send(reponse)
+      const reponse = await controller.shipment.getPastYearShipments();
+      res.send(reponse);
     },
 
     get_shipment_by_date: (req, res) => {
@@ -181,6 +183,14 @@ class http_handler {
       const data = await controller.services.getEmployeeIDS();
       res.send(data);
     },
+    addScanner: async (req, res) => {
+      const response = await controller.services.addScanner(req.body);
+      res.send(response);
+    },
+    deleteScanner: async (req, res) => {
+      const response = await controller.services.deleteScanner(req.params.id);
+      res.send(response);
+    },
     getScanners: async (req, res) => {
       const scanners = await controller.services.getScannerStatus();
       res.send(scanners);
@@ -188,6 +198,14 @@ class http_handler {
     setScannerStatus: async (req, res) => {
       const response = await controller.services.setScannerStatus(req.body);
       res.send(response);
+    },
+    getScannerAddress: async (req, res) => {
+      const data = await controller.services.getScannerAddresses();
+      res.send(data);
+    },
+    getScannerData: async (req, res) => {
+      const data = await controller.services.getScannerData();
+      res.send(data);
     },
     getRecentActivations: async (req, res) => {
       const data = await controller.services.getRecentActivations();

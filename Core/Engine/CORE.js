@@ -9,7 +9,6 @@ const { init_services } = require("../../Services/Services.js");
 const process = require("process");
 
 
-//translateAndGenerateToken();
 const services = init_services();
 
 const core_exec = async (args, barcodeInput) => {
