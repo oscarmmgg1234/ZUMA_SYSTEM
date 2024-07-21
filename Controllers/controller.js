@@ -121,9 +121,7 @@ const getScannerAddresses = async () => {
 };
 
 const getScannerStatus = async () => {
-  const scanners = await knex.raw(
-    "SELECT * FROM scanners"
-  );
+  const scanners = await knex.raw("SELECT * FROM scanners");
   return { scanners: scanners[0] };
 };
 const getScannerData = async () => {
@@ -132,8 +130,8 @@ const getScannerData = async () => {
 };
 const addScanner = async (args) => {
   await knex.raw(
-    "INSERT INTO scanners(id, status, type_desc, assigned_employee) VALUES (?,?,?,?)",
-    [args.id, args.status, args.type_desc, args.assigned_employee]
+    "INSERT INTO scanners(id, status, type_desc, assigned_employee, label) VALUES (?,?,?,?,?)",
+    [args.id, args.status, args.type_desc, args.assigned_employee, args.label]
   );
 };
 
