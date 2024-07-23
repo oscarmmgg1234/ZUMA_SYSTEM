@@ -306,7 +306,7 @@ html,
 @keyframes redBorderAnimation {
     0% {
         border-color: green;
-        border-width: 10px;
+        border-width: 20px;
     }
 
     50% {
@@ -315,11 +315,11 @@ html,
 
     100% {
         border-color: green;
-        border: 10px solid green;
+        border: 20px solid green;
     }
 }
 
 .animated-border {
-    border: 10px solid green;
+    border: 20px solid green;
     animation: redBorderAnimation 1s infinite;
 }

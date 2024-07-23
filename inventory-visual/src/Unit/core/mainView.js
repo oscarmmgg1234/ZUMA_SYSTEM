@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import "./mainView.css";
-import { playNotificationSound } from "../../utils/audio";
+import { playNotificationSound, playConnectedSound, playDisconnectedSound } from "../../utils/audio";
 import { format, subDays } from "date-fns";
 import ChartComponent from "./Components/EmployeeChart";
 import TopProductsChart from "./Components/ProductChart";
@@ -123,6 +123,7 @@ function MainView() {
       }
     };
 
+  
     const fetchScanners = async () => {
       try {
         const response = await fetch("http://192.168.1.176:3001/get_scanners");
@@ -229,51 +230,73 @@ function MainView() {
     };
   };
 
+    useEffect(() => {
+      const previousStatuses = useRef([]);
+
+      if (previousStatuses.current.length > 0) {
+        scanners.forEach((scanner, index) => {
+          if (
+            scanner.status === 1 &&
+            previousStatuses.current[index]?.status !== 1
+          ) {
+            playConnectedSound();
+          } else if (
+            scanner.status !== 1 &&
+            previousStatuses.current[index]?.status === 1
+          ) {
+            playDisconnectedSound();
+          }
+        });
+      }
+
+      previousStatuses.current = scanners;
+    }, [scanners]);
+
+
   const { hours, minutes, seconds, ampm } = formatTime(time);
 
- const renderList = (data, title) => (
-   <div className="section">
-     <h1 className="header">{title}</h1>
-     <div className="ListCont">
-       {data.length === 0 ? (
-         <p className="loading">Waiting for server...</p>
-       ) : (
-         <ul className="horizontal-list">
-           {data.map((item, index) => {
-             const firstName = item.EMPLOYEE_NAME.split(" ")[0];
-             let listClass = "";
-             if (index === 0) {
-               listClass = "listItem mostRecent animated-border";
-             } else if (index === data.length - 1) {
-               listClass = "listItem lastItem";
-             } else {
-               listClass = "listItem pastItem";
-             }
-             return (
-               <li className={listClass} key={index}>
-                 <div className="listContent">
-                   <p className="listStatus">
-                     {index === 0 ? "MOST RECENT" : `PAST ${index}`}
-                   </p>
-                   <p>
-                     <strong>Product:</strong> {item.PRODUCT_NAME}
-                   </p>
-                   <p>
-                     <strong>Employee:</strong> {firstName}
-                   </p>
-                   <p>
-                     <strong>Quantity:</strong> {item.QUANTITY}
-                   </p>
-                 </div>
-               </li>
-             );
-           })}
-         </ul>
-       )}
-     </div>
-   </div>
- );
-
+  const renderList = (data, title) => (
+    <div className="section">
+      <h1 className="header">{title}</h1>
+      <div className="ListCont">
+        {data.length === 0 ? (
+          <p className="loading">Waiting for server...</p>
+        ) : (
+          <ul className="horizontal-list">
+            {data.map((item, index) => {
+              const firstName = item.EMPLOYEE_NAME.split(" ")[0];
+              let listClass = "";
+              if (index === 0) {
+                listClass = "listItem mostRecent animated-border";
+              } else if (index === data.length - 1) {
+                listClass = "listItem lastItem";
+              } else {
+                listClass = "listItem pastItem";
+              }
+              return (
+                <li className={listClass} key={index}>
+                  <div className="listContent">
+                    <p className="listStatus">
+                      {index === 0 ? "MOST RECENT" : `PAST ${index}`}
+                    </p>
+                    <p>
+                      <strong>Product:</strong> {item.PRODUCT_NAME}
+                    </p>
+                    <p>
+                      <strong>Employee:</strong> {firstName}
+                    </p>
+                    <p>
+                      <strong>Quantity:</strong> {item.QUANTITY}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
 
   const renderScanners = (data) => (
     <div className="section small-section">
@@ -294,8 +317,14 @@ function MainView() {
             >
               {String.fromCharCode(0x2192)}
             </span>
-            
-            <span style={{color: "white", fontSize: 30, marginLeft: 12}}>{scanner.assigned_employee ? scanner.assigned_employee : "Not Assigned"}</span>
+
+            <span style={{ color: "white", fontSize: 30, marginLeft: 12 }}>
+              {scanner.assigned_employee
+                ? scanner.assigned_employee
+                : scanner.status === 1
+                ? "Not Assigned"
+                : "Not Connected"}
+            </span>
           </div>
         ))}
       </div>
