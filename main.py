@@ -55,7 +55,7 @@ def notification_handler(state, address):
 
             if len(formatted_barcode) == 6 and is_employee_id(formatted_barcode):
                 state.current_user = formatted_barcode
-                send_status(address, 1, state.current_user)  # Send assigned status
+                asyncio.create_task(send_status(address, 1, state.current_user)) # Send assigned status
                 return
             
             if len(formatted_barcode) == 17:
