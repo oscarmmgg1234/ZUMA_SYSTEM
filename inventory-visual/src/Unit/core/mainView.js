@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import "./mainView.css";
-import { playNotificationSound, playConnectedSound, playDisconnectedSound } from "../../utils/audio";
+import {
+  playNotificationSound,
+  playConnectedSound,
+  playDisconnectedSound,
+} from "../../utils/audio";
 import { format, subDays } from "date-fns";
 import ChartComponent from "./Components/EmployeeChart";
 import TopProductsChart from "./Components/ProductChart";
+import { useSpeechSynthesis } from "react-speech-kit";
 
 const metrics_base_url = "http://192.168.1.209:3002";
 
@@ -21,6 +26,7 @@ function MainView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [showEmployeeChart, setShowEmployeeChart] = useState(true);
+  const { speak } = useSpeechSynthesis();
 
   const getMetricsHistory = async (params, option) => {
     const options = {
@@ -123,7 +129,6 @@ function MainView() {
       }
     };
 
-  
     const fetchScanners = async () => {
       try {
         const response = await fetch("http://192.168.1.176:3001/get_scanners");
@@ -149,7 +154,6 @@ function MainView() {
 
     return () => {
       clearInterval(reductionActivationInterval);
-
       clearInterval(scannersInterval);
     };
   }, []);
@@ -197,7 +201,7 @@ function MainView() {
   useEffect(() => {
     const chartInterval = setInterval(() => {
       setShowEmployeeChart((prev) => !prev);
-    }, 60000); // 3 minutes in milliseconds
+    }, 60000); // 1 minute in milliseconds
     return () => clearInterval(chartInterval);
   }, []);
 
@@ -230,28 +234,32 @@ function MainView() {
     };
   };
 
-    useEffect(() => {
-      const previousStatuses = useRef([]);
+  useEffect(() => {
+    const previousStatuses = useRef([]);
 
-      if (previousStatuses.current.length > 0) {
-        scanners.forEach((scanner, index) => {
-          if (
-            scanner.status === 1 &&
-            previousStatuses.current[index]?.status !== 1
-          ) {
-            playConnectedSound();
-          } else if (
-            scanner.status !== 1 &&
-            previousStatuses.current[index]?.status === 1
-          ) {
-            playDisconnectedSound();
+    if (previousStatuses.current.length > 0) {
+      scanners.forEach((scanner, index) => {
+        if (
+          scanner.status === 1 &&
+          previousStatuses.current[index]?.status !== 1
+        ) {
+          playConnectedSound();
+          if (scanner.assigned_employee) {
+            setTimeout(() => {
+              speak({ text: `${scanner.assigned_employee} connected` });
+            }, 1500); // 1.5-second timeout
           }
-        });
-      }
+        } else if (
+          scanner.status !== 1 &&
+          previousStatuses.current[index]?.status === 1
+        ) {
+          playDisconnectedSound();
+        }
+      });
+    }
 
-      previousStatuses.current = scanners;
-    }, [scanners]);
-
+    previousStatuses.current = scanners;
+  }, [scanners, speak]);
 
   const { hours, minutes, seconds, ampm } = formatTime(time);
 
