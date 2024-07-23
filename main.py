@@ -39,7 +39,15 @@ def fetch_employee_ids():
 def is_employee_id(segment):
     return segment in employee_ids
 
-def notification_handler(state):
+async def send_status(scanner_id, status, employeeID=None):
+    url = "http://192.168.1.176:3001/setScanner"
+    data = {"id": scanner_id, "status": status, "assigned": employeeID}
+    try:
+        await asyncio.to_thread(requests.post, url, json=data)
+    except requests.RequestException as e:
+        print(f"Error sending status: {e}")
+
+def notification_handler(state, address):
     def handler(sender, data):
         try:
             barcode = data.decode('utf-8')
@@ -47,6 +55,7 @@ def notification_handler(state):
 
             if len(formatted_barcode) == 6 and is_employee_id(formatted_barcode):
                 state.current_user = formatted_barcode
+                send_status(address, 1, state.current_user)  # Send assigned status
                 return
             
             if len(formatted_barcode) == 17:
@@ -84,14 +93,6 @@ def notification_handler(state):
             asyncio.create_task(queue.put((f"RAW DATA: {raw_data}", None)))
     return handler
 
-async def send_status(scanner_id, status, employeeID=None):
-    url = "http://192.168.1.176:3001/setScanner"
-    data = {"id": scanner_id, "status": status, "assigned": employeeID}
-    try:
-        await asyncio.to_thread(requests.post, url, json=data)
-    except requests.RequestException as e:
-        print(f"Error sending status: {e}")
-
 async def connect_and_listen(address, state):
     client = BleakClient(address)
     task = asyncio.current_task()
@@ -100,7 +101,7 @@ async def connect_and_listen(address, state):
     try:
         await client.connect()
         await send_status(address, 1, state.current_user)  # Send connected status
-        await client.start_notify('00002af0-0000-1000-8000-00805f9b34fb', notification_handler(state))
+        await client.start_notify('00002af0-0000-1000-8000-00805f9b34fb', notification_handler(state, address))
 
         while client.is_connected:
             await asyncio.sleep(4)
