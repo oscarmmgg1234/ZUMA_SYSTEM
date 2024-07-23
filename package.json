@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@speechly/react-client": "^2.2.4",
+    "@speechly/react-ui": "^2.7.5"
+  }
+}
