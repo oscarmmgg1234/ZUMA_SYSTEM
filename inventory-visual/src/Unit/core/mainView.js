@@ -8,7 +8,6 @@ import {
 import { format, subDays } from "date-fns";
 import ChartComponent from "./Components/EmployeeChart";
 import TopProductsChart from "./Components/ProductChart";
-import { useSpeechSynthesis } from "react-speech-kit";
 
 const metrics_base_url = "http://192.168.1.209:3002";
 
@@ -26,7 +25,7 @@ function MainView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [showEmployeeChart, setShowEmployeeChart] = useState(true);
-  const { speak } = useSpeechSynthesis();
+  const previousStatuses = useRef([]);
 
   const getMetricsHistory = async (params, option) => {
     const options = {
@@ -154,6 +153,7 @@ function MainView() {
 
     return () => {
       clearInterval(reductionActivationInterval);
+
       clearInterval(scannersInterval);
     };
   }, []);
@@ -201,13 +201,40 @@ function MainView() {
   useEffect(() => {
     const chartInterval = setInterval(() => {
       setShowEmployeeChart((prev) => !prev);
-    }, 60000); // 1 minute in milliseconds
+    }, 60000); // 3 minutes in milliseconds
     return () => clearInterval(chartInterval);
   }, []);
 
-  useEffect(() => {
-    const previousStatuses = useRef([]);
+  const showNextNotification = () => {
+    if (notificationQueue.current.length > 0) {
+      const nextNotification = notificationQueue.current.shift();
+      setNotification(nextNotification);
+      playNotificationSound(); // Play the notification sound
+      setTimeout(() => {
+        setNotification(null);
+        if (notificationQueue.current.length > 0) {
+          showNextNotification();
+        }
+      }, 3000);
+    }
+  };
 
+  const formatTime = (date) => {
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return {
+      hours: hours < 10 ? `0${hours}` : `${hours}`,
+      minutes: minutes < 10 ? `0${minutes}` : `${minutes}`,
+      seconds: seconds < 10 ? `0${seconds}` : `${seconds}`,
+      ampm,
+    };
+  };
+
+  useEffect(() => {
     if (previousStatuses.current.length > 0) {
       scanners.forEach((scanner, index) => {
         if (
@@ -226,30 +253,6 @@ function MainView() {
 
     previousStatuses.current = scanners;
   }, [scanners]);
-
-  useEffect(() => {
-    const previousAssignments = useRef([]);
-
-    if (previousAssignments.current.length > 0) {
-      scanners.forEach((scanner, index) => {
-        if (
-          scanner.status === 1 &&
-          scanner.assigned_employee &&
-          scanner.assigned_employee !==
-            previousAssignments.current[index]?.assigned_employee
-        ) {
-          setTimeout(() => {
-            speak({ text: `${scanner.assigned_employee} connected` });
-          }, 1500); // 1.5-second timeout
-        }
-      });
-    }
-
-    previousAssignments.current = scanners.map((scanner) => ({
-      status: scanner.status,
-      assigned_employee: scanner.assigned_employee,
-    }));
-  }, [scanners, speak]);
 
   const { hours, minutes, seconds, ampm } = formatTime(time);
 
