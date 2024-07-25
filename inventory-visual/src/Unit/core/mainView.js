@@ -79,22 +79,10 @@ function MainView() {
   };
 
   const scheduleDailyFetch = () => {
-    const now = new Date();
-    const next4am = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + (now.getHours() >= 4 ? 1 : 0),
-      4,
-      0,
-      0,
-      0
-    );
-    const timeUntilNext4am = next4am - now;
-
     setTimeout(() => {
       getEmployeeMetrics();
-      setInterval(getEmployeeMetrics, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
-    }, timeUntilNext4am);
+      setInterval(getEmployeeMetrics, 30 * 60 * 1000); // 24 hours in milliseconds
+    }, 1000);
   };
 
   useEffect(() => {
