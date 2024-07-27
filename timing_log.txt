@@ -1,0 +1,24 @@
+2024-07-27T19:53:37.664Z - Start TotalExecutionTime
+2024-07-27T19:53:37.665Z - Start UploadTime
+2024-07-27T19:53:39.482Z - End UploadTime
+2024-07-27T19:53:39.484Z - Start StartDetectionTime
+2024-07-27T19:53:39.994Z - End StartDetectionTime
+2024-07-27T19:53:39.995Z - Start DetectionTime
+2024-07-27T19:54:29.513Z - End DetectionTime
+2024-07-27T19:54:29.516Z - Start WriteDetectedText
+2024-07-27T19:54:29.521Z - End WriteDetectedText
+2024-07-27T19:54:29.523Z - Start ParseAndCleanTime
+2024-07-27T19:54:29.535Z - End ParseAndCleanTime
+2024-07-27T19:54:29.536Z - Start AddQRCodesToPdf
+2024-07-27T19:54:30.263Z - End AddQRCodesToPdf
+2024-07-27T19:54:30.264Z - End TotalExecutionTime
+2024-07-27T19:59:07.145Z - Start TotalExecutionTime: undefinedms
+2024-07-27T19:59:09.354Z - UploadTime: 2206ms
+2024-07-27T19:59:09.948Z - StartDetectionTime: 592ms
+2024-07-27T19:59:49.706Z - DetectionTime: 39756ms
+2024-07-27T19:59:49.708Z - Start WriteDetectedText: undefinedms
+2024-07-27T19:59:49.712Z - WriteDetectedText: 3ms
+2024-07-27T19:59:49.713Z - Start ParseAndCleanTime: undefinedms
+2024-07-27T19:59:49.723Z - ParseAndCleanTime: 9ms
+2024-07-27T19:59:50.033Z - AddQRCodesToPdf: 308ms
+2024-07-27T19:59:50.034Z - TotalExecutionTime: 42888ms

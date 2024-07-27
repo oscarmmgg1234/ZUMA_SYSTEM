@@ -6,8 +6,9 @@ const {
   StartDocumentTextDetectionCommand,
   GetDocumentTextDetectionCommand,
 } = require("@aws-sdk/client-textract");
-
 const readline = require("readline");
+const { PDFDocument } = require("pdf-lib");
+const qr = require("qr-image");
 
 // Replace these with your actual AWS credentials and S3 bucket name
 const ACCESS_KEY_ID = "AKIAQE43J545HQO5B7EP";
@@ -20,6 +21,11 @@ const CLEANED_OUTPUT_FILE_PATH = path.join(
   __dirname,
   "cleaned_data_output.txt"
 );
+const BARCODED_PDF_PATH = path.join(
+  __dirname,
+  "barcoded_shipping_packing_slips.pdf"
+);
+const TIMING_LOG_PATH = path.join(__dirname, "timing_log.txt");
 
 // Initialize S3 client
 const s3 = new AWS.S3({
@@ -39,9 +45,16 @@ const textractClient = new TextractClient({
   },
 });
 
+const logTiming = (message, duration) => {
+  const timestamp = new Date().toISOString();
+  const logMessage = `${timestamp} - ${message}: ${duration}ms\n`;
+  fs.appendFileSync(TIMING_LOG_PATH, logMessage);
+};
+
 // Upload PDF to S3
 const uploadFile = async () => {
   console.time("UploadTime");
+  const startTime = Date.now();
   const fileContent = fs.readFileSync(FILE_PATH);
   const params = {
     Bucket: BUCKET_NAME,
@@ -51,11 +64,15 @@ const uploadFile = async () => {
 
   try {
     const data = await s3.upload(params).promise();
+    const duration = Date.now() - startTime;
     console.timeEnd("UploadTime");
+    logTiming("UploadTime", duration);
     console.log(`File uploaded successfully at ${data.Location}`);
     return data.Key;
   } catch (error) {
+    const duration = Date.now() - startTime;
     console.timeEnd("UploadTime");
+    logTiming("UploadTime (Error)", duration);
     console.error("Error uploading file:", error);
     throw error;
   }
@@ -64,6 +81,7 @@ const uploadFile = async () => {
 // Start asynchronous text detection
 const startTextDetection = async (documentKey) => {
   console.time("StartDetectionTime");
+  const startTime = Date.now();
   const params = {
     DocumentLocation: {
       S3Object: {
@@ -77,10 +95,14 @@ const startTextDetection = async (documentKey) => {
 
   try {
     const response = await textractClient.send(command);
+    const duration = Date.now() - startTime;
     console.timeEnd("StartDetectionTime");
+    logTiming("StartDetectionTime", duration);
     return response.JobId;
   } catch (error) {
+    const duration = Date.now() - startTime;
     console.timeEnd("StartDetectionTime");
+    logTiming("StartDetectionTime (Error)", duration);
     console.error("Error starting text detection:", error);
     throw error;
   }
@@ -89,6 +111,7 @@ const startTextDetection = async (documentKey) => {
 // Poll for job status and get text detection results with pagination
 const getTextDetection = async (jobId) => {
   console.time("DetectionTime");
+  const startTime = Date.now();
   const params = {
     JobId: jobId,
   };
@@ -119,10 +142,14 @@ const getTextDetection = async (jobId) => {
         // Process the blocks to get text lines
         lines = blocks.filter((block) => block.BlockType === "LINE");
 
+        const duration = Date.now() - startTime;
         console.timeEnd("DetectionTime");
+        logTiming("DetectionTime", duration);
         return lines;
       } else if (status === "FAILED") {
+        const duration = Date.now() - startTime;
         console.timeEnd("DetectionTime");
+        logTiming("DetectionTime (Error)", duration);
         console.error("Text detection failed:", response.StatusMessage);
         break;
       } else {
@@ -130,7 +157,9 @@ const getTextDetection = async (jobId) => {
         await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds before checking again
       }
     } catch (error) {
+      const duration = Date.now() - startTime;
       console.timeEnd("DetectionTime");
+      logTiming("DetectionTime (Error)", duration);
       console.error("Error getting text detection result:", error);
       throw error;
     }
@@ -138,9 +167,47 @@ const getTextDetection = async (jobId) => {
   return lines;
 };
 
+// Generate QR code for a given text
+const generateQRCode = (text) => {
+  return qr.imageSync(text, { type: "png" });
+};
+
+// Add QR codes to the PDF
+const addQRCodesToPdf = async (pdfPath, orders) => {
+  console.time("AddQRCodesToPdf");
+  const startTime = Date.now();
+  const existingPdfBytes = fs.readFileSync(pdfPath);
+  const pdfDoc = await PDFDocument.load(existingPdfBytes);
+  const pages = pdfDoc.getPages();
+
+  for (let i = 0; i < orders.length; i++) {
+    const page = pages[i];
+    const order = orders[i];
+    const qrCodePng = generateQRCode(order.orderNumber);
+    const qrCodeImage = await pdfDoc.embedPng(qrCodePng);
+
+    const { width, height } = page.getSize();
+    page.drawImage(qrCodeImage, {
+      x: width - 70,
+      y: 15,
+      width: 50,
+      height: 50,
+    });
+  }
+
+  const pdfBytes = await pdfDoc.save();
+  fs.writeFileSync(BARCODED_PDF_PATH, pdfBytes);
+  const duration = Date.now() - startTime;
+  console.timeEnd("AddQRCodesToPdf");
+  logTiming("AddQRCodesToPdf", duration);
+  console.log(`Barcoded PDF saved to ${BARCODED_PDF_PATH}`);
+};
+
 // Execute the workflow
 const executeWorkflow = async () => {
   console.time("TotalExecutionTime");
+  const startTime = Date.now();
+  logTiming("Start TotalExecutionTime");
   try {
     const documentKey = await uploadFile();
     const jobId = await startTextDetection(documentKey);
@@ -148,16 +215,29 @@ const executeWorkflow = async () => {
     const lines = await getTextDetection(jobId);
 
     // Write the detected lines to a text file
+    console.time("WriteDetectedText");
+    const writeStartTime = Date.now();
+    logTiming("Start WriteDetectedText");
     const outputText = lines.map((line) => line.Text).join("\n");
     fs.writeFileSync(OUTPUT_FILE_PATH, outputText);
     console.log(`Detected text written to ${OUTPUT_FILE_PATH}`);
+    const writeDuration = Date.now() - writeStartTime;
+    console.timeEnd("WriteDetectedText");
+    logTiming("WriteDetectedText", writeDuration);
 
     // Call the parser function after text detection completes
-    await parseAndCleanDetectedText(OUTPUT_FILE_PATH);
+    const orders = await parseAndCleanDetectedText(OUTPUT_FILE_PATH);
 
+    // Add QR codes to the original PDF
+    await addQRCodesToPdf(FILE_PATH, orders);
+
+    const totalDuration = Date.now() - startTime;
     console.timeEnd("TotalExecutionTime");
+    logTiming("TotalExecutionTime", totalDuration);
   } catch (error) {
+    const totalDuration = Date.now() - startTime;
     console.timeEnd("TotalExecutionTime");
+    logTiming("TotalExecutionTime (Error)", totalDuration);
     console.error("Error:", error);
   }
 };
@@ -166,6 +246,8 @@ const executeWorkflow = async () => {
 const parseAndCleanDetectedText = (filePath) => {
   return new Promise((resolve, reject) => {
     console.time("ParseAndCleanTime");
+    const startTime = Date.now();
+    logTiming("Start ParseAndCleanTime");
 
     const fileStream = fs.createReadStream(filePath);
 
@@ -181,6 +263,7 @@ const parseAndCleanDetectedText = (filePath) => {
 
     const quantityRegex = /(\d+) of (\d+)/;
     const orderNumberRegex = /Order #(\d+)/;
+    const packRegex = /(\d+)\s*Pack$/;
 
     rl.on("line", (line) => {
       lines.push(line);
@@ -232,13 +315,8 @@ const parseAndCleanDetectedText = (filePath) => {
           // Remove SKU codes from the product name
           productName = productName.replace(/\d{12,}/, "").trim();
 
-          // Multiply quantity if the product name ends with '3 Pack'
-          if (productName.endsWith("3 Pack")) {
-            productName = productName.replace("3 Pack", "").trim();
-            currentOrder.items.push({ productName, quantity: quantity * 3 });
-          } else {
-            currentOrder.items.push({ productName, quantity });
-          }
+          // Add the item with the initial quantity to the order
+          currentOrder.items.push({ productName, quantity });
         } else if (line === "Thank you for shopping with us!") {
           captureItems = false; // Stop capturing items after the thank you line
         }
@@ -261,11 +339,9 @@ const parseAndCleanDetectedText = (filePath) => {
               .replace(/\d{12,}/, "")
               .trim();
             let cleanedQuantity = item.quantity;
-            if (cleanedProductName.endsWith("3 Pack")) {
-              cleanedProductName = cleanedProductName
-                .replace("3 Pack", "")
-                .trim();
-              cleanedQuantity *= 3;
+            const packMatch = cleanedProductName.match(packRegex);
+            if (packMatch) {
+              cleanedQuantity *= parseInt(packMatch[1], 10);
             }
             return {
               productName: cleanedProductName,
@@ -279,12 +355,16 @@ const parseAndCleanDetectedText = (filePath) => {
       fs.writeFileSync(CLEANED_OUTPUT_FILE_PATH, cleanedOutput);
       console.log(`Cleaned data written to ${CLEANED_OUTPUT_FILE_PATH}`);
 
+      const duration = Date.now() - startTime;
       console.timeEnd("ParseAndCleanTime");
-      resolve();
+      logTiming("ParseAndCleanTime", duration);
+      resolve(cleanedOrders);
     });
 
     rl.on("error", (error) => {
+      const duration = Date.now() - startTime;
       console.timeEnd("ParseAndCleanTime");
+      logTiming("ParseAndCleanTime (Error)", duration);
       console.error("Error reading file:", error);
       reject(error);
     });

@@ -14,7 +14,7 @@
     "date": "July 25, 2024",
     "items": [
       {
-        "productName": "Complete Amino Acid Formula -",
+        "productName": "Complete Amino Acid Formula - 3 Pack",
         "quantity": 3
       }
     ]
@@ -84,7 +84,7 @@
         "quantity": 1
       },
       {
-        "productName": "Complete Amino Acid Formula -",
+        "productName": "Complete Amino Acid Formula - 3 Pack",
         "quantity": 3
       },
       {
@@ -169,7 +169,7 @@
     "items": [
       {
         "productName": "Liposomal Curcumin Tonic - 2 Pack",
-        "quantity": 1
+        "quantity": 2
       }
     ]
   },
