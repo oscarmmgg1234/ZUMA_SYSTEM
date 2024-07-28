@@ -1,6 +1,9 @@
 const AWS = require("aws-sdk");
 const fs = require("fs");
 const path = require("path");
+const chokidar = require("chokidar");
+const os = require("os");
+const { exec } = require("child_process");
 const {
   TextractClient,
   StartDocumentTextDetectionCommand,
@@ -15,17 +18,27 @@ const ACCESS_KEY_ID = "AKIAQE43J545HQO5B7EP";
 const SECRET_ACCESS_KEY = "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";
 const BUCKET_NAME = "temptrack";
 const REGION = "us-west-2";
-const FILE_PATH = path.join(__dirname, "shipping_packing_slips_thermal.pdf");
-const OUTPUT_FILE_PATH = path.join(__dirname, "detected_text_output.txt");
-const CLEANED_OUTPUT_FILE_PATH = path.join(
-  __dirname,
-  "cleaned_data_output.txt"
-);
-const BARCODED_PDF_PATH = path.join(
-  __dirname,
-  "barcoded_shipping_packing_slips.pdf"
-);
-const TIMING_LOG_PATH = path.join(__dirname, "timing_log.txt");
+const HOME_DIR = os.homedir();
+const BASE_DIR = path.join(HOME_DIR, "Documents/ZUMAPDFPOSTPROCCESSOR");
+const INPUT_DIR = path.join(BASE_DIR, "prePDF");
+const OUTPUT_DIR = path.join(BASE_DIR, "postPDF");
+const LOGS_DIR = path.join(BASE_DIR, "logs");
+
+// Create timestamped directory for logs
+const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+const TIMESTAMPED_LOG_DIR = path.join(LOGS_DIR, timestamp);
+const TIMING_LOG_PATH = path.join(TIMESTAMPED_LOG_DIR, "timing_log.txt");
+
+// Ensure the directory structure exists
+const ensureDirectoryExists = (dir) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+ensureDirectoryExists(INPUT_DIR);
+ensureDirectoryExists(OUTPUT_DIR);
+ensureDirectoryExists(TIMESTAMPED_LOG_DIR);
 
 // Initialize S3 client
 const s3 = new AWS.S3({
@@ -52,13 +65,13 @@ const logTiming = (message, duration) => {
 };
 
 // Upload PDF to S3
-const uploadFile = async () => {
+const uploadFile = async (filePath) => {
   console.time("UploadTime");
   const startTime = Date.now();
-  const fileContent = fs.readFileSync(FILE_PATH);
+  const fileContent = fs.readFileSync(filePath);
   const params = {
     Bucket: BUCKET_NAME,
-    Key: path.basename(FILE_PATH),
+    Key: path.basename(filePath),
     Body: fileContent,
   };
 
@@ -190,26 +203,33 @@ const addQRCodesToPdf = async (pdfPath, orders) => {
     page.drawImage(qrCodeImage, {
       x: width - 70,
       y: 15,
-      width: 50,
-      height: 50,
+      width: 30, // Smaller width
+      height: 30, // Smaller height
     });
   }
 
   const pdfBytes = await pdfDoc.save();
-  fs.writeFileSync(BARCODED_PDF_PATH, pdfBytes);
+  const outputFilePath = path.join(OUTPUT_DIR, path.basename(pdfPath));
+  fs.writeFileSync(outputFilePath, pdfBytes);
   const duration = Date.now() - startTime;
   console.timeEnd("AddQRCodesToPdf");
   logTiming("AddQRCodesToPdf", duration);
-  console.log(`Barcoded PDF saved to ${BARCODED_PDF_PATH}`);
+  console.log(`Barcoded PDF saved to ${outputFilePath}`);
+
+  // Open the PDF
+  openFile(outputFilePath);
+
+  // Optionally, delete the file after processing
+  // fs.unlinkSync(pdfPath);
 };
 
 // Execute the workflow
-const executeWorkflow = async () => {
+const executeWorkflow = async (filePath) => {
   console.time("TotalExecutionTime");
   const startTime = Date.now();
   logTiming("Start TotalExecutionTime");
   try {
-    const documentKey = await uploadFile();
+    const documentKey = await uploadFile(filePath);
     const jobId = await startTextDetection(documentKey);
     console.log(`Job started with ID: ${jobId}`);
     const lines = await getTextDetection(jobId);
@@ -219,17 +239,24 @@ const executeWorkflow = async () => {
     const writeStartTime = Date.now();
     logTiming("Start WriteDetectedText");
     const outputText = lines.map((line) => line.Text).join("\n");
-    fs.writeFileSync(OUTPUT_FILE_PATH, outputText);
-    console.log(`Detected text written to ${OUTPUT_FILE_PATH}`);
+    const outputTextPath = path.join(
+      TIMESTAMPED_LOG_DIR,
+      "detected_text_output.txt"
+    );
+    fs.writeFileSync(outputTextPath, outputText);
+    console.log(`Detected text written to ${outputTextPath}`);
     const writeDuration = Date.now() - writeStartTime;
     console.timeEnd("WriteDetectedText");
     logTiming("WriteDetectedText", writeDuration);
 
     // Call the parser function after text detection completes
-    const orders = await parseAndCleanDetectedText(OUTPUT_FILE_PATH);
+    const orders = await parseAndCleanDetectedText(outputTextPath);
 
     // Add QR codes to the original PDF
-    await addQRCodesToPdf(FILE_PATH, orders);
+    await addQRCodesToPdf(filePath, orders);
+
+    // Optionally, delete the file from prePDF after processing
+    // fs.unlinkSync(filePath);
 
     const totalDuration = Date.now() - startTime;
     console.timeEnd("TotalExecutionTime");
@@ -352,8 +379,12 @@ const parseAndCleanDetectedText = (filePath) => {
       });
 
       const cleanedOutput = JSON.stringify(cleanedOrders, null, 2);
-      fs.writeFileSync(CLEANED_OUTPUT_FILE_PATH, cleanedOutput);
-      console.log(`Cleaned data written to ${CLEANED_OUTPUT_FILE_PATH}`);
+      const cleanedOutputPath = path.join(
+        TIMESTAMPED_LOG_DIR,
+        "cleaned_data_output.txt"
+      );
+      fs.writeFileSync(cleanedOutputPath, cleanedOutput);
+      console.log(`Cleaned data written to ${cleanedOutputPath}`);
 
       const duration = Date.now() - startTime;
       console.timeEnd("ParseAndCleanTime");
@@ -371,5 +402,66 @@ const parseAndCleanDetectedText = (filePath) => {
   });
 };
 
-// Start the workflow
-executeWorkflow();
+// Function to open a file based on the operating system
+const openFile = (filePath) => {
+  const platform = process.platform;
+  let command;
+
+  if (platform === "win32") {
+    command = `start "" "${filePath}"`;
+  } else if (platform === "darwin") {
+    command = `open "${filePath}"`;
+  } else if (platform === "linux") {
+    command = `xdg-open "${filePath}"`;
+  }
+
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error opening file: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`Open file stderr: ${stderr}`);
+      return;
+    }
+    console.log(`File opened: ${stdout}`);
+    // Optionally, delete the file after opening
+    // fs.unlinkSync(filePath);
+  });
+};
+
+// Watch the postPDF directory for new files and open them
+const watchOutputDirectory = () => {
+  chokidar
+    .watch(OUTPUT_DIR, { persistent: true })
+    .on("add", (filePath) => {
+      console.log(`File added to postPDF: ${filePath}`);
+      openFile(filePath);
+    })
+    .on("error", (error) => {
+      console.error(`Watcher error: ${error}`);
+    });
+
+  console.log(`Watching directory: ${OUTPUT_DIR}`);
+};
+
+// Watch the input directory for new files and process them
+const watchInputDirectory = () => {
+  chokidar
+    .watch(INPUT_DIR, { persistent: true })
+    .on("add", (filePath) => {
+      console.log(`File added to prePDF: ${filePath}`);
+      setTimeout(() => {
+        executeWorkflow(filePath);
+      }, 100); // 100ms delay to ensure file transfer is complete
+    })
+    .on("error", (error) => {
+      console.error(`Watcher error: ${error}`);
+    });
+
+  console.log(`Watching directory: ${INPUT_DIR}`);
+};
+
+// Start watching the directories
+watchInputDirectory();
+watchOutputDirectory();
