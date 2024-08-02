@@ -246,6 +246,7 @@ chokidar.watch(prePdfDir).on("add", (filePath) => {
 
 // Watcher to monitor the postPDF directory for new files and print them
 chokidar.watch(postPdfDir).on("add", (filePath) => {
+  printPDF(filePath);
   setTimeout(() => {
     fs.unlinkSync(filePath);
   }, 10000);
