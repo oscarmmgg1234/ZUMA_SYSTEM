@@ -79,10 +79,8 @@ function MainView() {
   };
 
   const scheduleDailyFetch = () => {
-    setTimeout(() => {
       getEmployeeMetrics();
-      setInterval(getEmployeeMetrics, 30 * 60 * 1000); // 24 hours in milliseconds
-    }, 1000);
+      setInterval(getEmployeeMetrics, 5 * 60 * 1000); // 24 hours in milliseconds
   };
 
   useEffect(() => {
