@@ -19,7 +19,7 @@ class pdf_generator {
     if (!pdf_generator.instance) {
       pdf_generator.instance = this;
     }
-    this.productsPerBatch = 27; // Limit of products per PDF
+    this.productsPerBatch = 25; // Limit of products per PDF
   }
 
   async merge_pdf(buffers) {
