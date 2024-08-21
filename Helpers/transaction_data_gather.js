@@ -17,52 +17,60 @@ const productParse = (token) => {
 
 const productQuery = (productSet) => {
   if (productSet.size === 0) {
-    return;
+    return "";
   }
-  if(productSet.size === 1){
+  if (productSet.size === 1) {
+    return `SELECT * FROM product_inventory WHERE product_id = ${
+      productSet.values().next().value
+    }`;
     //one product
-  }else{
+  } else {
+    let query = "SELECT * FROM product_inventory WHERE product_id IN (";
+    for (const product of productSet) {
+      query += `${product},`;
+    }
+    query = query.slice(0, -1);
+    query += ")";
+    return query;
     //more then one product
   }
-
-}
+};
 
 const data_gather_handler = async (token, args, transactionID, action) => {
   //purpose to capture stock strace of product as process is executed for each product with each protocol for error detection and overall see flow of stock of a particular product
-  const productDataGather = new Map();
-  const productSet = productParse(token);
-  if (productSet.size === 0) {
-    return 0;
+  const query = productQuery(productParse(token));
+  if (!query) {
+    return 1;
   }
-  const productQuery = productQuery(productSet);
   try {
     //more efficient approach would be single query to get all stock of all products in one go
-      const productStock = await knex.raw(
-        productQuery
-      );
-      productStock[0].forEach((product) => {
-      productDataGather.set(product, productStock[0][0].STOCK);
-      });
-    const productData = Array.from(productDataGather.entries());
+    const productStock = await knex.raw(query);
+    const db_object = productStock[0].map((product) => {
+      return {
+        product_id: product.PRODUCT_ID,
+        stock: product.STOCK,
+      };
+    });
+
     if (action === "start") {
       await knex.raw(
-        "INSERT INTO transaction_log (before_stocks) WHERE TRANSACTION_ID = ? VALUES(?)",
-        [transactionID, JSON.stringify(productData)]
+        "UPDATE transaction_log SET before_stocks = ? WHERE transaction_id = ?",
+        [JSON.stringify(db_object), transactionID]
       );
 
       //submit a json object corresponding to stock of every item to the transaction id to the stock before column
     } else {
       await knex.raw(
-        "INSERT INTO transaction_log (after_stocks) WHERE TRANSACTION_ID = ? VALUES(?)",
-        [transactionID, JSON.stringify(productData)]
+        "UPDATE transaction_log SET after_stocks = ? WHERE transaction_id = ?",
+        [JSON.stringify(db_object), transactionID]
       );
       //submit a json object corresponding to stock of every item to the transaction id to the stock after column
     }
   } catch (err) {
     console.log(err);
-    return 0;
+    return 1;
   }
-  return 1;
+  return 0;
 };
 
 exports.data_gather_handler = data_gather_handler;
