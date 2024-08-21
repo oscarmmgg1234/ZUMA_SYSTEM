@@ -7,6 +7,9 @@ This module is used to store the functions that will be used by the core engine.
 ============================================
 */
 const { util } = require("../../Utility/Constants");
+const {
+  data_gather_handler,
+} = require("../../Helpers/transaction_data_gather.js");
 
 class FunctionRegistry {
   constructor() {
@@ -399,7 +402,6 @@ class FunctionRegistry {
           args.QUANTITY * multiplier,
           parseFloat(auxiliary.auxiliaryParam),
           parseFloat(auxiliary.nextAuxiliaryParam)
-          
         );
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
@@ -455,6 +457,14 @@ class FunctionRegistry {
             barcodeData[0][0].Quantity,
           ]
         );
+        //gather data for product stock
+        await data_gather_handler(
+          args.process_token,
+          args,
+          args.newTransactionID,
+          "start"
+        );
+
         await db_handle.raw(
           "UPDATE transaction_log SET BARCODE_STACK = JSON_ARRAY_APPEND(BARCODE_STACK, '$', ?) WHERE TRANSACTIONID = ?",
           [args.BARCODE_ID, args.newTransactionID]
@@ -584,7 +594,6 @@ class FunctionRegistry {
   _getRegistryMap() {
     return this.registry_map;
   }
-
 
   getFunction(id) {
     return this.registry_map.get(id);
