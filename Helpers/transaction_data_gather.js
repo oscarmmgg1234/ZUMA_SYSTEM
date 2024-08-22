@@ -20,23 +20,29 @@ const productQuery = (productSet) => {
     return "";
   }
   if (productSet.size === 1) {
-    return `SELECT * FROM product_inventory WHERE product_id = ${
-      productSet.values().next().value
-    }`;
+    return `SELECT * FROM product_inventory WHERE product_id = '${
+      Array.from(productSet)[0]
+    }'`;
     //one product
   } else {
     let query = "SELECT * FROM product_inventory WHERE product_id IN (";
     for (const product of productSet) {
-      query += `${product},`;
+      query += `'${product}',`;
     }
-    query = query.slice(0, -1);
+    query = query.slice(0, -1); // Remove the trailing comma
     query += ")";
     return query;
-    //more then one product
+    //more than one product
   }
 };
 
-const data_gather_handler = async (token, args, transactionID, action) => {
+const data_gather_handler = async (
+  token,
+  args,
+  transactionID,
+  action,
+  dbHandle = null
+) => {
   //purpose to capture stock strace of product as process is executed for each product with each protocol for error detection and overall see flow of stock of a particular product
   const query = productQuery(productParse(token));
   if (!query) {
@@ -48,22 +54,39 @@ const data_gather_handler = async (token, args, transactionID, action) => {
     const db_object = productStock[0].map((product) => {
       return {
         product_id: product.PRODUCT_ID,
+        product_name: product.PRODUCT_NAME,
         stock: product.STOCK,
+        stored: product.STORED_STOCK,
+        active: product.ACTIVE_STOCK,
       };
     });
 
     if (action === "start") {
-      await knex.raw(
-        "UPDATE transaction_log SET before_stocks = ? WHERE transaction_id = ?",
-        [JSON.stringify(db_object), transactionID]
-      );
+      if (dbHandle) {
+        await dbHandle.raw(
+          "UPDATE transaction_log SET before_stock = ? WHERE TRANSACTIONID = ?",
+          [JSON.stringify(db_object), transactionID]
+        );
+      } else {
+        await knex.raw(
+          "UPDATE transaction_log SET before_stock = ? WHERE TRANSACTIONID = ?",
+          [JSON.stringify(db_object), transactionID]
+        );
+      }
 
       //submit a json object corresponding to stock of every item to the transaction id to the stock before column
     } else {
-      await knex.raw(
-        "UPDATE transaction_log SET after_stocks = ? WHERE transaction_id = ?",
-        [JSON.stringify(db_object), transactionID]
-      );
+      if (dbHandle) {
+        await dbHandle.raw(
+          "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
+          [JSON.stringify(db_object), transactionID]
+        );
+      } else {
+        await knex.raw(
+          "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
+          [JSON.stringify(db_object), transactionID]
+        );
+      }
       //submit a json object corresponding to stock of every item to the transaction id to the stock after column
     }
   } catch (err) {
@@ -74,3 +97,4 @@ const data_gather_handler = async (token, args, transactionID, action) => {
 };
 
 exports.data_gather_handler = data_gather_handler;
+

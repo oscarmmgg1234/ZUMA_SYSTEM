@@ -9,7 +9,7 @@ This module is used to store the functions that will be used by the core engine.
 const { util } = require("../../Utility/Constants");
 const {
   data_gather_handler,
-} = require("../../Helpers/transaction_data_gather.js");
+} = require("../../../Helpers/transaction_data_gather.js");
 
 class FunctionRegistry {
   constructor() {
@@ -462,7 +462,8 @@ class FunctionRegistry {
           args.process_token,
           args,
           args.newTransactionID,
-          "start"
+          "start",
+          db_handle
         );
 
         await db_handle.raw(
