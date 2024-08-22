@@ -340,7 +340,7 @@ const get_product_by_id = (args, callback) => {
 
 const activate_product = async (args) => {
   //we need monitoring for before and after the transaction
-  db_api.addTransaction({ src: "activation", args: args });
+  await db_api.addTransaction({ src: "activation", args: args });
   //this will allow for the monitoring of stock for the products in question
   await data_gather_handler(
     args.process_token,
@@ -438,7 +438,7 @@ const product_reduction = async (args) => {
 const shipment_add = async (args) => {
   try {
     for (const shipmentObject of args) {
-      db_api.addTransaction({ src: "shipment", args: shipmentObject });
+      await db_api.addTransaction({ src: "shipment", args: shipmentObject });
       await data_gather_handler(
         shipmentObject.process_token,
         shipmentObject,
