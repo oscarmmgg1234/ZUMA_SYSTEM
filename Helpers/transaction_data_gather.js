@@ -76,17 +76,12 @@ const data_gather_handler = async (
 
       //submit a json object corresponding to stock of every item to the transaction id to the stock before column
     } else {
-      if (dbHandle) {
-        await dbHandle.raw(
-          "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
-          [JSON.stringify(db_object), transactionID]
-        );
-      } else {
+      setTimeout(async () => {
         await knex.raw(
           "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
           [JSON.stringify(db_object), transactionID]
         );
-      }
+      }, 2000);
       //submit a json object corresponding to stock of every item to the transaction id to the stock after column
     }
   } catch (err) {
@@ -97,4 +92,3 @@ const data_gather_handler = async (
 };
 
 exports.data_gather_handler = data_gather_handler;
-

@@ -342,12 +342,6 @@ const activate_product = async (args) => {
   //we need monitoring for before and after the transaction
   await db_api.addTransaction({ src: "activation", args: args });
   //this will allow for the monitoring of stock for the products in question
-  await data_gather_handler(
-    args.process_token,
-    args,
-    args.TRANSACTIONID,
-    "start"
-  );
   const barcodeInput = {
     product_id: args.PRODUCT_ID,
     employee: args.EMPLOYEE_NAME,
@@ -360,12 +354,6 @@ const activate_product = async (args) => {
     TRANSACTIONID: args.TRANSACTIONID,
   };
   const coreExec = await core_exec(args, barcodeInput);
-  await data_gather_handler(
-    args.process_token,
-    args,
-    args.TRANSACTIONID,
-    "end"
-  );
   return coreExec;
 };
 
@@ -417,12 +405,6 @@ const product_reduction = async (args) => {
         process_token: retriveToken[0][0].REDUCTION_TOKEN,
       };
       const result = await core_exec(core_args);
-      await data_gather_handler(
-        core_args.process_token,
-        core_args,
-        args.newTransactionID,
-        "end"
-      );
       if (result.status === "error") {
         return { status: false, message: "Product Reduction Failed" };
       }
@@ -439,12 +421,6 @@ const shipment_add = async (args) => {
   try {
     for (const shipmentObject of args) {
       await db_api.addTransaction({ src: "shipment", args: shipmentObject });
-      await data_gather_handler(
-        shipmentObject.process_token,
-        shipmentObject,
-        shipmentObject.TRANSACTIONID,
-        "start"
-      );
     }
     let shipmentFullfillmentFlag = true;
     const barcodeInputs = [];
@@ -488,14 +464,6 @@ const shipment_add = async (args) => {
     // Proceed only if all operations were successful
     if (shipmentFullfillmentFlag) {
       try {
-        for (const shipmentObject of args) {
-          await data_gather_handler(
-            shipmentObject.process_token,
-            shipmentObject,
-            shipmentObject.TRANSACTIONID,
-            "end"
-          );
-        }
         const data = await new Promise((resolve, reject) => {
           services.multiItemBarcodeGen(barcodeInputs, (result) => {
             if (result) {
