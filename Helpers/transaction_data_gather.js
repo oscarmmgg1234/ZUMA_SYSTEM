@@ -76,12 +76,14 @@ const data_gather_handler = async (
 
       //submit a json object corresponding to stock of every item to the transaction id to the stock before column
     } else {
+      //current way t implement is to wait for 5 seconds before updating the after stock having issues using a promise to wait for the update to be complete, db layer is post processing past the transactions 
+      // as there are trriggers that are fired after the update is done
       setTimeout(async () => {
         await knex.raw(
           "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
           [JSON.stringify(db_object), transactionID]
         );
-      }, 2000);
+      }, 3000);
       //submit a json object corresponding to stock of every item to the transaction id to the stock after column
     }
   } catch (err) {
