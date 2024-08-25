@@ -22,7 +22,6 @@ const db_api = db_interface();
 const services = init_services();
 const knex = query_manager;
 
-
 //mess of functions but are grouped by their respective controllers
 
 const getProductHistoryByDate = async (dateRange, productID) => {
@@ -31,7 +30,11 @@ const getProductHistoryByDate = async (dateRange, productID) => {
     [productID, dateRange.start, dateRange.end]
   );
   if (_productHistory[0].length === 0) {
-    return { status: false, message: "No history found for the product", data: null };
+    return {
+      status: false,
+      message: "No history found for the product",
+      data: null,
+    };
   }
   return {
     status: true,
