@@ -22,11 +22,23 @@ const db_api = db_interface();
 const services = init_services();
 const knex = query_manager;
 
-// core_engine({
-//   process_token:
-//     "AC:1023:fa5ceae5:20 RD:10fd:fa5ceae5:20 UP:23hs:fa5ceae5:-20 UP:2j3w:fa5ceae5:20 RD:2js2:fe260002:1:50 RD:234d:fa5ceae5:0.25 UP:2a1k:2e2f02c5:0.25 RD:2j2h:fe260002:1:50 UP:2q3e:14aa3aba:50:26 RD:2tyu:14aa3aba:50:26",
-//   args: { quantity: 20, employee_id: "000002", TRANSACTIONID: "129fhsfscdf" },
-// });
+
+//mess of functions but are grouped by their respective controllers
+
+const getProductHistoryByDate = async (dateRange, productID) => {
+  const _productHistory = await knex.raw(
+    "SELECT * from transaction_log WHERE PRODUCT_ID = ? AND DATE BETWEEN ? AND ? ORDER BY DATE ASC",
+    [productID, dateRange.start, dateRange.end]
+  );
+  if (_productHistory[0].length === 0) {
+    return { status: false, message: "No history found for the product", data: null };
+  }
+  return {
+    status: true,
+    data: _productHistory[0],
+    message: "Product history retrieved successfully",
+  };
+};
 
 const delProduct = async (args) => {
   try {
@@ -712,6 +724,9 @@ class controller {
   };
 
   dashboard_controller = {
+    getProductHistoryByDate: async (dateRange, productID) => {
+      return await getProductHistoryByDate(dateRange, productID);
+    },
     generate_inv_by_company_pdf: async (args) => {
       return await generate_inv_by_company_pdf(args);
     },

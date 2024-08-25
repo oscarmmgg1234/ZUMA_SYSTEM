@@ -311,6 +311,10 @@ class http_handler {
   };
 
   dashboard = {
+    getProductHistoryByDate: async (req, res) => {
+      const historyPacket = await controller.dashboard_controller.getProductHistoryByDate(req.dateRange, req.product_id)
+      res.send(historyPacket);
+    },
     getGlycerinGlobal: (req, res) => {
       controller.dashboard_controller.getGlycerinGlobal((data) => {
         const err = new ErrorHandling(data, "Error getting glycerin global");
