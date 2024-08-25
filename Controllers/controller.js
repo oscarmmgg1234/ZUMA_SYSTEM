@@ -28,7 +28,8 @@ const getProductHistoryByDate = async (dateRange, productID) => {
   const _productHistory = await knex("transaction_log")
     .select("*")
     .where("PRODUCT_ID", productID)
-    .whereBetween("DATE", [dateRange.start, dateRange.end]);
+    .whereBetween("DATE", [dateRange.start, dateRange.end])
+    .orderBy("DATE", "desc");
 
   if (_productHistory[0].length === 0) {
     return {
