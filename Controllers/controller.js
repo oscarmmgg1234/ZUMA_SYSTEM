@@ -25,10 +25,11 @@ const knex = query_manager;
 //mess of functions but are grouped by their respective controllers
 
 const getProductHistoryByDate = async (dateRange, productID) => {
-  const _productHistory = await knex.raw(
-    "SELECT * from transaction_log WHERE PRODUCT_ID = ? AND DATE BETWEEN ? AND ? ORDER BY DATE ASC",
-    [productID, dateRange.start, dateRange.end]
-  );
+  const _productHistory = await knex("transaction_log")
+    .select("*")
+    .where("PRODUCT_ID", productID)
+    .whereBetween("DATE", [dateRange.start, dateRange.end]);
+
   if (_productHistory[0].length === 0) {
     return {
       status: false,
