@@ -88,7 +88,17 @@ JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
 ORDER BY product.TYPE, product.NAME ASC
 `);
     const products = inventory[0];
-    return await this.generateMultiplePDF({ products });
+    const processes_product_stocks = products.map((product) => {
+      return {
+        ...product,
+        STOCK: Math.round(product.STOCK),
+        ACTIVE_STOCK: Math.round(product.ACTIVE_STOCK),
+        STORED_STOCK: Math.round(product.STORED_STOCK),
+      };
+    });
+    return await this.generateMultiplePDF({
+      products: processes_product_stocks,
+    });
   }
 
   async generateInventoryByCompany(company_id) {
@@ -102,8 +112,16 @@ WHERE product.COMPANY = ${company_id} ORDER BY product.NAME ASC`);
     );
 
     const products = inventory[0];
+    const processes_product_stocks = products.map((product) => {
+      return {
+        ...product,
+        STOCK: Math.round(product.STOCK),
+        ACTIVE_STOCK: Math.round(product.ACTIVE_STOCK),
+        STORED_STOCK: Math.round(product.STORED_STOCK),
+      };
+    });
     return await this.generateMultiplePDF(
-      { products, company: company[0][0].NAME },
+      { processes_product_stocks, company: company[0][0].NAME },
       "INVENTORY_BY_COMPANY_SHEET"
     );
   }
