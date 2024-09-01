@@ -314,8 +314,8 @@ class http_handler {
     getProductHistoryByDate: async (req, res) => {
       const historyPacket =
         await controller.dashboard_controller.getProductHistoryByDate(
-          req.dateRange,
-          req.product_id
+          req.body.dateRange,
+          req.body.productID
         );
       res.send(historyPacket);
     },

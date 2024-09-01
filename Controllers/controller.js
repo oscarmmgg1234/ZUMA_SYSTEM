@@ -25,24 +25,58 @@ const knex = query_manager;
 //mess of functions but are grouped by their respective controllers
 
 const getProductHistoryByDate = async (dateRange, productID) => {
-  const _productHistory = await knex("transaction_log")
-    .select("*")
-    .where("PRODUCT_ID", productID)
-    .whereBetween("DATE", [dateRange.start, dateRange.end])
-    .orderBy("DATE", "desc");
+  let _productHistory = [];
 
-  if (_productHistory[0].length === 0) {
+  try {
+    if (dateRange.start === dateRange.end) {
+      _productHistory = await knex("transaction_log")
+        .select("*")
+        .where("PRODUCT_ID", productID)
+        .andWhere(knex.raw("DATE(`DATE`) = ?", [dateRange.start]))
+        .orderBy("DATE", "desc");
+    } else {
+      _productHistory = await knex("transaction_log")
+        .select("*")
+        .where("PRODUCT_ID", productID)
+        .whereBetween(knex.raw("DATE(`DATE`)"), [
+          dateRange.start,
+          dateRange.end,
+        ])
+        .orderBy("DATE", "desc");
+    }
+
+    // Parse the JSON strings in before_stock and after_stock columns only if they are not null
+    _productHistory = _productHistory.map((entry) => ({
+      ...entry,
+      before_stock: entry.before_stock
+        ? JSON.parse(entry.before_stock)
+        : entry.before_stock,
+      after_stock: entry.after_stock
+        ? JSON.parse(entry.after_stock)
+        : entry.after_stock,
+    }));
+
+    if (_productHistory.length === 0) {
+      return {
+        status: false,
+        message: "No history found for the product",
+        data: null,
+      };
+    }
+
+    return {
+      status: true,
+      data: _productHistory,
+      message: "Product history retrieved successfully",
+    };
+  } catch (error) {
+    console.error("Error fetching product history:", error);
     return {
       status: false,
-      message: "No history found for the product",
+      message: "An error occurred while retrieving product history",
       data: null,
     };
   }
-  return {
-    status: true,
-    data: _productHistory[0],
-    message: "Product history retrieved successfully",
-  };
 };
 
 const delProduct = async (args) => {
