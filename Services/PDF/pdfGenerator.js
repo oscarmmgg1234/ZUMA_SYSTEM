@@ -121,7 +121,7 @@ WHERE product.COMPANY = ${company_id} ORDER BY product.NAME ASC`);
       };
     });
     return await this.generateMultiplePDF(
-      { processes_product_stocks, company: company[0][0].NAME },
+      { products: processes_product_stocks, company: company[0][0].NAME },
       "INVENTORY_BY_COMPANY_SHEET"
     );
   }
