@@ -10,6 +10,9 @@ const { util } = require("../../Utility/Constants");
 const {
   data_gather_handler,
 } = require("../../../Helpers/transaction_data_gather.js");
+const { query_manager } = require("../../../DB/query_manager.js");
+
+const knex = query_manager;
 
 class FunctionRegistry {
   constructor() {
@@ -20,7 +23,21 @@ class FunctionRegistry {
     this.registry_map = new Map();
     this.init();
   }
-  init() {
+
+  async getKErrorCorrectingFactor() {
+    //get error correction function factor (k)
+    const factor = await knex
+      .select("ErrorCorrectionFactor(K)")
+      .from("system_config");
+    if (factor.length < 1) {
+      return factor;
+    }
+    return 1;
+  }
+
+  async init() {
+    //get error correction function factor (k)
+    const factor = await this.getKErrorCorrectingFactor();
     //function have a 4 letter rando id
     this.registry_map.set("1023", {
       name: "Insert Activation Record",
