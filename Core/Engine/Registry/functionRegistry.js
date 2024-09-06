@@ -265,7 +265,8 @@ class FunctionRegistry {
           [
             value,
             this.Utils.productConsumption(
-              parseFloat(auxiliary.auxiliaryParam) * errorCorrectingFactor,
+              parseFloat(auxiliary.auxiliaryParam) *
+                this.liquidErrorCorrectingFactor,
               parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
                 ? parseFloat(auxiliary.lastAuxiliaryParam) * multiplier
@@ -330,7 +331,8 @@ class FunctionRegistry {
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [
             this.Utils.productConsumption(
-              parseFloat(auxiliary.auxiliaryParam) * errorCorrectingFactor,
+              parseFloat(auxiliary.auxiliaryParam) *
+                this.liquidErrorCorrectingFactor,
               parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
                 ? parseFloat(auxiliary.lastAuxiliaryParam) * multiplier
