@@ -10,11 +10,16 @@ const transaction_engine = async (args) => {
     args.to_arr()
   );
 
+  //Modify database so that negative stocks are possible because after transaction reversal, because initially stock is 0 and when u reduce it stays zero and then when u reverse it, it goes positive but it should be zero
+
   const activation = JSON.parse(response[0][0].ACTIVATION_STACK);
   const release = JSON.parse(response[0][0].RELEASE_STACK);
   const shipment = JSON.parse(response[0][0].SHIPMENT_STACK);
   const barcode = JSON.parse(response[0][0].BARCODE_STACK);
   const transStatus = JSON.parse(response[0][0].REVERSED);
+
+  
+
 
   if (transStatus === 1) {
     return;

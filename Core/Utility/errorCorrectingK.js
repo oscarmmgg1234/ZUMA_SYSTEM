@@ -1,0 +1,1 @@
+// this will be used to integrate actual and theoretical consumptiom and use actual/theoritical area to find k and with time avarage it out to smooth curves and minimize error 

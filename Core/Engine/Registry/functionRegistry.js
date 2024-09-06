@@ -11,6 +11,9 @@ const {
   data_gather_handler,
 } = require("../../../Helpers/transaction_data_gather.js");
 const { query_manager } = require("../../../DB/query_manager.js");
+const { get } = require("http");
+const e = require("cors");
+const { error } = require("console");
 
 const knex = query_manager;
 
@@ -21,6 +24,7 @@ class FunctionRegistry {
     }
     this.Utils = util;
     this.registry_map = new Map();
+    this.liquidErrorCorrectingFactor = this.getKErrorCorrectingFactor();
     this.init();
   }
 
@@ -29,15 +33,15 @@ class FunctionRegistry {
     const factor = await knex
       .select("ErrorCorrectionFactor(K)")
       .from("system_config");
-    if (factor.length < 1) {
+    //make sure factor is between 0 and 1 as overfilling is the real world problem otherwise we proceed with default value of 1
+    if (factor < 1 && factor > 0) {
       return factor;
     }
     return 1;
   }
 
-  async init() {
+  init() {
     //get error correction function factor (k)
-    const factor = await this.getKErrorCorrectingFactor();
     //function have a 4 letter rando id
     this.registry_map.set("1023", {
       name: "Insert Activation Record",
@@ -261,7 +265,7 @@ class FunctionRegistry {
           [
             value,
             this.Utils.productConsumption(
-              parseFloat(auxiliary.auxiliaryParam),
+              parseFloat(auxiliary.auxiliaryParam) * errorCorrectingFactor,
               parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
                 ? parseFloat(auxiliary.lastAuxiliaryParam) * multiplier
@@ -326,7 +330,7 @@ class FunctionRegistry {
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [
             this.Utils.productConsumption(
-              parseFloat(auxiliary.auxiliaryParam),
+              parseFloat(auxiliary.auxiliaryParam) * errorCorrectingFactor,
               parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
                 ? parseFloat(auxiliary.lastAuxiliaryParam) * multiplier
