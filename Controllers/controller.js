@@ -8,6 +8,9 @@ const { query_manager } = require("../DB/query_manager.js");
 const pdf_generator = require("../Services/PDF/pdfGenerator.js");
 const commitProductChanges = require("../Helpers/editProducts.js");
 const {
+  theoreticalBottleCount,
+} = require("../Constants/TheoreticalBottleCount.js");
+const {
   FunctionRegistry,
 } = require("../Core/Engine/Registry/functionRegistry.js");
 
@@ -23,6 +26,13 @@ const services = init_services();
 const knex = query_manager;
 
 //mess of functions but are grouped by their respective controllers
+
+const SubmitErrorDectectionInstance = async (args) => {
+  // employee, gallons, product_id, bottleOutcome,
+  //using the the product bottle size then figure out the therotical bottle outcome
+  //submit for review
+  const theoreticalBottleOutcome = theoreticalBottleCount(args.gallons, args.product.ACTIVATION_TOKEN);
+};
 
 const getProductHistoryByDate = async (dateRange, productID) => {
   let _productHistory = [];
