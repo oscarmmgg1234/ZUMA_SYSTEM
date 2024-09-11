@@ -11,9 +11,6 @@ const {
   data_gather_handler,
 } = require("../../../Helpers/transaction_data_gather.js");
 const { query_manager } = require("../../../DB/query_manager.js");
-const { get } = require("http");
-const e = require("cors");
-const { error } = require("console");
 
 const knex = query_manager;
 
