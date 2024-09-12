@@ -17,6 +17,7 @@ const {
 const {
   data_gather_handler,
 } = require("../Helpers/transaction_data_gather.js");
+const { clear } = require("console");
 
 const constants = new Constants();
 const helper = Helper();
@@ -31,7 +32,16 @@ const SubmitErrorDectectionInstance = async (args) => {
   // employee, gallons, product_id, bottleOutcome,
   //using the the product bottle size then figure out the therotical bottle outcome
   //submit for review
-  const theoreticalBottleOutcome = theoreticalBottleCount(args.gallons, args.product.ACTIVATION_TOKEN);
+  //create both a barcode cleaner and a error correction bot that gathers flaged true entries and then get avarage then checks pre condition and id so then updates the system_config errorcorrectionk
+
+  const theoreticalBottleOutcome = theoreticalBottleCount(
+    args.gallons,
+    args.product.ACTIVATION_TOKEN
+  );
+  await knex.raw(
+    "INSERT INTO ErrorCorrectionEntries(Product, TheoreticalBottleCount, ActualBottleCount, VerifiedFlag) VALUES(?, ?, ?, ?)",
+    [args.product.NAME, theoreticalBottleOutcome, args.actualBottleCount, 0]
+  );
 };
 
 const getProductHistoryByDate = async (dateRange, productID) => {
