@@ -28,7 +28,7 @@ const knex = query_manager;
 
 //mess of functions but are grouped by their respective controllers
 
-const SubmitErrorDectectionInstance = async (args) => {
+const SubmitErrorLiquidInstance = async (args) => {
   // employee, gallons, product_id, bottleOutcome,
   //using the the product bottle size then figure out the therotical bottle outcome
   //submit for review
@@ -38,9 +38,16 @@ const SubmitErrorDectectionInstance = async (args) => {
     args.gallons,
     args.product.ACTIVATION_TOKEN
   );
+  //add date to db
   await knex.raw(
-    "INSERT INTO ErrorCorrectionEntries(Product, TheoreticalBottleCount, ActualBottleCount, VerifiedFlag) VALUES(?, ?, ?, ?)",
-    [args.product.NAME, theoreticalBottleOutcome, args.actualBottleCount, 0]
+    "INSERT INTO ErrorCorrectionEntries(Product, TheoreticalBottleCount, ActualBottleCount, VerifiedFlag, Employee) VALUES(?, ?, ?, ?, ?, ?)",
+    [
+      args.product.NAME,
+      theoreticalBottleOutcome,
+      args.actualBottleCount,
+      0,
+      args.employee,
+    ]
   );
 };
 
@@ -686,6 +693,9 @@ class controller {
     },
   };
   services = {
+    SubmitErrorLiquidInstance: async (args) => {
+      return await SubmitErrorLiquidInstance(args);
+    },
     delProduct: async (args) => {
       return await delProduct(args);
     },

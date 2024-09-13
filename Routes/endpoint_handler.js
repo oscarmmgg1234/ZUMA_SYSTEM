@@ -17,7 +17,6 @@ class http_handler {
   constructor() {
     this.init = true;
   }
-
   shipment = {
     getPastYearShipments: async (req, res) => {
       const reponse = await controller.shipment.getPastYearShipments();
@@ -155,6 +154,11 @@ class http_handler {
   };
 
   services = {
+    SubmitErrorEntry: async (req, res) => {
+      //gallons, product, actualBottleCount, employee are inputs 
+      await controller.services.SubmitErrorEntry(req.body);
+      res.send(new success_handling({}, "Error Submitted").getSuccess());
+    },
     deleteProd: async (req, res) => {
       const response = await controller.services.delProduct(req.body);
       res.send(response);

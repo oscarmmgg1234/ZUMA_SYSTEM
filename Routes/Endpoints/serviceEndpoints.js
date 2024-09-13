@@ -4,6 +4,12 @@ const { endpointHandler } = require("../endpoint_handler");
 
 const endpoint_handler = endpointHandler();
 
+
+service_router.post("/SubmitErrorEntry", async (req,res) => {
+  await endpoint_handler.services.SubmitErrorEntry(req,res);
+})
+
+
 service_router.post("/delProduct", async (req, res) => {
   await endpoint_handler.services.deleteProd(req, res);
 });
