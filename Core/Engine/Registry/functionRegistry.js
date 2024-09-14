@@ -257,6 +257,8 @@ class FunctionRegistry {
       },
       proto: async (db_handle, args, value, auxiliary) => {
         //insert a liquid product into the consumption table
+        console.log("factor", this.liquidErrorCorrectingFactor);
+        console.log(typeof(this.liquidErrorCorrectingFactor));
         const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
