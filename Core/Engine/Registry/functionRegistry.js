@@ -30,6 +30,7 @@ class FunctionRegistry {
     const factor = await knex
       .select("ErrorCorrectionFactor(K)")
       .from("system_config");
+    console.log(factor)
     //make sure factor is between 0 and 1 as overfilling is the real world problem otherwise we proceed with default value of 1
     if (factor < 1 && factor > 0) {
       return factor;
