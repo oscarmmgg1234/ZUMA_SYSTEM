@@ -31,10 +31,9 @@ class FunctionRegistry {
       .select("ErrorCorrectionFactor(K)")
       .from("system_config");
     const extract = factor[0]["ErrorCorrectionFactor(K)"];
-    console.log("Error Correction Factor: ", extract);
     //make sure factor is between 0 and 1 as overfilling is the real world problem otherwise we proceed with default value of 1
-    if (factor < 1 && factor > 0) {
-      return factor;
+    if (extract < 1 && extract > 0) {
+      return extract;
     }
     return 1;
   }
