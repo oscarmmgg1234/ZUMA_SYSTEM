@@ -21,7 +21,6 @@ class FunctionRegistry {
     }
     this.Utils = util;
     this.registry_map = new Map();
-    this.liquidErrorCorrectingFactor = this.getKErrorCorrectingFactor();
     this.init();
   }
 
@@ -30,9 +29,7 @@ class FunctionRegistry {
     const factor = await knex
       .select("ErrorCorrectionFactor(K)")
       .from("system_config");
-    const extract = parseFloat(
-      Object.keys(factor[0]["ErrorCorrectionFactor(K)"])[0]
-    );
+    const extract = factor[0]["ErrorCorrectionFactor(K)"];
 
     //make sure factor is between 0 and 1 as overfilling is the real world problem otherwise we proceed with default value of 1
     if (extract < 1 && extract > 0) {
@@ -260,20 +257,19 @@ class FunctionRegistry {
       },
       proto: async (db_handle, args, value, auxiliary) => {
         //insert a liquid product into the consumption table
-        console.log("factor", this.liquidErrorCorrectingFactor);
-        console.log(typeof this.liquidErrorCorrectingFactor);
         const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
           [
             value,
             this.Utils.productConsumption(
-              parseFloat(auxiliary.auxiliaryParam) *
-                this.liquidErrorCorrectingFactor,
+              parseFloat(auxiliary.auxiliaryParam),
               parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
                 ? parseFloat(auxiliary.lastAuxiliaryParam) * multiplier
-                : args.QUANTITY * multiplier
+                : args.QUANTITY *
+                    (await this.getKErrorCorrectingFactor()) *
+                    multiplier
             ),
             args.EMPLOYEE_ID,
             args.TRANSACTIONID,
@@ -334,12 +330,13 @@ class FunctionRegistry {
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [
             this.Utils.productConsumption(
-              parseFloat(auxiliary.auxiliaryParam) *
-                this.liquidErrorCorrectingFactor,
+              parseFloat(auxiliary.auxiliaryParam),
               parseFloat(auxiliary.nextAuxiliaryParam),
               auxiliary.lastAuxiliaryParam
                 ? parseFloat(auxiliary.lastAuxiliaryParam) * multiplier
-                : args.QUANTITY * multiplier
+                : args.QUANTITY *
+                    (await this.getKErrorCorrectingFactor()) *
+                    multiplier
             ),
             value,
           ]
