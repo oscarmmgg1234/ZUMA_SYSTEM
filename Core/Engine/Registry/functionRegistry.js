@@ -30,7 +30,10 @@ class FunctionRegistry {
     const factor = await knex
       .select("ErrorCorrectionFactor(K)")
       .from("system_config");
-    const extract = factor[0].ErrorCorrectingFactor(K);
+    const extract = parseFloat(
+      Object.keys(factor[0]["ErrorCorrectionFactor(K)"])[0]
+    );
+
     //make sure factor is between 0 and 1 as overfilling is the real world problem otherwise we proceed with default value of 1
     if (extract < 1 && extract > 0) {
       return extract;
@@ -258,7 +261,7 @@ class FunctionRegistry {
       proto: async (db_handle, args, value, auxiliary) => {
         //insert a liquid product into the consumption table
         console.log("factor", this.liquidErrorCorrectingFactor);
-        console.log(typeof(this.liquidErrorCorrectingFactor));
+        console.log(typeof this.liquidErrorCorrectingFactor);
         const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
         await db_handle.raw(
           "INSERT INTO inventory_consumption (PRODUCT_ID, QUANTITY, EMPLOYEE_ID, TRANSACTIONID) VALUES (?, ?, ?, ?)",
