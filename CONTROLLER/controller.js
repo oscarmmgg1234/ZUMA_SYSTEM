@@ -126,6 +126,30 @@ class controller {
       }
     });
   }
+  async getRecords(params) {
+    await knex.transaction(async (trx) => {
+      try {
+        const records = await trx.raw(
+          `SELECT 
+            COALESCE(batchID, CONCAT('independent_', id)) as batchIdentifier, 
+            MIN(created) as created, 
+            MIN(orderIndex) as orderIndex, 
+            label, 
+            COUNT(*) as documentCount 
+         FROM records 
+         WHERE label = ? 
+         GROUP BY batchIdentifier, label 
+         ORDER BY COALESCE(orderIndex, created), created`,
+          [params.label]
+        );
+        trx.commit();
+        return new sucessHandling(records, "Records found").sucess();
+      } catch (err) {
+        trx.rollback();
+        return new errorHandling([], "Error getting records").error();
+      }
+    });
+  }
 }
 
 module.exports = controller;
