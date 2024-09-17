@@ -13,6 +13,10 @@ import { query_manager } from "../DB/query_manager";
 import { sucessHandling } from "../Utils/sucessHandling";
 import { errorHandling } from "../Utils/errorHandling";
 import { v4 as uuidv4 } from "uuid";
+const multer = require("multer");
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 const knex = query_manager;
 
