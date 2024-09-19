@@ -10,8 +10,8 @@
 */
 
 const { query_manager } = require("../DB/query_manager");
-const { sucessHandling } = require("../Utils/sucessHandling");
-const { errorHandling } = require("../Utils/errorHandling");
+const {H_Sucess} = require("../Utils/sucessHandling");
+const {H_Error} = require("../Utils/errorHandling");
 const { v4: uuidv4 } = require("uuid");
 
 const knex = query_manager;
@@ -27,14 +27,14 @@ class controller {
     //order by created date or by label title
     //created, label
     //create triggers to keep track of items per label, and delete and reduce from that index
-    const labels = await knex("records_labels")
-      .select("*")
-      .orderBy(params)
-      .descending();
-    if (labels.length === 0) {
-      return new errorHandling([], "No labels found").error();
+    const labels = await knex.raw(
+      "SELECT * FROM records_labels ORDER BY ? DESC",
+      [params]
+    );
+    if (labels[0].length === 0) {
+      return H_Error([], "No labels found");
     }
-    return new sucessHandling(labels, "Labels found").sucess();
+    return H_Sucess(labels, "Labels found");
   }
 
   async getLabelCountRecords(label) {
@@ -43,7 +43,6 @@ class controller {
   }
 
   async deleteLabel(id, label) {
-
     if (this.getLabelCountRecords(label) > 0) {
       return new errorHandling([], "Label has records").error();
     }
@@ -153,12 +152,10 @@ class controller {
     });
   }
 
-  async moveRecord(params){
+  async moveRecord(params) {
     //change records label name
     //keep orderIndex and or batchId the same it dont matter really
   }
-
-
 }
 
 function getControllerInstance() {

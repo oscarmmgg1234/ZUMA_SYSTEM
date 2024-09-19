@@ -20,5 +20,8 @@ class sucessHandling {
   }
 }
 
+function H_Sucess(data, message) {
+  return new sucessHandling(data, message).sucess();
+}
 
-module.exports = sucessHandling;
+module.exports = {H_Sucess};

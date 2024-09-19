@@ -20,4 +20,9 @@ class errorHandling {
   }
 }
 
-module.exports = errorHandling;
+
+function H_Error(data, message) {
+  return new errorHandling(data, message).error();
+}
+
+module.exports = {H_Error};
