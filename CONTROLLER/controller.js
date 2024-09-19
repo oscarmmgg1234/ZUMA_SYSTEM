@@ -9,14 +9,10 @@
 
 */
 
-import { query_manager } from "../DB/query_manager";
-import { sucessHandling } from "../Utils/sucessHandling";
-import { errorHandling } from "../Utils/errorHandling";
-import { v4 as uuidv4 } from "uuid";
-const multer = require("multer");
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const { query_manager } = require("../DB/query_manager");
+const { sucessHandling } = require("../Utils/sucessHandling");
+const { errorHandling } = require("../Utils/errorHandling");
+const { v4: uuidv4 } = require("uuid");
 
 const knex = query_manager;
 
@@ -30,6 +26,7 @@ class controller {
   async getLabels(params) {
     //order by created date or by label title
     //created, label
+    //create triggers to keep track of items per label, and delete and reduce from that index
     const labels = await knex("records_labels")
       .select("*")
       .orderBy(params)
@@ -46,11 +43,12 @@ class controller {
   }
 
   async deleteLabel(id, label) {
-    if (count > 0) {
+
+    if (this.getLabelCountRecords(label) > 0) {
       return new errorHandling([], "Label has records").error();
     }
-    const label = await knex("records_labels").where({ id: id }).del();
-    if (label === 0) {
+    const labels = await knex("records_labels").where({ id: id }).del();
+    if (labels === 0) {
       return new errorHandling([], "No label found for deletion").error();
     }
     return new sucessHandling([], "Label deleted").sucess();
@@ -154,6 +152,17 @@ class controller {
       }
     });
   }
+
+  async moveRecord(params){
+    //change records label name
+    //keep orderIndex and or batchId the same it dont matter really
+  }
+
+
 }
 
-module.exports = controller;
+function getControllerInstance() {
+  return new controller();
+}
+
+module.exports = { getControllerInstance };

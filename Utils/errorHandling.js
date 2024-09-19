@@ -20,4 +20,4 @@ class errorHandling {
   }
 }
 
-module.exports = sucessHandling;
+module.exports = errorHandling;
