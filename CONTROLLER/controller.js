@@ -139,29 +139,29 @@ class controller {
     });
   }
 
-  async getRecords(params) {
-    await knex.transaction(async (trx) => {
-      try {
-        const records = await trx.raw(
-          `SELECT 
-            COALESCE(batchID, CONCAT('independent_', id)) as batchIdentifier, 
-            MIN(created) as created, 
-            MIN(orderIndex) as orderIndex, 
-            label, 
-            COUNT(*) as documentCount 
-         FROM records 
-         WHERE label = ? 
-         GROUP BY batchIdentifier, label 
-         ORDER BY COALESCE(orderIndex, created), created`,
-          [params.label]
-        );
-        trx.commit();
-        return H_Sucess(records, "Records found");
-      } catch (err) {
-        trx.rollback();
-        return H_Error([], "Error getting records");
-      }
-    });
+  async getRecords(label) {
+    try {
+      // Use a transaction to ensure consistency
+      const records = await knex("records")
+        .select(
+          "batchID as batchIdentifier",
+          "upload_date",
+          "orderIndex",
+          "label",
+          "blob",
+          "metaData"
+        )
+        .where("label", label)
+        .orderBy("upload_date", "desc")
+        .orderByRaw("COALESCE(orderIndex, 0)");
+
+      return H_Sucess(records, "sucess retriving records"); // This will return the array of records
+
+      return H_Sucess(records[0], "Records found"); // Returning the records data
+    } catch (err) {
+      console.error("Error getting records:", err);
+      return H_Error([], "Error getting records");
+    }
   }
 
   async moveRecord(params) {
