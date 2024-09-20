@@ -152,7 +152,7 @@ class controller {
           "metaData"
         )
         .where("label", label)
-        .orderBy("upload_date", "desc")
+        .orderBy("upload_date", "ASC")
         .orderByRaw("COALESCE(orderIndex, 0)");
 
       return H_Sucess(records, "sucess retriving records"); // This will return the array of records
