@@ -12,8 +12,8 @@
 exports.query_manager = require("knex")({
   client: "mysql2",
   connection: {
-    host: "192.168.1.218",
-    user: "oscar",
+    host: "zumatest.cv00wewq0dtg.us-west-2.rds.amazonaws.com",
+    user: "admin",
     port: 3306,
     password: "Omariscool1234!",
     database: "zuma_main",

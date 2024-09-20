@@ -10,9 +10,9 @@
 */
 
 const { query_manager } = require("../DB/query_manager");
-const {H_Sucess} = require("../Utils/sucessHandling");
-const {H_Error} = require("../Utils/errorHandling");
-const { v4: uuidv4 } = require("uuid");
+const { H_Sucess } = require("../Utils/sucessHandling");
+const { H_Error } = require("../Utils/errorHandling");
+
 
 const knex = query_manager;
 
@@ -28,13 +28,12 @@ class controller {
     //created, label
     //create triggers to keep track of items per label, and delete and reduce from that index
     const labels = await knex.raw(
-      "SELECT * FROM records_labels ORDER BY ? DESC",
-      [params]
+      `SELECT * FROM records_labels ORDER BY ${params} ASC`
     );
     if (labels[0].length === 0) {
       return H_Error([], "No labels found");
     }
-    return H_Sucess(labels, "Labels found");
+    return H_Sucess(labels[0], "Labels found");
   }
 
   async getLabelCountRecords(label) {
@@ -44,31 +43,55 @@ class controller {
 
   async deleteLabel(id, label) {
     if (this.getLabelCountRecords(label) > 0) {
-      return new errorHandling([], "Label has records").error();
+      return H_Error([], "Label has records");
     }
     const labels = await knex("records_labels").where({ id: id }).del();
     if (labels === 0) {
-      return new errorHandling([], "No label found for deletion").error();
+      return H_Error([], "No label found for deletion");
     }
-    return new sucessHandling([], "Label deleted").sucess();
+    return H_Sucess([], "Label deleted");
   }
 
-  async checkLabelExists(params) {
+  async checkLabelExists(params, handle = null) {
+    if (handle) {
+      const label = await handle("records_labels").where({
+        label: params.label,
+      });
+      if (label.length > 0) {
+        return true;
+      }
+      return false;
+    }
     const label = await knex("records_labels").where({ label: params.label });
     if (label.length > 0) {
       return true;
     }
     return false;
   }
-  async createLabel(params) {
-    if (await this.checkLabelExists(params)) {
-      return new errorHandling([], "Label already exists").error();
+  async createLabel(params, handle = null) {
+    if (await this.checkLabelExists(params, handle)) {
+      return H_Error([], "Label already exists");
+    }
+    if (handle) {
+      const label = await handle.raw(
+        "INSERT INTO records_labels (label, metaData) VALUES (?, ?)",
+        [
+          params.label,
+          params.metaData
+            ? JSON.stringify(params.metaData)
+            : JSON.stringify({}),
+        ]
+      );
+      return H_Sucess([], "Label created");
     }
     const label = await knex.raw(
-      "INSERT INTO records_labels (label, meta-data) VALUES (?, ?)",
-      [params.label, params.metaData ? params.metaData : ""]
+      "INSERT INTO records_labels (label, metaData) VALUES (?, ?)",
+      [
+        params.label,
+        params.metaData ? JSON.stringify(params.metaData) : JSON.stringify({}),
+      ]
     );
-    return new sucessHandling([], "Label created").sucess();
+    return H_Sucess([], "Label created");
   }
 
   async updateLabel(params) {
@@ -79,54 +102,43 @@ class controller {
   }
 
   async insertRecord(params) {
-    //params.label
-    knex.transaction(async (trx) => {
-      try {
-        const exist = this.checkLabelExists(params);
-        if (!exist) {
-          const createStatus = await this.createLabel(params);
-          if (!createStatus.status) {
-            throw new Error("Error creating label");
-          }
-        }
-        const record = await knex.raw(
-          "INSERT INTO records (blob, metaData, label, title) VALUES (?, ? ,?, ?)",
-          [params.blob, params.metaData, params.label, params.title]
-        );
-        trx.commit();
-        return new sucessHandling([], "Record created").sucess();
-      } catch (err) {
-        trx.rollback();
-        return new errorHandling([], "Error creating record").error();
-      }
-    });
-  }
-  async insertMutipleRecordsPerTransaction(params) {
-    knex.transaction(async (trx) => {
-      try {
-        const batchID = uuidv4();
+    try {
+      return await knex.transaction(async (trx) => {
+        try {
+          // First, create the label (assuming this involves another table)
+          await this.createLabel(params, trx);
 
-        for (let i = 0; i < params.blobs.length; i++) {
+          // Insert the record with the transaction
           const record = await trx.raw(
-            "INSERT INTO records (blob, metaData, batchID, orderIndex, label, title) VALUES (?, ? ,?, ?, ?, ?)",
-            [
-              params.blobs[i],
-              params.metaData,
-              batchID,
-              i + 1,
-              params.label,
-              params.title,
-            ]
+            "INSERT INTO records (`blob`, `metaData`, `label`, `title`) VALUES (?, ?, ?, ?)", // Escaping `blob`
+            [params.blob, params.metaData, params.label, params.title]
           );
+
+          return H_Sucess([], "Record created");
+        } catch (err) {
+          console.error("Transaction failed:", err);
+          throw err; // The transaction will be rolled back automatically
         }
-        trx.commit();
-        return new sucessHandling([], "Records created").sucess();
+      });
+    } catch (err) {
+      console.error("Error during record insertion:", err);
+      return H_Error([], "Error creating record");
+    }
+  }
+
+  async insertMultipleRecordsBatch(records) {
+    return knex.transaction(async (trx) => {
+      try {
+        // Use batch insert instead of inserting one by one
+        await trx("records").insert(records);
+        return H_Sucess([], "Records created successfully");
       } catch (err) {
-        trx.rollback();
-        return new errorHandling([], "Error creating record").error();
+        console.error("Transaction failed:", err);
+        throw err; // Transaction will be automatically rolled back
       }
     });
   }
+
   async getRecords(params) {
     await knex.transaction(async (trx) => {
       try {
@@ -144,10 +156,10 @@ class controller {
           [params.label]
         );
         trx.commit();
-        return new sucessHandling(records, "Records found").sucess();
+        return H_Sucess(records, "Records found");
       } catch (err) {
         trx.rollback();
-        return new errorHandling([], "Error getting records").error();
+        return H_Error([], "Error getting records");
       }
     });
   }
