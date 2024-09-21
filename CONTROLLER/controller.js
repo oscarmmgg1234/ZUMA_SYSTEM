@@ -36,7 +36,11 @@ class controller {
   }
 
   async getLabelCountRecords(label) {
-    const count = await knex("records").where({ label: label }).count();
+    //checks for records that are not deleted
+    const count = await knex("records")
+      .where({ label: label })
+      .andWhere({ isDeleted: 0 })
+      .count();
     return count;
   }
 
@@ -179,6 +183,21 @@ class controller {
     } catch (err) {
       console.error("Error moving record:", err);
       return H_Error([], "Error moving record");
+    }
+  }
+
+  async deleteRecord(recordID) {
+    //change isDeleted to 1
+    //record_id
+    try {
+      const record = await knex("records")
+        .where({ record_id: recordID })
+        .update({ isDeleted: 1 });
+
+      return H_Sucess([], "Record deleted");
+    } catch (err) {
+      console.error("Error deleting record:", err);
+      return H_Error([], "Error deleting record");
     }
   }
 }

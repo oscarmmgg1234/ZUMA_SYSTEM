@@ -15,9 +15,6 @@ const multer = require("multer");
 const { getControllerInstance } = require("../CONTROLLER/controller");
 const { v4: uuidv4 } = require("uuid");
 const Controller = getControllerInstance();
-const { WritableStreamBuffer } = require("stream-buffers");
-const { Transform } = require("stream");
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -202,6 +199,16 @@ router.get("/moveRecord/:recordID/:label", async (req, res) => {
       record_id: req.params.recordID,
       label: req.params.label,
     });
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
+router.get("/deleteRecord/:recordID", async (req, res) => {
+  try {
+    const result = await Controller.deleteRecord(req.params.recordID);
     res.send(result);
   } catch (err) {
     console.log(err);
