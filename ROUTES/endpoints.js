@@ -215,4 +215,14 @@ router.get("/deleteRecord/:recordID", async (req, res) => {
     res.status(500).send("An error occurred");
   }
 });
+
+router.get("/undoDeleteRecord/:recordID", async (req, res) => {
+  try {
+    const result = await Controller.undoDeleteRecord(req.params.recordID);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
 module.exports = router;

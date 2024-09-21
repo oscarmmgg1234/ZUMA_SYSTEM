@@ -153,11 +153,13 @@ class controller {
           "batchID as batchIdentifier",
           "upload_date",
           "orderIndex",
+          "record_id",
           "label",
           "blob",
           "metaData"
         )
         .where("label", label)
+        .andWhere("isDeleted", 0)
         .orderBy("upload_date", "ASC")
         .orderByRaw("COALESCE(orderIndex, 0)");
 
@@ -198,6 +200,19 @@ class controller {
     } catch (err) {
       console.error("Error deleting record:", err);
       return H_Error([], "Error deleting record");
+    }
+  }
+
+  async undoDeleteRecord(recordID){
+    try {
+      const record = await knex("records")
+        .where({ record_id: recordID })
+        .update({ isDeleted: 0 });
+
+      return H_Sucess([], "Record restored");
+    } catch (err) {
+      console.error("Error restoring record:", err);
+      return H_Error([], "Error restoring record");
     }
   }
 }
