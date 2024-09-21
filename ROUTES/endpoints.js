@@ -31,7 +31,6 @@ router.get("/labels/:filter", async (req, res) => {
   }
 });
 
-
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const file = req.file;
@@ -121,7 +120,6 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
             .json({ error: `Unsupported file type ${file.mimetype}` });
       }
 
-
       const combinedMetaData = JSON.stringify({
         originalname: file.originalname,
         mimetype: file.mimetype === "image/heic" ? "image/jpeg" : file.mimetype,
@@ -191,6 +189,19 @@ router.get("/deleteLabel/:id/:label", async (req, res) => {
       req.params.id,
       req.params.label
     );
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
+router.get("/moveRecord/:recordID/:label", async (req, res) => {
+  try {
+    const result = await Controller.moveRecord({
+      record_id: req.params.recordID,
+      label: req.params.label,
+    });
     res.send(result);
   } catch (err) {
     console.log(err);

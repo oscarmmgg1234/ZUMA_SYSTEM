@@ -13,7 +13,6 @@ const { query_manager } = require("../DB/query_manager");
 const { H_Sucess } = require("../Utils/sucessHandling");
 const { H_Error } = require("../Utils/errorHandling");
 
-
 const knex = query_manager;
 
 class controller {
@@ -42,10 +41,13 @@ class controller {
   }
 
   async deleteLabel(id, label) {
-    if (this.getLabelCountRecords(label) > 0) {
+    const check = await this.getLabelCountRecords(label);
+    if (check[0]["count(*)"] > 0) {
       return H_Error([], "Label has records");
     }
+
     const labels = await knex("records_labels").where({ id: id }).del();
+
     if (labels === 0) {
       return H_Error([], "No label found for deletion");
     }
@@ -167,6 +169,17 @@ class controller {
   async moveRecord(params) {
     //change records label name
     //keep orderIndex and or batchId the same it dont matter really
+    //record_id, label, or send to misc documents folder
+    try {
+      const record = await knex("records")
+        .where({ record_id: params.record_id })
+        .update({ label: params.label });
+
+      return H_Sucess([], "Record moved");
+    } catch (err) {
+      console.error("Error moving record:", err);
+      return H_Error([], "Error moving record");
+    }
   }
 }
 
