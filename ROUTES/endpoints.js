@@ -225,4 +225,68 @@ router.get("/undoDeleteRecord/:recordID", async (req, res) => {
     res.status(500).send("An error occurred");
   }
 });
+
+router.post("/deleteBatchRecords", async (req, res) => {
+  try {
+    const result = await Controller.deleteBatchRecords(req.body.recordIds);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
+router.post("/moveBatchRecords", async (req, res) => {
+  try {
+    const result = await Controller.moveBatchRecords(
+      req.body.recordIds,
+      req.body.label
+    );
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
+router.get("/getRecordInfo/:recordID", async (req, res) => {
+  try {
+    const result = await Controller.getRecordInfo(req.params.recordID);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
+router.get("/getRecord/:recordID", async (req, res) => {
+  try {
+    const result = await Controller.getRecord(req.params.recordID);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
+router.get("/getRecordsByBatch/:batchID", async (req, res) => {
+  try {
+    const result = await Controller.getRecordsFromBatch(req.params.batchID);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
+router.get("/getLabelCount/:label", async (req, res) => {
+  try {
+    const result = await Controller.getLabelCount(req.params.label);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
 module.exports = router;

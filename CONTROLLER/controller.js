@@ -107,10 +107,31 @@ class controller {
       .update({ label: params.label });
   }
 
+  async titleExists(title, handle = null) {
+    if (handle) {
+      const record = await handle("records").where({ title: title });
+      if (record.length > 0) {
+        return H_Error([], "Title already exists");
+      }
+      return H_Sucess([], "Title available");
+    }
+    const record = await knex("records").where({ title: title });
+    if (record.length > 0) {
+      return H_Error([], "Title already exists");
+    }
+    return H_Sucess([], "Title available");
+  }
+
   async insertRecord(params) {
+    //make sure that title is unique update db to unique key
     try {
       return await knex.transaction(async (trx) => {
         try {
+          const status = await this.titleExists(params.title, trx);
+
+          if (status.status === false) {
+            return H_Error([], "Title already exists");
+          }
           // First, create the label (assuming this involves another table)
           await this.createLabel(params, trx);
 
@@ -133,8 +154,14 @@ class controller {
   }
 
   async insertMultipleRecordsBatch(records) {
+    //make sure that title is unique update db to unique key
     return knex.transaction(async (trx) => {
       try {
+        const status = await this.titleExists(params.title, trx);
+
+        if (status.status === false) {
+          return H_Error([], "Title already exists");
+        }
         // Use batch insert instead of inserting one by one
         await trx("records").insert(records);
         return H_Sucess([], "Records created successfully");
@@ -242,6 +269,67 @@ class controller {
       }
     }
     return H_Sucess([], "Records moved");
+  }
+
+  async getRecordInfo(recordID) {
+    try {
+      const record = await knex("records")
+        .where({ record_id: recordID })
+        .select("metaData", "title", "isDeleted", "label")
+        .first();
+      return H_Sucess(record, "Record found");
+    } catch (err) {
+      console.error("Error getting record info:", err);
+      return H_Error([], "Error getting record info");
+    }
+  }
+
+  async getRecord(recordID) {
+    try {
+      const record = await knex("records")
+        .where({ record_id: recordID })
+        .select("*")
+        .first();
+      return H_Sucess(record, "Record found");
+    } catch (err) {
+      console.error("Error getting record:", err);
+      return H_Error([], "Error getting record");
+    }
+  }
+  async searchRecords(search) {
+    //this is going to check for title, label
+    //check and retrive eveything
+    //first check for title
+    try {
+      const records = await knex("records")
+        .where("title", "like", `%${search}%`)
+        .select("record_id", "title", "label", "upload_date");
+      const labels = await knex("records")
+        .where("label", "like", `%${search}%`)
+        .select("*");
+      if (records.length === 0 && labels.length === 0) {
+        return H_Error([], "No records found");
+      }
+      //return arrays of records and labels
+      return H_Sucess(
+        { records_search_ouput: records, labels_search_output: labels },
+        "Records found"
+      );
+    } catch (err) {
+      console.error("Error searching records:", err);
+      return H_Error([], "Error searching records");
+    }
+  }
+  async getRecordsFromBatch(batchID) {
+    try {
+      const records = await knex("records")
+        .where({ batchID: batchID })
+        .select("*");
+      return H_Sucess(records, "Records found");
+    } catch (err) {
+      console.error("Error getting records from batch:", err);
+      return H_Error([], "Error getting records from batch");
+    }
   }
 }
 
