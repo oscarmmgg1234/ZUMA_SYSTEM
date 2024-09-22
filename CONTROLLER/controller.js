@@ -203,7 +203,7 @@ class controller {
     }
   }
 
-  async undoDeleteRecord(recordID){
+  async undoDeleteRecord(recordID) {
     try {
       const record = await knex("records")
         .where({ record_id: recordID })
@@ -214,6 +214,34 @@ class controller {
       console.error("Error restoring record:", err);
       return H_Error([], "Error restoring record");
     }
+  }
+  async deleteBatchRecords(recordIds) {
+    //delete all records with record_id array
+    let delete_status = [];
+    for (let i = 0; i < recordIds.length; i++) {
+      delete_status.push(await this.deleteRecord(recordIds[i]));
+    }
+    for (let i = 0; i < delete_status.length; i++) {
+      if (delete_status[i].status === false) {
+        return H_Error([], "Error deleting some or all records");
+      }
+    }
+    return H_Sucess([], "Records deleted");
+  }
+  async moveBatchRecords(recordIds, label) {
+    //move all records with record_id array
+    let move_status = [];
+    for (let i = 0; i < recordIds.length; i++) {
+      move_status.push(
+        await this.moveRecord({ record_id: recordIds[i], label: label })
+      );
+    }
+    for (let i = 0; i < move_status.length; i++) {
+      if (move_status[i].status === true) {
+        return H_Error([], "Error moving some or all records");
+      }
+    }
+    return H_Sucess([], "Records moved");
   }
 }
 
