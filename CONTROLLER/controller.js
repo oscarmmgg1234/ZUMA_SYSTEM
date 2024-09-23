@@ -179,6 +179,8 @@ class controller {
       const _offset = page * _limit_entries; // Calculate the starting point for the current page
 
       // Get total record count for the label
+      //when addding records on local device keep a local version of many things to not have to reupdate and refetch front end data which would be expesive and slow
+      //when it comes to loading pages i will have to load and offload as entries are loaded because its crazy amount of memory where dealing with
       const getRecordCount = await this.getLabelCountRecords(label);
 
       // If no records found, return a meaningful error
