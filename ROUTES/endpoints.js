@@ -42,7 +42,8 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     if (file.mimetype === "image/heic") {
       buffer = await sharp(file.buffer)
         .toFormat("jpeg")
-        .jpeg({ quality: 80 }) // You can adjust the quality
+        .jpeg({ quality: 60 })
+        .greyscale() // You can adjust the quality
         .toBuffer();
     } else {
       // Handle other file types normally or add more conditions for different formats
@@ -99,17 +100,16 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
         case "image/jpeg":
           compressedBuffer = await sharp(file.buffer)
             .jpeg({ quality: 60 }) // Compress the image to approximately 60% quality
+            .greyscale()
             .toBuffer();
           break;
         case "image/png":
-          compressedBuffer = await sharp(file.buffer)
-            .png({ quality: 60 }) // Apply PNG compression
-            .toBuffer();
+          compressedBuffer = await sharp(file.buffer).png({ quality: 60 }); // Apply PNG compression
+          greyscale().toBuffer();
           break;
         case "image/heic": // Handling HEIF images
-          compressedBuffer = await sharp(file.buffer)
-            .jpeg({ quality: 60 }) // Convert HEIF to JPEG
-            .toBuffer();
+          compressedBuffer = await sharp(file.buffer).jpeg({ quality: 60 }); // Convert HEIF to JPEG
+          greyscale().toBuffer();
           break;
         default:
           return res
