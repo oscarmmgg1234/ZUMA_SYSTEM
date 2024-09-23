@@ -23,6 +23,7 @@ class controller {
   }
 
   async getLabels(params) {
+    //to get labels we are going to incorporate a offset
     //order by created date or by label title
     //created, label
     //create triggers to keep track of items per label, and delete and reduce from that index
@@ -41,12 +42,12 @@ class controller {
       .where({ label: label })
       .andWhere({ isDeleted: 0 })
       .count();
-    return count;
+    return count[0]["count(*)"];
   }
 
   async deleteLabel(id, label) {
     const check = await this.getLabelCountRecords(label);
-    if (check[0]["count(*)"] > 0) {
+    if (check > 0) {
       return H_Error([], "Label has records");
     }
 
@@ -172,9 +173,26 @@ class controller {
     });
   }
 
-  async getRecords(label) {
+  
+  async getRecords(label, page = 0) {
     try {
-      // Use a transaction to ensure consistency
+      const _limit_entries = 15; // Number of entries per page
+      const _offset = page * _limit_entries; // Calculate the starting point for the current page
+
+      // Get total record count for the label
+      const getRecordCount = await this.getLabelCountRecords(label);
+
+      // If no records found, return a meaningful error
+      if (getRecordCount === 0) {
+        return H_Error([], "No records found");
+      }
+
+      // If page exceeds available data, return an error or empty response
+      if (_offset >= getRecordCount) {
+        return H_Error([], "No more records available");
+      }
+
+      // Retrieve records using limit and offset for pagination
       const records = await knex("records")
         .select(
           "batchID as batchIdentifier",
@@ -187,12 +205,12 @@ class controller {
         )
         .where("label", label)
         .andWhere("isDeleted", 0)
-        .orderBy("upload_date", "ASC")
-        .orderByRaw("COALESCE(orderIndex, 0)");
+        .orderBy("upload_date", "ASC") // Order by date and orderIndex
+        .orderByRaw("COALESCE(orderIndex, 0)")
+        .limit(_limit_entries) // Limit the number of records fetched
+        .offset(_offset); // Offset based on the page
 
-      return H_Sucess(records, "sucess retriving records"); // This will return the array of records
-
-      return H_Sucess(records[0], "Records found"); // Returning the records data
+      return H_Sucess(records, "Successfully retrieved records");
     } catch (err) {
       console.error("Error getting records:", err);
       return H_Error([], "Error getting records");
@@ -329,6 +347,21 @@ class controller {
     } catch (err) {
       console.error("Error getting records from batch:", err);
       return H_Error([], "Error getting records from batch");
+    }
+  }
+  async getDeletedRecords() {
+    try {
+      const records = await knex("records")
+        .where({ isDeleted: 1 })
+        .select("*")
+        .orderBy("upload_date", "ASC");
+      if (records.length === 0) {
+        return H_Error([], "No deleted records found");
+      }
+      return H_Sucess(records, "Deleted records retrieved");
+    } catch (err) {
+      console.error("Error getting deleted records:", err);
+      return H_Error([], "Error getting deleted records");
     }
   }
 }

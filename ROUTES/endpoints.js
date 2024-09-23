@@ -144,10 +144,10 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
   }
 });
 
-router.get("/records/:label", async (req, res) => {
+router.get("/records/:label/:page", async (req, res) => {
   try {
     // Get records by label parameter from the URL
-    const records = await Controller.getRecords(req.params.label);
+    const records = await Controller.getRecords(req.params.label, req.params.page);
     res.send(records); // Send the response to the client
   } catch (err) {
     console.error("Error in record retrieval:", err);
@@ -289,4 +289,13 @@ router.get("/getLabelCount/:label", async (req, res) => {
   }
 });
 
+router.get("/getDeletedRecords", async (req, res) => {
+  try {
+    const result = await Controller.getDeletedRecords();
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
 module.exports = router;
