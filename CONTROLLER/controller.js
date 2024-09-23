@@ -173,9 +173,9 @@ class controller {
     });
   }
 
-  async getRecords(label, page = 0) {
+  async getRecords(label, page = 0, limit = 10) {
     try {
-      const _limit_entries = 15; // Number of entries per page
+      const _limit_entries = limit; // Number of entries per page
       const _offset = page * _limit_entries; // Calculate the starting point for the current page
 
       // Get total record count for the label

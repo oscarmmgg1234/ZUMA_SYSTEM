@@ -144,10 +144,14 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
   }
 });
 
-router.get("/records/:label/:page", async (req, res) => {
+router.get("/records/:label/:page/:limit", async (req, res) => {
   try {
     // Get records by label parameter from the URL
-    const records = await Controller.getRecords(req.params.label, req.params.page);
+    const records = await Controller.getRecords(
+      req.params.label,
+      parseInt(req.params.page),
+      parseInt(req.params.limit)
+    );
     res.send(records); // Send the response to the client
   } catch (err) {
     console.error("Error in record retrieval:", err);
