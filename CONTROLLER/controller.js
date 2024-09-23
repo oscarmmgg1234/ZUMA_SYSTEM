@@ -173,7 +173,6 @@ class controller {
     });
   }
 
-  
   async getRecords(label, page = 0) {
     try {
       const _limit_entries = 15; // Number of entries per page
@@ -321,10 +320,12 @@ class controller {
     try {
       const records = await knex("records")
         .where("title", "like", `%${search}%`)
-        .select("record_id", "title", "label", "upload_date");
+        .select("record_id", "title", "label", "upload_date")
+        .limit(5);
       const labels = await knex("records")
         .where("label", "like", `%${search}%`)
-        .select("*");
+        .select("*")
+        .limit(5);
       if (records.length === 0 && labels.length === 0) {
         return H_Error([], "No records found");
       }
