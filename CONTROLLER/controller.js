@@ -103,9 +103,16 @@ class controller {
 
   async updateLabel(params) {
     //cascade update in label name
+    //check if label exists
+    const labelCheck = await this.checkLabelExists(params);
+    if (labelCheck) {
+      return H_Error([], "Label already exists");
+    }
+
     const label = await knex("records_labels")
       .where({ id: params.id })
       .update({ label: params.label });
+    return H_Sucess([], "Label updated");
   }
 
   async titleExists(title, handle = null) {
@@ -158,7 +165,7 @@ class controller {
     //make sure that title is unique update db to unique key
     return knex.transaction(async (trx) => {
       try {
-        const status = await this.titleExists(params.title, trx);
+        const status = await this.titleExists(records[0].title, trx);
 
         if (status.status === false) {
           return H_Error([], "Title already exists");
@@ -201,7 +208,8 @@ class controller {
           "orderIndex",
           "record_id",
           "label",
-          "blob",
+          "preview",
+          "title",
           "metaData"
         )
         .where("label", label)
@@ -365,6 +373,31 @@ class controller {
     } catch (err) {
       console.error("Error getting deleted records:", err);
       return H_Error([], "Error getting deleted records");
+    }
+  }
+  async getCountRecordsPerLabel() {
+    // return count of records per label
+    // {label: label, count: count} // return array of objects
+    try {
+      // Step 1: Get all distinct labels from the 'record_labels' table
+      const labels = await knex("records_labels").distinct("label");
+
+      // Step 2: For each label, count how many records in the 'records' table contain that label
+      const results = await Promise.all(
+        labels.map(async ({ label }) => {
+          const countResult = await knex("records")
+            .where("label", label)
+            .count("label as count");
+          const count = countResult[0].count;
+          return { label, count };
+        })
+      );
+
+      // Step 3: Return the result
+      return H_Sucess(results, "Records count per label retrieved");
+    } catch (err) {
+      console.error("Error getting records count per label:", err);
+      return H_Error([], "Error getting records count per label");
     }
   }
 }

@@ -27,8 +27,9 @@ router.get("/labels/:filter", async (req, res) => {
     res.status(500).send("An error occurred");
   }
 });
-
 router.post("/upload", upload.single("file"), async (req, res) => {
+
+  //create thumbnail
   try {
     const file = req.file;
     const { label, metaData, title } = req.body;
@@ -38,16 +39,31 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     }
 
     let buffer;
-    // Check if the file type is HEIF; convert it to JPEG
+    const maxWidth = 720; // You can adjust the max width to something smaller if needed
+    const maxHeight = 1280; // Set max height if necessary
+
+    // Resize and convert the image if needed
     if (file.mimetype === "image/heic") {
       buffer = await sharp(file.buffer)
+        .resize({ width: maxWidth, height: maxHeight, fit: "inside" }) // Maintain aspect ratio, resize within limits
         .toFormat("jpeg")
         .jpeg({ quality: 60 })
-        .greyscale() // You can adjust the quality
+        .greyscale()
+        .toBuffer();
+    } else if (file.mimetype === "image/png") {
+      buffer = await sharp(file.buffer)
+        .resize({ width: maxWidth, height: maxHeight, fit: "inside" }) // Resize PNG within limits
+        .png({ quality: 60 })
+        .greyscale()
+        .toBuffer();
+    } else if (file.mimetype === "image/jpeg") {
+      buffer = await sharp(file.buffer)
+        .resize({ width: maxWidth, height: maxHeight, fit: "inside" }) // Resize JPEG within limits
+        .jpeg({ quality: 60 })
+        .greyscale()
         .toBuffer();
     } else {
-      // Handle other file types normally or add more conditions for different formats
-      buffer = file.buffer;
+      buffer = file.buffer; // If file is not a supported image type, use original buffer
     }
 
     // Prepare the file metadata
@@ -55,12 +71,13 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       originalname: file.originalname,
       mimetype: file.mimetype === "image/heic" ? "image/jpeg" : file.mimetype, // Update mimetype if converted
       size: file.size,
+      compressedSize: buffer.length, // Store the compressed file size
       ...metaData, // Merge any additional metadata provided
     });
 
     // Insert the record with a transaction
     const result = await Controller.insertRecord({
-      blob: buffer, // Store the possibly converted file buffer
+      blob: buffer, // Store the resized and possibly converted file buffer
       metaData: combinedMetaData, // Store metadata as a JSON string
       label: label, // Label provided in the request
       title: title, // Title provided in the request
@@ -85,6 +102,9 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
     const batchID = uuidv4(); // Generate a single batchID for all files
     const records = [];
 
+    const maxWidth = 720; // Set the maximum width for resizing
+    const maxHeight = 1280; // Set the maximum height for resizing
+
     // Process files in a loop
     for (let index = 0; index < files.length; index++) {
       const file = files[index];
@@ -99,17 +119,24 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
       switch (file.mimetype) {
         case "image/jpeg":
           compressedBuffer = await sharp(file.buffer)
+            .resize({ width: maxWidth, height: maxHeight, fit: "inside" }) // Resize the image
             .jpeg({ quality: 60 }) // Compress the image to approximately 60% quality
             .greyscale()
             .toBuffer();
           break;
         case "image/png":
-          compressedBuffer = await sharp(file.buffer).png({ quality: 60 }); // Apply PNG compression
-          greyscale().toBuffer();
+          compressedBuffer = await sharp(file.buffer)
+            .resize({ width: maxWidth, height: maxHeight, fit: "inside" }) // Resize the image
+            .png({ quality: 60 }) // Compress the PNG image
+            .greyscale()
+            .toBuffer();
           break;
         case "image/heic": // Handling HEIF images
-          compressedBuffer = await sharp(file.buffer).jpeg({ quality: 60 }); // Convert HEIF to JPEG
-          greyscale().toBuffer();
+          compressedBuffer = await sharp(file.buffer)
+            .resize({ width: maxWidth, height: maxHeight, fit: "inside" }) // Resize the image
+            .jpeg({ quality: 60 }) // Convert HEIF to JPEG and compress
+            .greyscale()
+            .toBuffer();
           break;
         default:
           return res
@@ -236,6 +263,7 @@ router.post("/deleteBatchRecords", async (req, res) => {
     res.send(result);
   } catch (err) {
     console.log(err);
+
     res.status(500).send("An error occurred");
   }
 });
@@ -296,6 +324,16 @@ router.get("/getLabelCount/:label", async (req, res) => {
 router.get("/getDeletedRecords", async (req, res) => {
   try {
     const result = await Controller.getDeletedRecords();
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
+router.get("/getCountPerLabel", async (req, res) => {
+  try {
+    const result = await Controller.getCountRecordsPerLabel();
     res.send(result);
   } catch (err) {
     console.log(err);
