@@ -18,6 +18,16 @@ const Controller = getControllerInstance();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+router.get("/blob/:recordID", async (req, res) => {
+  try {
+    const blob = await Controller.getBlob(req.params.recordID);
+    res.send(blob);
+  }
+  catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
 router.get("/labels/:filter", async (req, res) => {
   try {
     const labels = await Controller.getLabels(req.params.filter);
@@ -28,7 +38,6 @@ router.get("/labels/:filter", async (req, res) => {
   }
 });
 router.post("/upload", upload.single("file"), async (req, res) => {
-
   //create thumbnail
   try {
     const file = req.file;
@@ -37,7 +46,9 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     if (!file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
-
+    let previewBuffer;
+    const previewWidth = 150; // Set the width for the preview image
+    const previewHeight = 150; // Set the height for the preview image
     let buffer;
     const maxWidth = 720; // You can adjust the max width to something smaller if needed
     const maxHeight = 1280; // Set max height if necessary
@@ -50,16 +61,31 @@ router.post("/upload", upload.single("file"), async (req, res) => {
         .jpeg({ quality: 60 })
         .greyscale()
         .toBuffer();
+      previewBuffer = await sharp(file.buffer)
+        .resize({ width: previewWidth, height: previewHeight, fit: "inside" }) // Resize preview image
+        .jpeg({ quality: 50 })
+        .greyscale()
+        .toBuffer();
     } else if (file.mimetype === "image/png") {
       buffer = await sharp(file.buffer)
         .resize({ width: maxWidth, height: maxHeight, fit: "inside" }) // Resize PNG within limits
         .png({ quality: 60 })
         .greyscale()
         .toBuffer();
+      previewBuffer = await sharp(file.buffer)
+        .resize({ width: previewWidth, height: previewHeight, fit: "inside" }) // Resize preview image
+        .png({ quality: 50 })
+        .greyscale()
+        .toBuffer();
     } else if (file.mimetype === "image/jpeg") {
       buffer = await sharp(file.buffer)
         .resize({ width: maxWidth, height: maxHeight, fit: "inside" }) // Resize JPEG within limits
         .jpeg({ quality: 60 })
+        .greyscale()
+        .toBuffer();
+      previewBuffer = await sharp(file.buffer)
+        .resize({ width: previewWidth, height: previewHeight, fit: "inside" }) // Resize preview image
+        .jpeg({ quality: 50 })
         .greyscale()
         .toBuffer();
     } else {
@@ -77,6 +103,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 
     // Insert the record with a transaction
     const result = await Controller.insertRecord({
+      preview: previewBuffer, // Store the preview image buffer
       blob: buffer, // Store the resized and possibly converted file buffer
       metaData: combinedMetaData, // Store metadata as a JSON string
       label: label, // Label provided in the request
@@ -101,7 +128,8 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
 
     const batchID = uuidv4(); // Generate a single batchID for all files
     const records = [];
-
+    const previewWidth = 150; // Set the width for the preview image
+    const previewHeight = 150; // Set the height for the preview image
     const maxWidth = 720; // Set the maximum width for resizing
     const maxHeight = 1280; // Set the maximum height for resizing
 
@@ -116,6 +144,7 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
       }
 
       let compressedBuffer;
+      let previewBuffer;
       switch (file.mimetype) {
         case "image/jpeg":
           compressedBuffer = await sharp(file.buffer)
@@ -123,6 +152,16 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
             .jpeg({ quality: 60 }) // Compress the image to approximately 60% quality
             .greyscale()
             .toBuffer();
+          previewBuffer = await sharp(file.buffer)
+            .resize({
+              width: previewWidth,
+              height: previewHeight,
+              fit: "inside",
+            }) // Resize the image
+            .jpeg({ quality: 50 }) // Compress the image to approximately 60% quality
+            .greyscale()
+            .toBuffer();
+
           break;
         case "image/png":
           compressedBuffer = await sharp(file.buffer)
@@ -130,11 +169,29 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
             .png({ quality: 60 }) // Compress the PNG image
             .greyscale()
             .toBuffer();
+          previewBuffer = await sharp(file.buffer)
+            .resize({
+              width: previewWidth,
+              height: previewHeight,
+              fit: "inside",
+            }) // Resize the image
+            .png({ quality: 50 }) // Compress the PNG image
+            .greyscale()
+            .toBuffer();
           break;
         case "image/heic": // Handling HEIF images
           compressedBuffer = await sharp(file.buffer)
             .resize({ width: maxWidth, height: maxHeight, fit: "inside" }) // Resize the image
             .jpeg({ quality: 60 }) // Convert HEIF to JPEG and compress
+            .greyscale()
+            .toBuffer();
+          previewBuffer = await sharp(file.buffer)
+            .resize({
+              width: previewWidth,
+              height: previewHeight,
+              fit: "inside",
+            }) // Resize the image
+            .jpeg({ quality: 50 }) // Convert HEIF to JPEG and compress
             .greyscale()
             .toBuffer();
           break;
@@ -153,6 +210,7 @@ router.post("/uploadMultiple", upload.array("files"), async (req, res) => {
       });
 
       records.push({
+        preview: previewBuffer,
         blob: compressedBuffer,
         metaData: combinedMetaData,
         batchID: batchID,

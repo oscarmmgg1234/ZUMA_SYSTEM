@@ -12,6 +12,7 @@
 const { query_manager } = require("../DB/query_manager");
 const { H_Sucess } = require("../Utils/sucessHandling");
 const { H_Error } = require("../Utils/errorHandling");
+const { param } = require("../ROUTES/endpoints");
 
 const knex = query_manager;
 
@@ -145,8 +146,14 @@ class controller {
 
           // Insert the record with the transaction
           const record = await trx.raw(
-            "INSERT INTO records (`blob`, `metaData`, `label`, `title`) VALUES (?, ?, ?, ?)", // Escaping `blob`
-            [params.blob, params.metaData, params.label, params.title]
+            "INSERT INTO records (`blob`, `metaData`, `label`, `title`, `preview`) VALUES (?, ?, ?, ?, ?)", // Escaping `blob`
+            [
+              params.blob,
+              params.metaData,
+              params.label,
+              params.title,
+              params.preview,
+            ]
           );
 
           return H_Sucess([], "Record created");
@@ -223,6 +230,20 @@ class controller {
     } catch (err) {
       console.error("Error getting records:", err);
       return H_Error([], "Error getting records");
+    }
+  }
+
+  async getBlob(recordID) {
+    try {
+      const record = await knex("records")
+        .where({ record_id: recordID })
+        .select("blob")
+        .first();
+        //preview of json data return will  be a base64 string
+      return H_Sucess(record, "Blob found");
+    } catch (err) {
+      console.error("Error getting blob:", err);
+      return H_Error([], "Error getting blob");
     }
   }
 
