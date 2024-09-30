@@ -22,8 +22,7 @@ router.get("/blob/:recordID", async (req, res) => {
   try {
     const blob = await Controller.getBlob(req.params.recordID);
     res.send(blob);
-  }
-  catch (err) {
+  } catch (err) {
     console.log(err);
     res.status(500).send("An error occurred");
   }
@@ -398,4 +397,29 @@ router.get("/getCountPerLabel", async (req, res) => {
     res.status(500).send("An error occurred");
   }
 });
+
+router.get("/getLightRecords/:label/:page/:limit", async (req, res) => {
+  try {
+    const records = await Controller.getLightRecords(
+      req.params.label,
+      parseInt(req.params.page),
+      parseInt(req.params.limit)
+    );
+    res.send(records);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
+router.get("/getPreview/:recordID", async (req, res) => {
+  try {
+    const blob = await Controller.getPreview(req.params.recordID);
+    res.send(blob);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
+
 module.exports = router;

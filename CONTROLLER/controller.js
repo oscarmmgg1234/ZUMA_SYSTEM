@@ -187,6 +187,43 @@ class controller {
     });
   }
 
+  async getLightRecords(label, page = 0, limit = 10) {
+    try {
+      const _limit_entries = limit;
+      const _offset = page * _limit_entries;
+
+      const getRecordCount = await this.getLabelCountRecords(label);
+
+      if (getRecordCount === 0) {
+        return H_Error([], "No Records Found", 90);
+      }
+      if (_offset >= getRecordCount) {
+        return H_Error([], "No more records available", 100);
+      }
+      // Retrieve records using limit and offset for pagination
+      const records = await knex("records")
+        .select(
+          "batchID as batchIdentifier",
+          "upload_date",
+          "orderIndex",
+          "record_id",
+          "label",
+          "title"
+        )
+        .where("label", label)
+        .andWhere("isDeleted", 0)
+        .orderBy("upload_date", "ASC") // Order by date and orderIndex
+        .orderByRaw("COALESCE(orderIndex, 0)")
+        .limit(_limit_entries) // Limit the number of records fetched
+        .offset(_offset); // Offset based on the page
+
+      return H_Sucess(records, "Successfully retrieved records");
+    } catch (err) {
+      console.log(err);
+      return H_Error([], "Error retreiving light records");
+    }
+  }
+
   async getRecords(label, page = 0, limit = 10) {
     try {
       const _limit_entries = limit; // Number of entries per page
@@ -239,11 +276,24 @@ class controller {
         .where({ record_id: recordID })
         .select("blob")
         .first();
-        //preview of json data return will  be a base64 string
+      //preview of json data return will  be a base64 string
       return H_Sucess(record, "Blob found");
     } catch (err) {
       console.error("Error getting blob:", err);
       return H_Error([], "Error getting blob");
+    }
+  }
+
+  async getPreview(recordID) {
+    try {
+      const previewBlob = await knex("records")
+        .where({ record_id: recordID })
+        .select("preview")
+        .first();
+      return H_Sucess({ preview: previewBlob }, "Preview Pulled");
+    } catch (err) {
+      console.error("Error getting blob: ", err);
+      return H_Error([], "Error retreiving blob from db", 90);
     }
   }
 

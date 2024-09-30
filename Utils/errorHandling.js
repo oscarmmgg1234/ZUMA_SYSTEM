@@ -10,19 +10,24 @@
 */
 
 class errorHandling {
-  constructor(data, message) {
+  constructor(data, message, err_code) {
     this.data = data ? data : [];
     this.message = message ? message : "";
+    this.err_code = err_code ? err_code : null;
   }
 
   error() {
-    return { status: false, message: this.message, data: this.data };
+    return {
+      status: false,
+      message: this.message,
+      data: this.data,
+      err_code: this.err_code,
+    };
   }
 }
 
-
-function H_Error(data, message) {
-  return new errorHandling(data, message).error();
+function H_Error(data, message, error_code) {
+  return new errorHandling(data, message, error_code).error();
 }
 
-module.exports = {H_Error};
+module.exports = { H_Error };
