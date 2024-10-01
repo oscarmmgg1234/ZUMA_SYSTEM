@@ -258,7 +258,7 @@ class controller {
         )
         .where("label", label)
         .andWhere("isDeleted", 0)
-        .orderBy("upload_date", "ASC") // Order by date and orderIndex
+        .orderBy("upload_date", "DESC") // Order by date and orderIndex
         .orderByRaw("COALESCE(orderIndex, 0)")
         .limit(_limit_entries) // Limit the number of records fetched
         .offset(_offset); // Offset based on the page
@@ -403,7 +403,7 @@ class controller {
         .where("title", "like", `%${search}%`)
         .select("record_id", "title", "label", "upload_date")
         .limit(5);
-      const labels = await knex("records")
+      const labels = await knex("records_labels")
         .where("label", "like", `%${search}%`)
         .select("*")
         .limit(5);

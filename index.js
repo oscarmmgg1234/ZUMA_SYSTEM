@@ -9,6 +9,6 @@ const router = require("./ROUTES/endpoints");
 
 server.use(router);
 
-server.listen(4000, () => {
+server.listen(80, () => {
   console.log("Server is running on port 4000");
 });

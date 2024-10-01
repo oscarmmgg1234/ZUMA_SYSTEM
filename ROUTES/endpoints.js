@@ -422,4 +422,13 @@ router.get("/getPreview/:recordID", async (req, res) => {
   }
 });
 
+router.get("/search/:searchTerm", async (req, res) => {
+  try {
+    const result = await Controller.searchRecords(req.params.searchTerm);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred");
+  }
+});
 module.exports = router;
