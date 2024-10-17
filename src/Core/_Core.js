@@ -395,10 +395,23 @@ class Core {
         );
         const hours = days * (this.storeHours.end - this.storeHours.start);
         reductionRates.push(timeFrameArray[i].qty / hours);
+        // if (trackerId === "5f21a6fe") {
+        //   if (timeFrameArray[i].qty / hours === Infinity) {
+        //     console.log(
+        //       "product_id",
+        //       trackerId,
+        //       "timeFrameArray",
+        //       timeFrameArray[i],
+        //       "qty",
+        //       timeFrameArray[i].qty,
+        //       "hours",
+        //       hours
+        //     );
+        //   }
+        // }
         startDayIsNullCheck = false;
         continue;
       }
-
       // Accumulate hours for non-start days
       if (!startDayIsNullCheck && timeFrameArray[i].qty === 0) {
         accumulatedHours += this.storeHours.end - this.storeHours.start;
@@ -410,7 +423,7 @@ class Core {
         const starthourdiff = last - this.storeHours.start || 0;
         const endhourdiff = this.storeHours.end - timeFrameArray[i].recent || 0;
         const hours = accumulatedHours + starthourdiff + endhourdiff;
-        reductionRates.push(timeFrameArray[i].qty / hours);
+        reductionRates.push(hours == 0 ? 0 : timeFrameArray[i].qty / hours);
         recent = timeFrameArray[i].recent;
         last = timeFrameArray[i].last;
         accumulatedHours = 0;
@@ -613,7 +626,13 @@ class Core {
         totalMetrics: JSON.stringify(metrics.perHourWholeStore),
         inventorySnapshot: JSON.stringify(
           Array.from(this._product_inventory.entries()).map(([key, value]) => {
-            return { product: key, snapshot: value, projectedNextDayStock: value.STOCK - (parseFloat(this._perMonthAll.get(key)) * workH || 0) };
+            return {
+              product: key,
+              snapshot: value,
+              projectedNextDayStock:
+                value.STOCK -
+                (parseFloat(this._perMonthAll.get(key)) * workH || 0),
+            };
           })
         ),
       });
