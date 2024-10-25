@@ -47,9 +47,9 @@ async function main() {
           (product) =>
             `<tr>
             <td style="border:1px solid #ddd;padding:8px;">${product.NAME}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${product.stock.STOCK}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${product.stock.STORED_STOCK}</td>
-            <td style="border:1px solid #ddd;padding:8px;">${product.stock.ACTIVE_STOCK}</td>
+            <td style="border:1px solid #ddd;padding:8px;">${product.stock.STOCK > 0 ? product.stock.STOCK : 0}</td>
+            <td style="border:1px solid #ddd;padding:8px;">${product.stock.STOCK > 0 ? product.stock.STORED_STOCK : 0}</td>
+            <td style="border:1px solid #ddd;padding:8px;">${product.stock.STOCK > 0 ? product.stock.ACTIVE_STOCK : 0}</td>
             <td style="border:1px solid #ddd;padding:8px;">${product.UNIT_TYPE}S</td>
            </tr>`
         )
