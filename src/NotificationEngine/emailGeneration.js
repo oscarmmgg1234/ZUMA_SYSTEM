@@ -13,10 +13,7 @@ async function main() {
   const products = await productAlert();
   const recipents = await db_api.emailservice.getRecipents();
 
-  const recipentEmails = recipents.filter(
-    (recipent) => recipent.Email == "oscarmmgg1234@gmail.com"
-  );
-  const formatRecipents = recipentEmails.map((recipent) => {
+  const formatRecipents = recipents.map((recipent) => {
     return { address: recipent.Email };
   });
 
