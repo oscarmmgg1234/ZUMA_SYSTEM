@@ -13,8 +13,14 @@ const notification = async () => {
   //     timezone: "America/Los_Angeles", // Replace with your actual timezone
   //   }
   // );
+  try{
   await emailGeneration();
+  
   console.log("email sent");
+  }
+  catch(err){
+    console.log(err);
+  }
 };
 
 exports.notification = notification;
