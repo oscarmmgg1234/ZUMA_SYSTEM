@@ -14,6 +14,7 @@ const notification = async () => {
   //   }
   // );
   await emailGeneration();
+  console.log("email sent");
 };
 
 exports.notification = notification;
