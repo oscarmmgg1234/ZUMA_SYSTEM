@@ -178,6 +178,12 @@ const deleteProduct = (args, callback) => {
   });
 };
 
+//summary for new feature
+//need to add record for modification of stock for potential ai set up (error correction)
+//log neccessary data for future use!!!!figure it out
+//also track product revertions for error reasons 
+//track shipments 
+//datalabeling for all this correct or not correct etc...
 const modifyStockGivenID = (args, action, callback) => {
   if (action == "active") {
     db(queries.dashboard.get_active_stock, args.to_arr(), (err, result) => {
