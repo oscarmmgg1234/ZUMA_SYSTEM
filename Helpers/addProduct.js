@@ -4,6 +4,7 @@ const tokenGenerator = require("../Core/Engine/Token/tokenGenerator");
 const knex = query_manager;
 
 const insertNewProduct = async (db_handle, args, tokenData) => {
+  
   try {
     // Insert main product
     await db_handle.raw(

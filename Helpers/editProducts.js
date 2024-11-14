@@ -4,7 +4,6 @@ const {
 
 const commitProductChanges = async (args) => {
   const db_handle = await transactionUnit();
-
   try {
     //object filed is a vulnarable field, it must be sanitized or can be checked with product list to avoid any sql injection
     for (const object of args.updates) {

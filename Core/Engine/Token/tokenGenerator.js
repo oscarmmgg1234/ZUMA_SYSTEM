@@ -3,6 +3,8 @@ const tokenGenerator = (args) => {
   var reduction_token = "";
   var shipment_token = "";
 
+  //token generation /
+
   if (args.activationTokens.length > 0) {
     
 
