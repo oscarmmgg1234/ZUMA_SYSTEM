@@ -496,6 +496,11 @@ const product_reduction = async (args) => {
 };
 
 const shipment_add = async (args) => {
+  //tracker for shipments and the products in question
+  //columns include, shipmentTime, productID, quantity, employeeID, employeeName, StockAfterShipment, StockBeforeShipment, rateOfShipment, shipmentID, overStockflag, underStockFlag
+  //rate of shipment 1 -10 that will pop up not on the time of insertr shipmtent but rather on the next shipment and rate the last shipmen
+  //also add record system to local server
+
   try {
     for (const shipmentObject of args) {
       await db_api.addTransaction({ src: "shipment", args: shipmentObject });

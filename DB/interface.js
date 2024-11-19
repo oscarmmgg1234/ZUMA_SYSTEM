@@ -181,11 +181,49 @@ const deleteProduct = (args, callback) => {
 //summary for new feature
 //need to add record for modification of stock for potential ai set up (error correction)
 //log neccessary data for future use!!!!figure it out
-//also track product revertions for error reasons 
-//track shipments 
+//also track product revertions for error reasons
+//track shipments
 //datalabeling for all this correct or not correct etc...
+
+const submitTracker = (args, action) => {
+  //autogenerate tracker id and updateDate db side
+  db(
+    "INSERT INTO manualStockUpdateTracker  (errorCorrectionQuantity, employeeMistakeFlag, operationErrorFlag, activeStockFlag, storedStockFlag, explanation, errorRangeDates, beforeUpdateStock, afterUpdateStock, category, timeToDetectError, productID) VALUES (?, ? , ? , ? , ? , ? , ? , ? , ?, ? , ? , ?)",
+    [
+      args.quantity,
+      args.employeeMistakeFlag,
+      args.operationErrorFlag,
+      action == "active" ? true : false,
+      action == "stored" ? true : false,
+      args.explanation,
+      args.errorRangeDates,
+      args.beforeUpdateStock,
+      args.afterUpdateStock,
+      args.category,
+      args.timeToDetectError,
+      args.productID,
+    ],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+    }
+  );
+};
+
 const modifyStockGivenID = (args, action, callback) => {
+  //capture datetime, productID, errorCorrectionQuantity, employeeMistakeFlag, operationMisaccuracyFlag, activeStockFlag, storedStockFlag, explanaition, dateofpotentialerrorrange, beforemanualcorrectionStock, aftermanualcorrectionStock, category, timeTodetectError
+  //timeto detect error would be the time it took to detect the error so from last shipment from that product to the time of detection
+  //category would be the category of the product, liquid, pill, etc...
+  //if its deemed a employee mistake, flag it as such
+  //if its deemed a operation misaccuracy, flag it as such
+  //if its deemed a active stock error, flag it as such
+  //if its deemed a stored stock error, flag it as such
+  //explanaition would be a quick note on what happened
+  //dateofpotentialerrorrange would be the date of the error or date range to look for products in that range for potential error
+
   if (action == "active") {
+    //start tracker for this change
     db(queries.dashboard.get_active_stock, args.to_arr(), (err, result) => {
       if (err) {
         console.log(err);
@@ -211,6 +249,7 @@ const modifyStockGivenID = (args, action, callback) => {
     });
   }
   if (action == "stored") {
+    //start tracker for this change
     db(queries.dashboard.get_stored_stock, args.to_arr(), (err, result) => {
       if (err) {
         console.log(err);
