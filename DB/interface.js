@@ -185,30 +185,93 @@ const deleteProduct = (args, callback) => {
 //track shipments
 //datalabeling for all this correct or not correct etc...
 
+const flags = {
+  active: { activeStockFlag: true, storedStockFlag: false },
+  stored: { activeStockFlag: false, storedStockFlag: true },
+  employee: { employeeMistakeFlag: true, operationErrorFlag: false },
+  operation: { employeeMistakeFlag: false, operationErrorFlag: true },
+};
+
 const submitTracker = (args, action) => {
-  //autogenerate tracker id and updateDate db side
-  db(
-    "INSERT INTO manualStockUpdateTracker  (errorCorrectionQuantity, employeeMistakeFlag, operationErrorFlag, activeStockFlag, storedStockFlag, explanation, errorRangeDates, beforeUpdateStock, afterUpdateStock, category, timeToDetectError, productID) VALUES (?, ? , ? , ? , ? , ? , ? , ? , ?, ? , ? , ?)",
-    [
-      args.quantity,
-      args.employeeMistakeFlag,
-      args.operationErrorFlag,
-      action == "active" ? true : false,
-      action == "stored" ? true : false,
-      args.explanation,
-      args.errorRangeDates,
-      args.beforeUpdateStock,
-      args.afterUpdateStock,
-      args.category,
-      args.timeToDetectError,
-      args.productID,
-    ],
-    (err, result) => {
-      if (err) {
-        console.log(err);
+  try {
+    // Extract flags dynamically
+    const { activeStockFlag, storedStockFlag } = flags[action];
+    const { employeeMistakeFlag, operationErrorFlag } =
+      flags[args.errorCauseType];
+
+    // Capture the current timestamp
+    const current = new Date();
+
+    // Query to get the latest shipment
+    const latestShipmentQuery = `
+      SELECT 
+          s.latestShipmentDate,
+          TIMESTAMPDIFF(HOUR, s.latestShipmentDate, ?) AS hoursToDetectError
+      FROM 
+          manualStockUpdateTracker m
+      JOIN (
+          SELECT 
+              PRODUCT_ID,
+              MAX(SHIPMENT_DATE) AS latestShipmentDate
+          FROM 
+              shipment_log
+          WHERE 
+              PRODUCT_ID = ?
+          GROUP BY 
+              PRODUCT_ID
+      ) s 
+      ON 
+          m.productID = s.PRODUCT_ID
+      WHERE 
+          m.productID = ?;
+    `;
+
+    // First database query to calculate hoursToDetectError
+    db(
+      latestShipmentQuery,
+      [current, args.productID, args.productID],
+      (err, result) => {
+        if (err) {
+          console.error("Error fetching latest shipment:", err);
+          return;
+        }
+
+        // Handle empty results
+        const hoursToDetectError =
+          result.length > 0 && result[0].hoursToDetectError !== null
+            ? `${result[0].hoursToDetectError} hours`
+            : "N/A";
+
+        // Insert new tracker entry
+        db(
+          "INSERT INTO manualStockUpdateTracker  (errorCorrectionQuantity, employeeMistakeFlag, operationErrorFlag, activeStockFlag, storedStockFlag, explanation, errorRangeDates, beforeUpdateStock, afterUpdateStock, category, timeToDetectError, productID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [
+            args.quantity,
+            employeeMistakeFlag,
+            operationErrorFlag,
+            activeStockFlag,
+            storedStockFlag,
+            args.explanation,
+            args.errorRangeDates,
+            args.beforeUpdateStock,
+            args.afterUpdateStock,
+            args.category,
+            hoursToDetectError,
+            args.productID,
+          ],
+          (err, insertResult) => {
+            if (err) {
+              console.error("Error inserting tracker entry:", err);
+              return;
+            }
+            console.log("Tracker entry successfully inserted:", insertResult);
+          }
+        );
       }
-    }
-  );
+    );
+  } catch (e) {
+    console.error("Unexpected error in submitTracker:", e);
+  }
 };
 
 const modifyStockGivenID = (args, action, callback) => {
@@ -221,6 +284,17 @@ const modifyStockGivenID = (args, action, callback) => {
   //if its deemed a stored stock error, flag it as such
   //explanaition would be a quick note on what happened
   //dateofpotentialerrorrange would be the date of the error or date range to look for products in that range for potential error
+
+  //new expected input for new flow
+  // args = {args..., quantity, errorCauseType, explanation, errorRangeDates, beforeUpdateStock, afterUpdateStock, category, timeToDetectError}
+  //errorRangeDates = [start, end] datetime format obejects
+  //explanation = string
+  // beforeUpdateStock = float
+  // afterUpdateStock = float
+  //category = string
+  //timeToDetectError = float
+  //errorCauseType = "employee" or "operation"
+  submitTracker(args, action);
 
   if (action == "active") {
     //start tracker for this change
