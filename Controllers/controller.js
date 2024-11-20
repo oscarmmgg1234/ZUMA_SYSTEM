@@ -501,6 +501,14 @@ const shipment_add = async (args) => {
   //rate of shipment 1 -10 that will pop up not on the time of insertr shipmtent but rather on the next shipment and rate the last shipmen
   //also add record system to local server
 
+  const trackerflags = {
+    overStock: {overStock: true, underStock: false},
+    underStock: {overStock: false, underStock: true},
+  }
+
+
+
+
   try {
     for (const shipmentObject of args) {
       await db_api.addTransaction({ src: "shipment", args: shipmentObject });
@@ -510,6 +518,9 @@ const shipment_add = async (args) => {
 
     const errorProducts = new Map();
     for (const shipmentObject of args) {
+      //here is where ill create trackers for every product in shipment object for rating and overall setting up for order prediction and tracking
+      //stock before coreExec and after would be before + quantity 
+      //rate of shipment will be a complete by a diffrent system, i plan to create a notification in frontend that will pop up prompt to rate when product is reorded againso we can accurate rate if quantity was good and if so we can use those tiem stamps to retreive history of inventory usage to predict future orders
       const coreExec = await core_exec(shipmentObject);
       if (coreExec.status === "error") {
         errorProducts.set(coreExec.product.id, coreExec.product.name);
