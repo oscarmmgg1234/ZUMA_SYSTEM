@@ -7,6 +7,55 @@ const knex = query_manager;
 //   var data = db.execute(queries.shipment_log.insert, args);
 // };
 
+// class insert_shipment {
+//   constructor(args) {
+//     this.QUANTITY = args.QUANTITY;
+//     this.COMPANY_ID = args.COMPANY_ID;
+//     this.TYPE = args.TYPE;
+//     this.EMPLOYEE_ID = args.EMPLOYEE_ID;
+//     this.PRODUCT_ID = args.PRODUCT_ID;
+//     this.PRODUCT_NAME = args.PRODUCT_NAME;
+//     this.TRANSACTIONID = generateRandomID(8);
+//     this.process_token = args.PROCESS_TOKEN;
+//   }
+//   to_arr() {
+//     return [
+//       this.QUANTITY,
+//       this.COMPANY_ID,
+//       this.TYPE,
+//       this.EMPLOYEE_ID,
+//       this.PRODUCT_ID,
+//       this.TRANSACTIONID,
+//     ];
+//   }
+// }
+
+// const insert_shipment_model = (args, callback) => {
+//   const shipmentObject = args.map((arg) => {
+//     return new insert_shipment(arg);
+//   });
+//   return callback(shipmentObject);
+// };
+
+const submitShipmentTracker = async (args) => {
+  const currentInventory = await knex.raw(
+    "SELECT STORED_STOCK FROM product WHERE PRODUCT_ID = ?",
+    [args.PRODUCT_ID]
+  );
+  const stockBefore = currentInventory[0][0].STORED_STOCK;
+  await knex.raw(
+    "INSERT INTO shipmentTracker (productID, quantity, employeeID,StockAfter, StockBefore, shipmentID )",
+    [
+      args.PRODUCT_ID,
+      args.QUANTITY,
+      args.EMPLOYEE_ID,
+      stockBefore + args.quantity,
+      stockBefore,
+      args.TRANSACTIONID,
+    ]
+  );
+};
+
 const getProductNameFromTrans = async (args) => {
   const result = await knex.raw(queries.product_release.getProductName, [args]);
   return result[0][0];
@@ -740,6 +789,9 @@ class db_interface {
     getEmployeeInfoByID(args, (data) => {
       return callback(data);
     });
+  };
+  submitShipmentTracker = async (args) => {
+    await submitShipmentTracker(args);
   };
 }
 
