@@ -290,10 +290,10 @@ const submitTracker = (args, action) => {
           result.length > 0 && result[0].hoursToDetectError !== null
             ? `${result[0].hoursToDetectError} hours`
             : "N/A";
-
+        const afterStockUpdate = args.beforeUpdateStock + args.quantity;
         // Insert new tracker entry
         db(
-          "INSERT INTO manualStockUpdateTracker  (errorCorrectionQuantity, employeeMistakeFlag, operationErrorFlag, activeStockFlag, storedStockFlag, explanation, errorRangeDates, beforeUpdateStock, afterUpdateStock, category, timeToDetectError, productID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO manualStockUpdateTracker  (errorCorrectionQuantity, employeeMistakeFlag, operationErrorFlag, activeStockFlag, storedStockFlag, explanation, errorRangeDates, beforeUpdateStock, afterUpdateStock, category, timeToDetectError, productID, subStockCategory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
           [
             args.quantity,
             employeeMistakeFlag,
@@ -301,12 +301,13 @@ const submitTracker = (args, action) => {
             activeStockFlag,
             storedStockFlag,
             args.explanation,
-            args.errorRangeDates,
+            JSON.stringify(args.errorRangeDates),
             args.beforeUpdateStock,
-            args.afterUpdateStock,
+            afterStockUpdate,
             args.category,
             hoursToDetectError,
             args.productID,
+            action,
           ],
           (err, insertResult) => {
             if (err) {
