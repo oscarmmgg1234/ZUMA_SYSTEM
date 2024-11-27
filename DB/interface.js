@@ -39,17 +39,17 @@ const knex = query_manager;
 
 const submitShipmentTracker = async (args) => {
   const currentInventory = await knex.raw(
-    "SELECT STORED_STOCK FROM product WHERE PRODUCT_ID = ?",
+    "SELECT STORED_STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
     [args.PRODUCT_ID]
   );
   const stockBefore = currentInventory[0][0].STORED_STOCK;
   await knex.raw(
-    "INSERT INTO shipmentTracker (productID, quantity, employeeID,StockAfter, StockBefore, shipmentID )",
+    "INSERT INTO shipmentTracker (productID, quantity, employeeID,StockAfter, StockBefore, shipmentID ) VALUES (?,?,?,?,?,?)",
     [
       args.PRODUCT_ID,
       args.QUANTITY,
       args.EMPLOYEE_ID,
-      stockBefore + args.quantity,
+      stockBefore + args.QUANTITY,
       stockBefore,
       args.TRANSACTIONID,
     ]
