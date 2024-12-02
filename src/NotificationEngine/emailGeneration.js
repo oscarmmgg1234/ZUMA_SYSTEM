@@ -69,6 +69,7 @@ async function main() {
     }
     const poller = await client.beginSend(emailMessage);
     const result = await poller.pollUntilDone();
+    console.log(result)
   } catch (error) {
     console.error("Error sending email:", error);
   }
