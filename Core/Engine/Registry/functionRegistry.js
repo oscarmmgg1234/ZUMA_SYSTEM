@@ -11,7 +11,7 @@ const {
   data_gather_handler,
 } = require("../../../Helpers/transaction_data_gather.js");
 const { query_manager } = require("../../../DB/query_manager.js");
-const { normalizeStock } = require("../../Utility/StockNormalizer.js");
+// const { normalizeStock } = require("../../Utility/StockNormalizer.js");
 const knex = query_manager;
 
 class FunctionRegistry {
@@ -130,11 +130,11 @@ class FunctionRegistry {
         //update porduct stored stock subtract
         await this.getFunction("2a1k").proto(db_handle, args, value, auxiliary);
 
-        await normalizeStock(db_handle, {
-          product: value,
-          value: parseFloat(auxiliary.auxiliaryParam),
-          option: "ratio",
-        });
+        // await normalizeStock(db_handle, {
+        //   product: value,
+        //   value: parseFloat(auxiliary.auxiliaryParam),
+        //   option: "ratio",
+        // });
       },
     });
 
@@ -438,11 +438,11 @@ class FunctionRegistry {
             value,
           ]
         );
-        await normalizeStock(db_handle, {
-          product: value,
-          value: parseFloat(auxiliary.auxiliaryParam),
-          option: "ratio",
-        });
+        // await normalizeStock(db_handle, {
+        //   product: value,
+        //   value: parseFloat(auxiliary.auxiliaryParam),
+        //   option: "ratio",
+        // });
       },
     });
     this.registry_map.set("2q3e", {
