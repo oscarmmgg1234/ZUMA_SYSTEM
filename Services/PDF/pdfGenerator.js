@@ -106,9 +106,9 @@ ORDER BY product.TYPE, product.NAME ASC
       await knex.raw(`SELECT product_inventory.*, product.COMPANY
 FROM product_inventory
 JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
-WHERE product.COMPANY = ${company_id} ORDER BY product.NAME ASC`);
+WHERE product.COMPANY = ${company_id.company} ORDER BY product.NAME ${company_id.sortOrder}`);
     const company = await knex.raw(
-      `SELECT NAME FROM company WHERE COMPANY_ID = ${company_id}`
+      `SELECT NAME FROM company WHERE COMPANY_ID = ${company_id.company}`
     );
 
     const products = inventory[0];
@@ -124,6 +124,102 @@ WHERE product.COMPANY = ${company_id} ORDER BY product.NAME ASC`);
       { products: processes_product_stocks, company: company[0][0].NAME },
       "INVENTORY_BY_COMPANY_SHEET"
     );
+  }
+
+  async generateSpecificProductsReport(company, type, sortOrder) {
+    if (company && type) {
+      const inventory = await knex.raw(
+        `SELECT product_inventory.*, product.TYPE, product.COMPANY
+     FROM product_inventory
+     JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
+     WHERE product.COMPANY = ? AND product.TYPE = ?
+     ORDER BY product.NAME ${sortOrder}`,
+        [company, type]
+      );
+
+      const products = inventory[0];
+      const processes_product_stocks = products.map((product) => {
+        return {
+          ...product,
+          STOCK: Math.round(product.STOCK),
+          ACTIVE_STOCK: Math.round(product.ACTIVE_STOCK),
+          STORED_STOCK: Math.round(product.STORED_STOCK),
+        };
+      });
+
+      return await this.generateMultiplePDF({
+        products: processes_product_stocks,
+        company: company,
+      });
+    } else if (company && !type) {
+      const inventory = await knex.raw(
+        `SELECT product_inventory.*, product.TYPE, product.COMPANY
+     FROM product_inventory
+     JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
+     WHERE product.COMPANY = ?
+     ORDER BY product.NAME ${sortOrder}`,
+        [company]
+      );
+
+      const products = inventory[0];
+      const processes_product_stocks = products.map((product) => {
+        return {
+          ...product,
+          STOCK: Math.round(product.STOCK),
+          ACTIVE_STOCK: Math.round(product.ACTIVE_STOCK),
+          STORED_STOCK: Math.round(product.STORED_STOCK),
+        };
+      });
+
+      return await this.generateMultiplePDF({
+        products: processes_product_stocks,
+        company: company,
+      });
+    } else if (type && !company) {
+      const inventory = await knex.raw(
+        `SELECT product_inventory.*, product.TYPE, product.COMPANY
+     FROM product_inventory
+     JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
+     WHERE product.TYPE = ?
+     ORDER BY product.NAME ${sortOrder}`,
+        [type]
+      );
+
+      const products = inventory[0];
+      const processes_product_stocks = products.map((product) => {
+        return {
+          ...product,
+          STOCK: Math.round(product.STOCK),
+          ACTIVE_STOCK: Math.round(product.ACTIVE_STOCK),
+          STORED_STOCK: Math.round(product.STORED_STOCK),
+        };
+      });
+
+      return await this.generateMultiplePDF({
+        products: processes_product_stocks,
+      });
+    } else {
+      const inventory = await knex.raw(
+        `SELECT product_inventory.*, product.TYPE, product.COMPANY
+     FROM product_inventory
+     JOIN product ON product_inventory.PRODUCT_ID = product.PRODUCT_ID
+     ORDER BY product.NAME ${sortOrder}`
+      );
+
+      const products = inventory[0];
+      const processes_product_stocks = products.map((product) => {
+        return {
+          ...product,
+          STOCK: Math.round(product.STOCK),
+          ACTIVE_STOCK: Math.round(product.ACTIVE_STOCK),
+          STORED_STOCK: Math.round(product.STORED_STOCK),
+        };
+      });
+
+      return await this.generateMultiplePDF({
+        products: processes_product_stocks,
+      });
+    }
   }
 }
 

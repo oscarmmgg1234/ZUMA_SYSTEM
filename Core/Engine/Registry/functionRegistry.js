@@ -11,7 +11,7 @@ const {
   data_gather_handler,
 } = require("../../../Helpers/transaction_data_gather.js");
 const { query_manager } = require("../../../DB/query_manager.js");
-
+const { normalizeStock } = require("../../Utility/StockNormalizer.js");
 const knex = query_manager;
 
 class FunctionRegistry {
@@ -41,6 +41,7 @@ class FunctionRegistry {
   init() {
     //get error correction function factor (k)
     //function have a 4 letter rando id
+
     this.registry_map.set("1023", {
       name: "Insert Activation Record",
       desc: "Insert new activation record into the database(needed for the activation process)",
@@ -128,6 +129,12 @@ class FunctionRegistry {
         await this.getFunction("234d").proto(db_handle, args, value, auxiliary);
         //update porduct stored stock subtract
         await this.getFunction("2a1k").proto(db_handle, args, value, auxiliary);
+
+        await normalizeStock(db_handle, {
+          product: value,
+          value: parseFloat(auxiliary.auxiliaryParam),
+          option: "ratio",
+        });
       },
     });
 
@@ -431,6 +438,11 @@ class FunctionRegistry {
             value,
           ]
         );
+        await normalizeStock(db_handle, {
+          product: value,
+          value: parseFloat(auxiliary.auxiliaryParam),
+          option: "ratio",
+        });
       },
     });
     this.registry_map.set("2q3e", {

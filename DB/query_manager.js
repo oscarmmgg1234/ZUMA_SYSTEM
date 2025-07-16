@@ -16,7 +16,7 @@ exports.query_manager = require("knex")({
     database: process.env.DB_NAME,
     // ssl: sslOptions,
   },
-  debug: true,
+  debug: false,
 });
 
 console.log(

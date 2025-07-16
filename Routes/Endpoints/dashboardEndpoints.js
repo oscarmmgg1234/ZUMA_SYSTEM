@@ -7,6 +7,11 @@ const endpoint_handler = endpointHandler();
 dashboard_router.post("/getProductHistory", async (req, res) => {
   await endpoint_handler.dashboard.getProductHistoryByDate(req, res);
 });
+
+dashboard_router.post("/genPdfSpecific", async (req, res) => {
+  console.log("Generating PDF for specific products");
+  await endpoint_handler.services.genPDFSpecific(req, res);
+});
 dashboard_router.post("/gen_inv_pdf_by_company", async (req, res) => {
   await endpoint_handler.services.get_inventory_by_company_pdf(req, res);
 });

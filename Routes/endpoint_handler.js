@@ -219,6 +219,13 @@ class http_handler {
       const data = await controller.services.getRecentReductions();
       res.send(data);
     },
+    genPDFSpecific : async (req, res) => {
+      res.setHeader("Content-Type", "application/pdf");
+      const pdf = await controller.dashboard_controller.genPDFSpecific(
+        req.body
+      );
+      res.send(Buffer.from(pdf, "base64"));
+    },
     get_inventory_by_company_pdf: async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       const pdf =

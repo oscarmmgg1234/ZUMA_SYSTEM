@@ -240,6 +240,15 @@ const getRecentReductions = async () => {
   );
   return { data: response[0] };
 };
+const genPDFSpecific = async (args) => {
+  const { company, type, sortOrder } = args;
+  console.log(args);
+  return await pdf_generator.generateSpecificProductsReport(
+    company,
+    type,
+    sortOrder
+  );
+};
 const generate_inv_by_company_pdf = async (args) => {
   return await pdf_generator.generateInventoryByCompany(args);
 };
@@ -560,7 +569,10 @@ const shipment_add = async (args) => {
       };
     }
     for (const element of args) {
-      if (element.TYPE === "33" && !errorProducts.has(element.PRODUCT_ID)) {
+      if (
+        element.BarcodeGeneration == true &&
+        !errorProducts.has(element.PRODUCT_ID)
+      ) {
         try {
           const employeeData = await new Promise((resolve, reject) => {
             db_api.getEmployeeInfoByID(element.EMPLOYEE_ID, resolve, reject);
@@ -837,6 +849,9 @@ class controller {
   dashboard_controller = {
     getProductHistoryByDate: async (dateRange, productID) => {
       return await getProductHistoryByDate(dateRange, productID);
+    },
+    genPDFSpecific: async (args) => {
+      return await genPDFSpecific(args);
     },
     generate_inv_by_company_pdf: async (args) => {
       return await generate_inv_by_company_pdf(args);

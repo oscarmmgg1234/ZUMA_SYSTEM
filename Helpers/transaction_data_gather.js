@@ -76,7 +76,7 @@ const data_gather_handler = async (
 
       //submit a json object corresponding to stock of every item to the transaction id to the stock before column
     } else {
-      //current way t implement is to wait for 5 seconds before updating the after stock having issues using a promise to wait for the update to be complete, db layer is post processing past the transactions 
+      //current way t implement is to wait for 5 seconds before updating the after stock having issues using a promise to wait for the update to be complete, db layer is post processing past the transactions
       // as there are trriggers that are fired after the update is done
       setTimeout(async () => {
         await knex.raw(
@@ -92,5 +92,7 @@ const data_gather_handler = async (
   }
   return 0;
 };
+
+//so it returns 0 success and 1 failure but we need to validate that they changed accrodingly so create a checker so this is actually easier then i thought
 
 exports.data_gather_handler = data_gather_handler;
