@@ -9,7 +9,7 @@ import { format, subDays } from "date-fns";
 import ChartComponent from "./Components/EmployeeChart";
 import TopProductsChart from "./Components/ProductChart";
 
-const metrics_base_url = "http://192.168.1.224:3002";
+const metrics_base_url = "http://192.168.1.247:3004";
 
 function MainView() {
   const [time, setTime] = useState(new Date());
@@ -116,7 +116,7 @@ function MainView() {
 
     const fetchScanners = async () => {
       try {
-        const response = await fetch("http://192.168.1.176:3001/get_scanners");
+        const response = await fetch("http://192.168.1.247:3001/get_scanners");
         const result = await response.json();
         setScanners(result.scanners);
       } catch (error) {
@@ -124,7 +124,7 @@ function MainView() {
       }
     };
 
-    const url = `http://192.168.1.176`;
+    const url = `http://192.168.1.247`;
     fetchData(`${url}:3001/Reductions`, setReductions);
     fetchData(`${url}:3001/Activations`, setActivations);
 
