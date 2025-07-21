@@ -1,6 +1,46 @@
 const { query_manager } = require("../DB/query_manager.js");
+const { normalizeStock } = require("../Core/Utility/StockNormalizer.js");
+const { tokenParser } = require("../Core/Engine/Token/tokenParser.js");
 
 const knex = query_manager;
+
+const normalize = (value, ratio) => {
+  return value * (1 / ratio);
+};
+
+const trackUpdates = (token) => {
+  const tokens = tokenParser(token);
+  var output = [];
+
+  for (var i = 0; i < tokens.size; i++) {
+    let current = tokens.getData();
+    if (current.key === postops) {
+      output.push({
+        key: current.key,
+        product: current.value,
+        value: parseFloat(auxiliaryParam),
+        option: "ratio",
+      });
+    } else if (current.key === "UP") {
+      output.push({
+        key: current.key,
+        product: current.value,
+        value: 1,
+        option: "default",
+      });
+    } else if (current.key === "CMUP") {
+      output.push({
+        key: current.key,
+        product: current.value,
+        value: 1,
+        option: "default",
+      });
+    }
+
+    tokens.next();
+  }
+  return output;
+};
 
 const productParse = (token) => {
   let productSet = new Set();
@@ -11,88 +51,72 @@ const productParse = (token) => {
       productSet.add(tokenSplit[2]);
     }
   }
-  //return unique product ids for invetory capture for al main protocols(activation, reduction, shipment)
   return productSet;
 };
 
 const productQuery = (productSet) => {
-  if (productSet.size === 0) {
-    return "";
-  }
+  if (productSet.size === 0) return "";
   if (productSet.size === 1) {
     return `SELECT * FROM product_inventory WHERE product_id = '${
       Array.from(productSet)[0]
     }'`;
-    //one product
-  } else {
-    let query = "SELECT * FROM product_inventory WHERE product_id IN (";
-    for (const product of productSet) {
-      query += `'${product}',`;
-    }
-    query = query.slice(0, -1); // Remove the trailing comma
-    query += ")";
-    return query;
-    //more than one product
   }
+  const ids = Array.from(productSet)
+    .map((id) => `'${id}'`)
+    .join(",");
+  return `SELECT * FROM product_inventory WHERE product_id IN (${ids})`;
 };
 
-const data_gather_handler = async (
+const snapshot = async (dbHandle, query) => {
+  const productStock = await dbHandle.raw(query);
+  return productStock[0].map((product) => ({
+    product_id: product.PRODUCT_ID,
+    product_name: product.PRODUCT_NAME,
+    stock: product.STOCK,
+    stored: product.STORED_STOCK,
+    active: product.ACTIVE_STOCK,
+  }));
+};
+
+const data_gather_handler = (
   token,
   args,
   transactionID,
   action,
-  dbHandle = null
+  dbHandle = knex
 ) => {
-  //purpose to capture stock strace of product as process is executed for each product with each protocol for error detection and overall see flow of stock of a particular product
   const query = productQuery(productParse(token));
-  if (!query) {
-    return 1;
-  }
-  try {
-    //more efficient approach would be single query to get all stock of all products in one go
-    const productStock = await knex.raw(query);
-    const db_object = productStock[0].map((product) => {
-      return {
-        product_id: product.PRODUCT_ID,
-        product_name: product.PRODUCT_NAME,
-        stock: product.STOCK,
-        stored: product.STORED_STOCK,
-        active: product.ACTIVE_STOCK,
-      };
-    });
+  if (!query) return { start: async () => 1, done: async () => 1 };
 
-    if (action === "start") {
-      if (dbHandle) {
+  return {
+    start: async () => {
+      try {
+        const beforeState = await snapshot(dbHandle, query);
         await dbHandle.raw(
           "UPDATE transaction_log SET before_stock = ? WHERE TRANSACTIONID = ?",
-          [JSON.stringify(db_object), transactionID]
+          [JSON.stringify(beforeState), transactionID]
         );
-      } else {
-        await knex.raw(
-          "UPDATE transaction_log SET before_stock = ? WHERE TRANSACTIONID = ?",
-          [JSON.stringify(db_object), transactionID]
-        );
+        return 0;
+      } catch (err) {
+        console.log(err);
+        return 1;
       }
+    },
 
-      //submit a json object corresponding to stock of every item to the transaction id to the stock before column
-    } else {
-      //current way t implement is to wait for 5 seconds before updating the after stock having issues using a promise to wait for the update to be complete, db layer is post processing past the transactions
-      // as there are trriggers that are fired after the update is done
-      setTimeout(async () => {
-        await knex.raw(
+    done: async () => {
+      try {
+        const afterState = await snapshot(dbHandle, query);
+        await dbHandle.raw(
           "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
-          [JSON.stringify(db_object), transactionID]
+          [JSON.stringify(afterState), transactionID]
         );
-      }, 3000);
-      //submit a json object corresponding to stock of every item to the transaction id to the stock after column
-    }
-  } catch (err) {
-    console.log(err);
-    return 1;
-  }
-  return 0;
+        return 0;
+      } catch (err) {
+        console.log(err);
+        return 1;
+      }
+    },
+  };
 };
-
-//so it returns 0 success and 1 failure but we need to validate that they changed accrodingly so create a checker so this is actually easier then i thought
 
 exports.data_gather_handler = data_gather_handler;

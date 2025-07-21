@@ -21,22 +21,26 @@ const core_engine = async (args) => {
   try {
     // Getting the transaction object
     db_handle = await transactionUnit();
+    let recordHandler = null;
 
     try {
       //for reduction the function that is charge of this is in the function registry
       //its self so we need a way to know if a reduction so will use barcode id
       //if its included in args then its a reduction
+
       if (!Object.keys(args).includes("BARCODE_ID")) {
-        await data_gather_handler(
+        recordHandler = data_gather_handler(
           args.process_token,
           args,
           args.newTransactionID ? args.newTransactionID : args.TRANSACTIONID,
           "start",
           db_handle
         );
+        await recordHandler.start();
       }
       //init token parser and retrive the symbol table
       const protocol = symbolTable(args.process_token, FunctionRegistry);
+      var coreResults = [];
       for (let i = 0; i < protocol.size; i++) {
         let current = protocol.getData();
         //auxiliary object for custom behaivor
@@ -46,17 +50,26 @@ const core_engine = async (args) => {
           lastAuxiliaryParam: current.lastAuxiliaryParam,
         };
         //execute the function
-        await current.proto(db_handle, args, current.value, auxiliary);
+
+        const exec = await current.proto(
+          db_handle,
+          { ...args, data_gather_handler },
+          current.value,
+          auxiliary
+        );
+        if (exec) {
+          coreResults.push(exec);
+        }
         protocol.next();
+      }
+      const record = coreResults.find((item) => item?.desc === "record");
+      if (record) {
+        await record.proto.done();
+      } else {
+        await recordHandler.done();
       }
 
       await db_handle.commit();
-      await data_gather_handler(
-        args.process_token,
-        args,
-        args.newTransactionID ? args.newTransactionID : args.TRANSACTIONID,
-        "end"
-      );
       return true;
     } catch (error) {
       throw error;

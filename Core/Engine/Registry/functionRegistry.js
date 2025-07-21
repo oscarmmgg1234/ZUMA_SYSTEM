@@ -11,7 +11,7 @@ const {
   data_gather_handler,
 } = require("../../../Helpers/transaction_data_gather.js");
 const { query_manager } = require("../../../DB/query_manager.js");
-// const { normalizeStock } = require("../../Utility/StockNormalizer.js");
+const { normalizeStock } = require("../../Utility/StockNormalizer.js");
 const knex = query_manager;
 
 class FunctionRegistry {
@@ -41,6 +41,28 @@ class FunctionRegistry {
   init() {
     //get error correction function factor (k)
     //function have a 4 letter rando id
+
+    this.registry_map.set("2047", {
+      name: "Post Macro Stock Normalizer",
+      desc: "This post-macro will normalize total stock for products",
+      meta_data: {
+        mainParams: 3,
+        optionalParams: 0,
+        optionalDesc: [
+          {
+            desc: "This is the normalizing category action option",
+          },
+        ],
+      },
+      class: "POSTOPS",
+      proto: async (db_handle, args, value, auxiliary) => {
+        await normalizeStock(db_handle, {
+          product: value,
+          value: parseFloat(auxiliary.auxiliaryParam),
+          option: auxiliary.nextAuxiliaryParam,
+        });
+      },
+    });
 
     this.registry_map.set("1023", {
       name: "Insert Activation Record",
@@ -129,12 +151,6 @@ class FunctionRegistry {
         await this.getFunction("234d").proto(db_handle, args, value, auxiliary);
         //update porduct stored stock subtract
         await this.getFunction("2a1k").proto(db_handle, args, value, auxiliary);
-
-        // await normalizeStock(db_handle, {
-        //   product: value,
-        //   value: parseFloat(auxiliary.auxiliaryParam),
-        //   option: "ratio",
-        // });
       },
     });
 
@@ -192,6 +208,11 @@ class FunctionRegistry {
             value,
           ]
         );
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("739e", {
@@ -226,7 +247,7 @@ class FunctionRegistry {
       },
     });
     this.registry_map.set("38hw", {
-      name: "Update Product Partial Stored Stock (like Agaricus) ",
+      name: "Update Product Partial Stored Stock (like Agaricus)",
       desc: "update product quantity of product stored by either full amount or partial of that specified amount example agaricus",
       meta_data: {
         mainParams: 1,
@@ -252,6 +273,11 @@ class FunctionRegistry {
             value,
           ]
         );
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("235s", {
@@ -279,6 +305,11 @@ class FunctionRegistry {
             value,
           ]
         );
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("2j3w", {
@@ -306,6 +337,11 @@ class FunctionRegistry {
             value,
           ]
         );
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("2js2", {
@@ -416,6 +452,7 @@ class FunctionRegistry {
       class: "UP",
       desc: "update product quantity stored capsule",
       meta_data: {
+        normalizationRequired: true,
         mainParams: 1,
         optionalParams: 1,
         optionalDesc: [
@@ -438,11 +475,6 @@ class FunctionRegistry {
             value,
           ]
         );
-        // await normalizeStock(db_handle, {
-        //   product: value,
-        //   value: parseFloat(auxiliary.auxiliaryParam),
-        //   option: "ratio",
-        // });
       },
     });
     this.registry_map.set("2q3e", {
@@ -507,7 +539,7 @@ class FunctionRegistry {
     });
     this.registry_map.set("9ied", {
       name: "Update Barcode Status Preprocessor",
-      class: "BC",
+      class: "PREOPS",
       desc: "update barcode status preprocessor",
       meta_data: {
         mainParams: 1,
@@ -530,7 +562,7 @@ class FunctionRegistry {
         optionalParams: 0,
         optionalDesc: [],
       },
-      class: "BC",
+      class: "PREOPS",
       proto: async (db_handle, args, value, auxiliary) => {
         // Reduction init process - preprocessor
 
@@ -554,18 +586,19 @@ class FunctionRegistry {
           ]
         );
         //gather data for product stock
-        await data_gather_handler(
+        const record = args.data_gather_handler(
           args.process_token,
           args,
           args.newTransactionID,
           "start",
           db_handle
         );
-
+        await record.start();
         await db_handle.raw(
           "UPDATE transaction_log SET BARCODE_STACK = JSON_ARRAY_APPEND(BARCODE_STACK, '$', ?) WHERE TRANSACTIONID = ?",
           [args.BARCODE_ID, args.newTransactionID]
         );
+        return { from: "preops - 549d", desc: "record", proto: record };
       },
     });
     this.registry_map.set("93je", {
@@ -576,7 +609,7 @@ class FunctionRegistry {
         optionalParams: 0,
         optionalDesc: [],
       },
-      class: "BC",
+      class: "PREOPS",
       proto: async (db_handle, args, value, auxiliary) => {
         // update barcode status post processor reduction init preprocessor
         await db_handle.raw(
@@ -650,6 +683,11 @@ class FunctionRegistry {
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [barcodeData[0][0].Quantity, value]
         );
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("13g4", {
@@ -671,6 +709,11 @@ class FunctionRegistry {
           "UPDATE product_inventory SET ACTIVE_STOCK = ACTIVE_STOCK - ? WHERE PRODUCT_ID = ?",
           [barcodeData[0][0].Quantity, value]
         );
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("38dh", {
@@ -688,6 +731,11 @@ class FunctionRegistry {
           "INSERT INTO shipment_log ( QUANTITY, COMPANY_ID, TYPE, EMPLOYEE_ID, PRODUCT_ID, TRANSACTIONID) VALUES ( ?, ?, ?, ?, ?, ?)",
           args.to_arr()
         );
+        await normalizeStock({
+          value: 1,
+          product: value,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("23ij", {
@@ -704,6 +752,11 @@ class FunctionRegistry {
         await this.getFunction("38dh").proto(db_handle, args, value, auxiliary);
         // update product quantity stored stock add shipment
         await this.getFunction("235s").proto(db_handle, args, value, auxiliary);
+        await normalizeStock({
+          value: 1,
+          product: value,
+          option: "default",
+        });
       },
     });
   }
