@@ -6,7 +6,9 @@ module.exports = {
       exec_mode: "cluster",
       instances: 2,
       // Restart at 2:00 AM every day
-      // Other configurations like instances, exec_mode etc.
+      // Other configurations like instances, exec_mode etc.]
+      wait_ready: true,
+      post_delay: 20000
     },
   ],
 };
