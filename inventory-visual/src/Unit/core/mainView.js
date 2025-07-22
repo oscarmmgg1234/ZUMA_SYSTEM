@@ -73,24 +73,34 @@ function MainView() {
       [format(weeklyEnd, "yyyy-MM-dd"), format(weeklyStart, "yyyy-MM-dd")],
       "employee"
     );
-    console.log("Fetched employee metrics:", metrics);
+    if(metrics?.systemLoaded == false){
+      return {
+        systemLoaded: false
+      }
+    }
+    else{
+  console.log("Fetched employee metrics:", metrics);
+
     setEmployeeChartData(metrics.chartReadyData);
     setTopProducts(metrics.productChartData);
+    return {
+      systemLoaded: true
+    }
+    }
   };
-
-  const scheduleDailyFetch = () => {
-      getEmployeeMetrics();
-      setInterval(getEmployeeMetrics, 5 * 60 * 1000); // 24 hours in milliseconds
-  };
-
-  useEffect(() => {
-    scheduleDailyFetch();
-  }, []);
-
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await getEmployeeMetrics();
+      
+      let isReady = await getEmployeeMetrics();
+      while(!isReady.systemLoaded){
+        await new Promise(async (res)=>{
+          setTimeout(res, 2000);
+          console.log("in here", isReady)
+          isReady = await getEmployeeMetrics();
+        })
+      }
+
       setLoading(false);
     };
     init();
