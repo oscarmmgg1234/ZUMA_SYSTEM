@@ -1,92 +1,9 @@
 const { query_manager } = require("../DB/query_manager.js");
-const { normalizeStock } = require("../Core/Utility/StockNormalizer.js");
-const { tokenParser } = require("../Core/Engine/Token/tokenParser.js");
-const { queries } = require("../DB/queries.js");
+
 
 const knex = query_manager;
-const postops = "POSTOPS";
 
-// const normalize = (value, ratio) => {
-//   return value * (1 / ratio);
-// };
 
-// const getTransStacks = async (db_handle, transactionID) => {
-//   const response = await db_handle.raw(
-//     queries.development.getTransactionByID,
-//     transactionID
-//   );
-
-//   const activationStack = {
-//     stack: "inventory_activation",
-//     arr: JSON.parse(response[0][0].ACTIVATION_STACK),
-//   };
-//   const releaseStack = {
-//     stack: "inventory_consumption",
-//     arr: JSON.parse(response[0][0].RELEASE_STACK),
-//   };
-//   const shipmentStack = {
-//     stack: "shipment_log",
-//     arr: JSON.parse(response[0][0].SHIPMENT_STACK),
-//   };
-
-//   const retrieveData = async (option, trans) => {
-//     const query = `SELECT * FROM ${option} WHERE TRANSACTIONID = ?`;
-//     const result = await db_handle.raw(query, [trans]);
-//     const output = {
-//       value: result?.QUANTITY,
-//       stack: option,
-//     };
-//     return output;
-//   };
-//   const stacks = [activationStack, releaseStack, shipmentStack];
-//   const retrieveStack = [];
-//   for (const item of stacks) {
-//     if (item.stack == []) {
-//       continue;
-//     }
-//     for (const trans of item.stack) {
-//       retrieveStack.push(await retrieveData(item.stack, trans));
-//     }
-//   }
-// };
-
-// const trackUpdates = (token) => {
-//   const tokens = tokenParser(token);
-//   var output = [];
-
-//   for (var i = 0; i < tokens.size; i++) {
-//     let current = tokens.getData();
-//     if (current.key === postops) {
-//       output.push({
-//         key: current.key,
-//         product: current.value,
-//         value: parseFloat(auxiliaryParam),
-//         option: "ratio",
-//       });
-//     } else if (current.key === "UP") {
-//       output.push({
-//         key: current.key,
-//         product: current.value,
-//         value: 1,
-//         option: "default",
-//       });
-//     } else if (current.key === "CMUP") {
-//       output.push({
-//         key: current.key,
-//         product: current.value,
-//         value: 1,
-//         option: "default",
-//       });
-//     }
-
-//     tokens.next();
-//   }
-//   return output;
-// };
-
-const normalize = (value, ratio) => {
-  return value * (1 / ratio);
-};
 
 const getStockDiffs = (beforeStock, afterStock) => {
   let output = new Map();
@@ -191,16 +108,15 @@ const buildValidationArray = (netChanges, diffMap) => {
   return validArray;
 };
 
-
-
 const changeValidator = (args) => {
   if (args.processStack.length < 1) {
-    return;
+    return [];
   }
   const diffMap = getStockDiffs(args.startMap, args.endMap);
   const processStackMap = processPStack(args.processStack);
   const netChanges = computeNetChanges(processStackMap);
-  const valid = buildValidationArray(netChanges, diffMap)
+  const valid = buildValidationArray(netChanges, diffMap);
+  return valid;
 };
 
 const productParse = (token) => {
@@ -278,15 +194,16 @@ const data_gather_handler = (
         const afterState = await snapshot(dbHandle, query);
         endMap = new Map(afterState.map((item) => [item.product_id, item]));
 
-        const valid = changeValidator({ startMap, endMap, processStack });
+        const validArr = changeValidator({ startMap, endMap, processStack });
+
         await dbHandle.raw(
           "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
           [JSON.stringify(afterState), transactionID]
         );
-        return 0;
+        return validArr;
       } catch (err) {
         console.log(err);
-        return 1;
+        return [];
       }
     },
   };

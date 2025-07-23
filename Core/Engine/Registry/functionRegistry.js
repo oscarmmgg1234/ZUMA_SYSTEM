@@ -111,6 +111,19 @@ class FunctionRegistry {
         await this.getFunction("1023").proto(db_handle, args, value, auxiliary);
         //update product stored stock subtract
         await this.getFunction("2j3w").proto(db_handle, args, value, auxiliary);
+
+        args.recordHandler.step({
+          normalize: false,
+          column: "ACTIVE_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "+",
+        });
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("29ew", {
@@ -131,6 +144,20 @@ class FunctionRegistry {
         await this.getFunction("10fd").proto(db_handle, args, value, auxiliary);
         //update product stored stock subtract
         await this.getFunction("23hs").proto(db_handle, args, value, auxiliary);
+
+        args.recordHandler.step({
+          normalize: false,
+          column: "STORED_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "-",
+        });
+
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("29wp", {
@@ -475,6 +502,13 @@ class FunctionRegistry {
             value,
           ]
         );
+        args.recordHandler.step({
+          normalize: false,
+          column: "STORED_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "-",
+        });
         await normalizeStock(db_handle, {
           product: value,
           value: 1,
@@ -548,6 +582,13 @@ class FunctionRegistry {
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [glycerinConsump, value]
         );
+        args.recordHandler.step({
+          normalize: false,
+          column: "STORED_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "-",
+        });
         await normalizeStock(db_handle, {
           product: value,
           value: 1,
@@ -731,6 +772,13 @@ class FunctionRegistry {
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [barcodeData[0][0].Quantity, value]
         );
+        args.recordHandler.step({
+          normalize: false,
+          column: "STORED_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "-",
+        });
         await normalizeStock(db_handle, {
           product: value,
           value: 1,
@@ -757,6 +805,13 @@ class FunctionRegistry {
           "UPDATE product_inventory SET ACTIVE_STOCK = ACTIVE_STOCK - ? WHERE PRODUCT_ID = ?",
           [barcodeData[0][0].Quantity, value]
         );
+        args.recordHandler.step({
+          normalize: false,
+          column: "ACTIVE_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "-",
+        });
         await normalizeStock(db_handle, {
           product: value,
           value: 1,

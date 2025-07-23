@@ -18,6 +18,7 @@ const {
 
 const core_engine = async (args) => {
   let db_handle = null;
+  let processValid = null;
   try {
     // Getting the transaction object
     db_handle = await transactionUnit();
@@ -67,9 +68,9 @@ const core_engine = async (args) => {
       }
       const record = coreResults.find((item) => item?.desc === "record");
       if (record) {
-        await record.proto.done();
+        processValid = await record.proto.done();
       } else {
-        await recordHandler.done();
+        processValid = await recordHandler.done();
       }
 
       await db_handle.commit();
