@@ -10,29 +10,38 @@
 */
 const amqp = require("amqplib");
 
-let channel;
-const EXCHANGES = ["core.process", "core.revert"];
+const RABBIT_URL = "amqp://localhost";
 
-async function initRabbit(onMessage) {
-  const conn = await amqp.connect(process.env.RABBIT_URL || "amqp://localhost");
-  channel = await conn.createChannel();
-  for (const ex of EXCHANGES) {
-    await channel.assertExchange(ex, "fanout", { durable: true });
+const EXCHANGES = [
+  { name: "core.process", type: "fanout" },
+  { name: "core.revert", type: "fanout" },
+];
+
+let channel;
+
+async function initRabbit(onMessageCallback) {
+  const connection = await amqp.connect(RABBIT_URL);
+  channel = await connection.createChannel();
+
+  for (const { name, type } of EXCHANGES) {
+    await channel.assertExchange(name, type, { durable: true });
+
     const { queue } = await channel.assertQueue("", { exclusive: true });
-    await channel.bindQueue(queue, ex, "");
+    await channel.bindQueue(queue, name, "");
+
+    console.log(`📡 Listening on exchange: ${name}`);
+
     channel.consume(
       queue,
       (msg) => {
-        if (msg.content) onMessage(ex, JSON.parse(msg.content.toString()));
+        if (msg.content) {
+          const parsed = JSON.parse(msg.content.toString());
+          onMessageCallback({ exchange: name, data: parsed });
+        }
       },
       { noAck: true }
     );
   }
 }
 
-function publish(exchange, payload) {
-  if (!channel) throw new Error("RabbitMQ not initialized");
-  channel.publish(exchange, "", Buffer.from(JSON.stringify(payload)));
-}
-
-module.exports = { initRabbit, publish };
+module.exports = { initRabbit };

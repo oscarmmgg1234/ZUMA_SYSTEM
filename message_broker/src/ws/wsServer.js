@@ -13,23 +13,29 @@ const WebSocket = require("ws");
 
 const clients = new Set();
 
-function initWebSocketServer(port = 8080) {
+function initWebSocketServer(port = 6000) {
   const wss = new WebSocket.Server({ port });
-  console.log(`🌍 WebSocket listening on ws://localhost:${port}`);
 
   wss.on("connection", (ws) => {
+    console.log("🟢 WS Client connected");
     clients.add(ws);
-    console.log("✨ Client connected");
-    ws.on("close", () => clients.delete(ws));
+
+    ws.on("close", () => {
+      clients.delete(ws);
+      console.log("🔴 WS Client disconnected");
+    });
   });
+
+  return {
+    broadcast: (messageObj) => {
+      const msg = JSON.stringify(messageObj);
+      clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(msg);
+        }
+      });
+    },
+  };
 }
 
-function broadcast(payload) {
-  for (let client of clients) {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(payload));
-    }
-  }
-}
-
-module.exports = { initWebSocketServer, broadcast };
+module.exports = { initWebSocketServer };

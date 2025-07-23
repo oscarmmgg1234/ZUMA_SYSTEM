@@ -9,13 +9,3 @@
 
 */
 
-const { broadcast } = require("../ws/wsServer");
-
-function routeMessage(exchange, message) {
-  console.log(`📨 Routing [${exchange}] →`, message);
-  broadcast({ exchange, ...message });
-
-  // future: forward to tcp clients or store in DB
-}
-
-module.exports = { routeMessage };
