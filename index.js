@@ -8,9 +8,12 @@ require("dotenv").config({
       ? ".env.development"
       : ".env.production",
 });
+const { initMQ } = require("./Services/Publisher/mqPublisher");
 
-
-
+(async () => {
+  await initMQ();
+  // start your API or engine after that
+})();
 
 const middleware = require("./MiddleWare/middleware");
 const activation_endpoints = require("./Routes/Endpoints/activationEndpoints");
@@ -29,11 +32,11 @@ server.use(reduction_endpoints);
 server.use(shipment_endpoints);
 server.use(dashboard_endpoints);
 
-
-
 //init websocket server
 init_sock_server();
 
 server.listen(PORT, () => {
-  console.log(`API is running on port ${PORT}, mode: ${process.env.NODE_ENV}🚀`);
+  console.log(
+    `API is running on port ${PORT}, mode: ${process.env.NODE_ENV}🚀`
+  );
 });

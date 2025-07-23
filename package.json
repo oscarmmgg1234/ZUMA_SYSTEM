@@ -12,6 +12,7 @@
   "author": "oscar maldonado",
   "license": "ISC",
   "dependencies": {
+    "amqplib": "^0.10.8",
     "bwip-js": "^4.1.1",
     "chalk": "^5.3.0",
     "cors": "^2.8.5",

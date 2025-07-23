@@ -118,6 +118,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "+",
+          args: args,
         });
         await normalizeStock(db_handle, {
           product: value,
@@ -151,6 +152,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "-",
+          args: args,
         });
 
         await normalizeStock(db_handle, {
@@ -243,6 +245,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "-",
+          args: args,
         });
         await normalizeStock(db_handle, {
           product: value,
@@ -315,6 +318,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "-",
+          args: args,
         });
         await normalizeStock(db_handle, {
           product: value,
@@ -354,6 +358,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "+",
+          args: args,
         });
         await normalizeStock(db_handle, {
           product: value,
@@ -393,6 +398,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "+",
+          args: args,
         });
         await normalizeStock(db_handle, {
           product: value,
@@ -508,6 +514,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "-",
+          args: args,
         });
         await normalizeStock(db_handle, {
           product: value,
@@ -551,6 +558,7 @@ class FunctionRegistry {
           productID: value,
           operation: "-",
           ratio: auxiliary.auxiliaryParam,
+          args: args,
         });
       },
     });
@@ -588,6 +596,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "-",
+          args: args,
         });
         await normalizeStock(db_handle, {
           product: value,
@@ -778,6 +787,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "-",
+          args: args,
         });
         await normalizeStock(db_handle, {
           product: value,
@@ -811,6 +821,7 @@ class FunctionRegistry {
           value: args.QUANTITY,
           productID: value,
           operation: "-",
+          args: args,
         });
         await normalizeStock(db_handle, {
           product: value,

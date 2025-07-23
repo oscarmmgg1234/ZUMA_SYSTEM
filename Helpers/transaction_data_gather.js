@@ -1,17 +1,20 @@
 const { query_manager } = require("../DB/query_manager.js");
 
-
 const knex = query_manager;
 
-
+const negSign = (num) => {
+  return -1 * num;
+};
 
 const getStockDiffs = (beforeStock, afterStock) => {
   let output = new Map();
   for (const [key, value] of afterStock) {
     let beforeProduct = beforeStock.get(key);
+    let stockDiff = negSign(beforeProduct.stock - value.stock);
     let storedStockDiff = Math.abs(beforeProduct.stored - value.stored);
     let activeStockDiff = Math.abs(beforeProduct.active - value.active);
     output.set(key, {
+      stockDiff,
       activeDiff: activeStockDiff,
       storedDiff: storedStockDiff,
     });
@@ -46,9 +49,6 @@ const processPStack = (processStack) => {
   return productMap;
 };
 
-const negSign = (num) => {
-  return -1 * num;
-};
 const computeNetChanges = (productMap) => {
   const result = new Map();
 
@@ -116,7 +116,7 @@ const changeValidator = (args) => {
   const processStackMap = processPStack(args.processStack);
   const netChanges = computeNetChanges(processStackMap);
   const valid = buildValidationArray(netChanges, diffMap);
-  return valid;
+  return { valid, diffMap };
 };
 
 const productParse = (token) => {
@@ -162,6 +162,7 @@ const data_gather_handler = (
   action,
   dbHandle = knex
 ) => {
+  console.log(args.PRODUCT_ID);
   const query = productQuery(productParse(token));
   if (!query) return { start: async () => 1, done: async () => 1 };
   let processStack = [];
@@ -200,10 +201,14 @@ const data_gather_handler = (
           "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
           [JSON.stringify(afterState), transactionID]
         );
-        return validArr;
+        return {
+          validArr: validArr.valid,
+          chain: validArr.diffMap,
+          product: args.PRODUCT_ID,
+        };
       } catch (err) {
         console.log(err);
-        return [];
+        return {};
       }
     },
   };

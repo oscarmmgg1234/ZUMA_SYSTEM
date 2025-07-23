@@ -15,7 +15,9 @@ const { FunctionRegistry } = require("./Registry/functionRegistry");
 const {
   data_gather_handler,
 } = require("../../Helpers/transaction_data_gather.js");
-
+const {
+  publishProcessEvent,
+} = require("../../Services/Publisher/mqPublisher.js");
 const core_engine = async (args) => {
   let db_handle = null;
   let processValid = null;
@@ -71,6 +73,20 @@ const core_engine = async (args) => {
         processValid = await record.proto.done();
       } else {
         processValid = await recordHandler.done();
+      }
+
+      if (processValid) {
+        const productChain = [];
+        for (const [key, value] of processValid.chain) {
+          if (processValid.product !== key) {
+            productChain.push({ product: key, stockDiff: value.stockDiff });
+          }
+        }
+        const event = {
+          productChain: productChain,
+          info: args,
+        };
+        publishProcessEvent(event);
       }
 
       await db_handle.commit();
