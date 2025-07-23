@@ -1,0 +1,16 @@
+{
+  "name": "message_broker",
+  "version": "1.0.0",
+  "description": "intercommunication",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Oscar Maldonado-Garcia",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.8",
+    "ws": "^8.18.3"
+  }
+}
