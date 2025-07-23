@@ -475,6 +475,11 @@ class FunctionRegistry {
             value,
           ]
         );
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("2a1k", {
@@ -508,7 +513,7 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: true,
           column: "STORED_STOCK",
-          value: args.QUANTITY,
+          value: parseFloat(auxiliary.auxiliaryParam) * args.QUANTITY,
           productID: value,
           operation: "-",
           ratio: auxiliary.auxiliaryParam,
@@ -543,6 +548,11 @@ class FunctionRegistry {
           "UPDATE product_inventory SET STORED_STOCK = STORED_STOCK - ? WHERE PRODUCT_ID = ?",
           [glycerinConsump, value]
         );
+        await normalizeStock(db_handle, {
+          product: value,
+          value: 1,
+          option: "default",
+        });
       },
     });
     this.registry_map.set("2tyu", {

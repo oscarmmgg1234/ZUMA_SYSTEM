@@ -132,6 +132,66 @@ const processPStack = (processStack) => {
 const negSign = (num) => {
   return -1 * num;
 };
+const computeNetChanges = (productMap) => {
+  const result = new Map();
+
+  for (const [productID, columns] of productMap) {
+    const colSums = {
+      STORED_STOCK: 0,
+      ACTIVE_STOCK: 0,
+    };
+
+    for (const column of Object.keys(colSums)) {
+      const operations = columns[column];
+
+      for (const op of operations) {
+        const value = op.operation === "-" ? negSign(op.value) : op.value;
+        colSums[column] += value;
+      }
+    }
+
+    result.set(productID, colSums);
+  }
+
+  return result;
+};
+const buildValidationArray = (netChanges, diffMap) => {
+  const validArray = [];
+
+  for (const [productID, expected] of netChanges) {
+    const actual = diffMap.get(productID);
+    const mismatchColumns = [];
+
+    if (!actual) {
+      mismatchColumns.push("STORED_STOCK", "ACTIVE_STOCK");
+    } else {
+      // Flip sign on expected value to match absolute diff direction
+      const storedDelta = Math.abs(
+        Math.abs(expected.STORED_STOCK) - actual.storedDiff
+      );
+      const activeDelta = Math.abs(
+        Math.abs(expected.ACTIVE_STOCK) - actual.activeDiff
+      );
+
+      if (storedDelta > 0.001) {
+        mismatchColumns.push("STORED_STOCK");
+      }
+      if (activeDelta > 0.001) {
+        mismatchColumns.push("ACTIVE_STOCK");
+      }
+    }
+
+    validArray.push({
+      productID,
+      valid: mismatchColumns.length === 0,
+      column: mismatchColumns,
+    });
+  }
+
+  return validArray;
+};
+
+
 
 const changeValidator = (args) => {
   if (args.processStack.length < 1) {
@@ -139,9 +199,8 @@ const changeValidator = (args) => {
   }
   const diffMap = getStockDiffs(args.startMap, args.endMap);
   const processStackMap = processPStack(args.processStack);
-  
-
-  console.log(processStackMap);
+  const netChanges = computeNetChanges(processStackMap);
+  const valid = buildValidationArray(netChanges, diffMap)
 };
 
 const productParse = (token) => {
