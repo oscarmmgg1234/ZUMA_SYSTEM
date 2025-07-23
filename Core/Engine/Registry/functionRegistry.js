@@ -208,6 +208,15 @@ class FunctionRegistry {
             value,
           ]
         );
+        //tracker
+        //value = {normalize: false, column: "STORED_STOCK", value: -1, productID: "23423D"}
+        args.recordHandler.step({
+          normalize: false,
+          column: "STORED_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "-",
+        });
         await normalizeStock(db_handle, {
           product: value,
           value: 1,
@@ -273,6 +282,13 @@ class FunctionRegistry {
             value,
           ]
         );
+        args.recordHandler.step({
+          normalize: false,
+          column: "STORED_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "-",
+        });
         await normalizeStock(db_handle, {
           product: value,
           value: 1,
@@ -305,6 +321,13 @@ class FunctionRegistry {
             value,
           ]
         );
+        args.recordHandler.step({
+          normalize: false,
+          column: "STORED_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "+",
+        });
         await normalizeStock(db_handle, {
           product: value,
           value: 1,
@@ -337,6 +360,13 @@ class FunctionRegistry {
             value,
           ]
         );
+        args.recordHandler.step({
+          normalize: false,
+          column: "ACTIVE_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "+",
+        });
         await normalizeStock(db_handle, {
           product: value,
           value: 1,
@@ -475,6 +505,14 @@ class FunctionRegistry {
             value,
           ]
         );
+        args.recordHandler.step({
+          normalize: true,
+          column: "STORED_STOCK",
+          value: args.QUANTITY,
+          productID: value,
+          operation: "-",
+          ratio: auxiliary.auxiliaryParam,
+        });
       },
     });
     this.registry_map.set("2q3e", {
@@ -586,7 +624,7 @@ class FunctionRegistry {
           ]
         );
         //gather data for product stock
-        const record = args.data_gather_handler(
+        const record = args.recordHandler(
           args.process_token,
           args,
           args.newTransactionID,

@@ -50,15 +50,18 @@ const core_engine = async (args) => {
           lastAuxiliaryParam: current.lastAuxiliaryParam,
         };
         //execute the function
-
+        const dataCapture = recordHandler ? recordHandler : data_gather_handler;
         const exec = await current.proto(
           db_handle,
-          { ...args, data_gather_handler },
+          { ...args, recordHandler },
           current.value,
           auxiliary
         );
         if (exec) {
           coreResults.push(exec);
+          if (exec?.desc == "record") {
+            recordHandler = exec.proto;
+          }
         }
         protocol.next();
       }
