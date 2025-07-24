@@ -34,7 +34,7 @@ const core_engine = async (args) => {
       if (!Object.keys(args).includes("BARCODE_ID")) {
         recordHandler = data_gather_handler(
           args.process_token,
-          args,
+          { ...args, display_type: "activation type" },
           args.newTransactionID ? args.newTransactionID : args.TRANSACTIONID,
           "start",
           db_handle
@@ -84,7 +84,7 @@ const core_engine = async (args) => {
         }
         const event = {
           productChain: productChain,
-          info: args,
+          info: processValid.args,
         };
         publishProcessEvent(event);
       }

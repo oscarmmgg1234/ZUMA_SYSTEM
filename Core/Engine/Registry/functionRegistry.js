@@ -686,7 +686,7 @@ class FunctionRegistry {
         //gather data for product stock
         const record = args.recordHandler(
           args.process_token,
-          args,
+          { ...args, display_type: "reduction type" },
           args.newTransactionID,
           "start",
           db_handle

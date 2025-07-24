@@ -205,6 +205,7 @@ const data_gather_handler = (
           validArr: validArr.valid,
           chain: validArr.diffMap,
           product: args.PRODUCT_ID,
+          args: args
         };
       } catch (err) {
         console.log(err);
