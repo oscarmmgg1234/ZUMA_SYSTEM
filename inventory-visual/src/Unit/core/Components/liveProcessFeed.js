@@ -33,26 +33,37 @@ const LiveProcessFeed = () => {
     );
   };
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8080/ws");
+  let socket;
+  let reconnectInterval = 2000; // 2 seconds to start
+  let isUnmounted = false;
+
+  const connect = () => {
+    socket = new WebSocket("ws://localhost:8080/ws");
+
+    socket.onopen = () => {
+      console.log("✅ WebSocket connected");
+      reconnectInterval = 2000; // Reset interval on success
+    };
 
     socket.onmessage = (event) => {
       try {
         const raw = JSON.parse(event.data);
         const data = raw.data || raw;
-        // Published to "core.process": { type: 'revert', transactionID: '2cENvPwF' }
+
         if (data?.exchange === "core.process") {
           if (data?.type === "revert") {
-            console.log("reverted");
+            console.log("♻️ Reverted:", data.transactionID);
             removeCardByTransactionID(data.transactionID);
-            return; // Don't process further
+            return;
           }
+
           const info = data?.info;
           const type = info?.display_type;
           const transactionID =
-            type == "reduction type"
+            type === "reduction type"
               ? info.newTransactionID
               : info.TRANSACTIONID;
-            console.log(transactionID)
+
           const newCard = {
             id: idCounter++,
             product: info?.PRODUCT_NAME,
@@ -60,7 +71,7 @@ const LiveProcessFeed = () => {
             quantity: info?.QUANTITY,
             type,
             chain: data?.productChain || [],
-            transactionID: transactionID,
+            transactionID,
           };
 
           if (type === "activation type") {
@@ -74,12 +85,34 @@ const LiveProcessFeed = () => {
           }
         }
       } catch (err) {
-        console.error("WebSocket parse error:", err);
+        console.error("❌ WebSocket parse error:", err);
       }
     };
 
-    return () => socket.close();
-  }, []);
+    socket.onerror = (err) => {
+      console.error("💥 WebSocket error:", err);
+      socket.close(); // Trigger onclose
+    };
+
+    socket.onclose = () => {
+      if (isUnmounted) return;
+      console.warn("🔌 WebSocket closed. Attempting to reconnect...");
+
+      setTimeout(() => {
+        reconnectInterval = Math.min(reconnectInterval * 2, 10000); // Exponential backoff up to 30s
+        connect();
+      }, reconnectInterval);
+    };
+  };
+
+  connect(); // Initial connect
+
+  return () => {
+    isUnmounted = true;
+    socket.close();
+  };
+}, []);
+
 
   const sectionStyle = {
     borderRadius: "12px",
