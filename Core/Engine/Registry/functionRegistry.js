@@ -843,13 +843,8 @@ class FunctionRegistry {
         //insert into shipment log
         await db_handle.raw(
           "INSERT INTO shipment_log ( QUANTITY, COMPANY_ID, TYPE, EMPLOYEE_ID, PRODUCT_ID, TRANSACTIONID) VALUES ( ?, ?, ?, ?, ?, ?)",
-          args.to_arr()
+          [args.QUANTITY, args.COMPANY_ID, args.TYPE, args.EMPLOYEE_ID, args.PRODUCT_ID, args.TRANSACTIONID ]
         );
-        await normalizeStock({
-          value: 1,
-          product: value,
-          option: "default",
-        });
       },
     });
     this.registry_map.set("23ij", {

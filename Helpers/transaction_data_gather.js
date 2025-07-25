@@ -155,6 +155,23 @@ const snapshot = async (dbHandle, query) => {
   }));
 };
 
+const formatProductChain = async (map, db_handle, product) => {
+  const productChain = [];
+  for (const [key, value] of map) {
+    if (product !== key) {
+      const prod = await db_handle.raw(
+        "SELECT NAME FROM product WHERE PRODUCT_ID = ?",
+        [key]
+      );
+      productChain.push({
+        product: prod[0][0].NAME.slice(0, 12),
+        stockDiff: value.stockDiff,
+      });
+    }
+  }
+  return productChain;
+};
+
 const data_gather_handler = (
   token,
   args,
@@ -201,11 +218,36 @@ const data_gather_handler = (
           "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
           [JSON.stringify(afterState), transactionID]
         );
+        let packet = null;
+        if (args.display_type == "reduction type" || args.display_type == "shipment type") {
+          const getTrans = await dbHandle.raw(
+            "SELECT * FROM transaction_log WHERE TRANSACTIONID = ?",
+            [transactionID]
+          );
+          packet = {
+            PRODUCT_ID: getTrans[0][0]?.PRODUCT_ID,
+            EMPLOYEE_NAME: getTrans[0][0]?.EMPLOYEE_NAME,
+            PRODUCT_NAME: getTrans[0][0]?.PRODUCT_NAME,
+            QUANTITY: getTrans[0][0]?.QUANTITY,
+          };
+        }
+        const formatChain = await formatProductChain(
+          validArr.diffMap,
+          dbHandle,
+          packet ? packet.PRODUCT_ID : args.PRODUCT_ID
+        );
+
+        const displayType =
+          args.display_type == "reduction type"
+            ? { ...args, ...packet }
+            : args.display_type == "shipment type" ? { ...args, ...packet } : args
+
         return {
           validArr: validArr.valid,
-          chain: validArr.diffMap,
+          chain: formatChain,
           product: args.PRODUCT_ID,
-          args: args
+          args:
+           displayType,
         };
       } catch (err) {
         console.log(err);

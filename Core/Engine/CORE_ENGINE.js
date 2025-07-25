@@ -34,7 +34,11 @@ const core_engine = async (args) => {
       if (!Object.keys(args).includes("BARCODE_ID")) {
         recordHandler = data_gather_handler(
           args.process_token,
-          { ...args, display_type: "activation type" },
+          {
+            ...args,
+            display_type:
+              args.src !== "shipment" ? "activation type" : "shipment type",
+          },
           args.newTransactionID ? args.newTransactionID : args.TRANSACTIONID,
           "start",
           db_handle
@@ -56,7 +60,7 @@ const core_engine = async (args) => {
         const dataCapture = recordHandler ? recordHandler : data_gather_handler;
         const exec = await current.proto(
           db_handle,
-          { ...args, recordHandler },
+          { ...args, recordHandler: dataCapture },
           current.value,
           auxiliary
         );
@@ -76,14 +80,8 @@ const core_engine = async (args) => {
       }
 
       if (processValid) {
-        const productChain = [];
-        for (const [key, value] of processValid.chain) {
-          if (processValid.product !== key) {
-            productChain.push({ product: key, stockDiff: value.stockDiff });
-          }
-        }
         const event = {
-          productChain: productChain,
+          productChain: processValid.chain,
           info: processValid.args,
         };
         publishProcessEvent(event);

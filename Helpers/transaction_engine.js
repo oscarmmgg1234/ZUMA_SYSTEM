@@ -3,6 +3,7 @@ const { queries } = require("../DB/queries.js");
 const { query_manager } = require("../DB/query_manager.js");
 const { tokenParser } = require("../Core/Engine/Token/tokenParser.js");
 const { normalizeStock } = require("../Core/Utility/StockNormalizer.js");
+const { publishProcessEvent } = require("../Services/Publisher/mqPublisher.js");
 
 const knex = query_manager;
 
@@ -47,6 +48,9 @@ const updateProductStock = async (
 };
 
 const normalizeProducts = (token) => {
+  if(!token){
+    return;
+  }
   const tokens = tokenParser(token);
   var output = [];
 
@@ -185,6 +189,11 @@ const transaction_engine = async (args) => {
             await normalizeStock(trx, item);
           }
         }
+
+        await publishProcessEvent({
+          type: "revert",
+          transactionID: args.transactionID,
+        });
 
         if (barcode.length > 0) {
           for (const item of barcode) {

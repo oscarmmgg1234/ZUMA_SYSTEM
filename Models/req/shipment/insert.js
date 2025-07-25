@@ -22,6 +22,7 @@ class insert_shipment {
     this.PRODUCT_NAME = args.PRODUCT_NAME;
     this.TRANSACTIONID = generateRandomID(8);
     this.process_token = args.PROCESS_TOKEN;
+    this.src = "shipment"
   }
   to_arr() {
     return [

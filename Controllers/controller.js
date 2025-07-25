@@ -556,6 +556,7 @@ const shipment_add = async (args) => {
       //stock before coreExec and after would be before + quantity
       //rate of shipment will be a complete by a diffrent system, i plan to create a notification in frontend that will pop up prompt to rate when product is reorded againso we can accurate rate if quantity was good and if so we can use those tiem stamps to retreive history of inventory usage to predict future orders
       await submitShipmentTracker(shipmentObject);
+      console.log(shipmentObject.to_arr())
       const coreExec = await core_exec(shipmentObject);
       if (coreExec.status === "error") {
         errorProducts.set(coreExec.product.id, coreExec.product.name);

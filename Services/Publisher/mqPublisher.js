@@ -39,8 +39,13 @@ const initMQ = async () => {
 const publishEvent = async (exchangeName, payload) => {
   if (!channel) await initMQ();
 
-  const msg = Buffer.from(JSON.stringify(payload));
-  channel.publish(exchangeName, "", msg, { persistent: true });
+  const msg = Buffer.from(JSON.stringify({exchange: exchangeName, ...payload}));
+  channel.publish(
+    exchangeName,
+    "",
+    msg ,
+    { persistent: true }
+  );
 
   console.log(`📤 Published to "${exchangeName}":`, payload);
 };
