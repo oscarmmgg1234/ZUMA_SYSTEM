@@ -10,7 +10,7 @@
 */
 const amqp = require("amqplib");
 
-const RABBIT_URL = "amqp://localhost";
+const RABBIT_URL = "amqp://localhost:5672";
 
 // Exchanges you want to support
 const EXCHANGES = {
