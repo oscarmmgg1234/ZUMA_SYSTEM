@@ -36,7 +36,7 @@ const TopProductsChart = ({ data }) => {
         display: false,
       },
       title: {
-        color: "white",
+        color: "black",
         display: true,
         text: "Top 5 Products Today",
       },
@@ -45,7 +45,7 @@ const TopProductsChart = ({ data }) => {
       x: {
         beginAtZero: true,
         ticks: {
-          color: "white",
+          color: "black",
           maxTicksLimit: 5, // limit the number of ticks on the x-axis for readability
         },
         title: {
@@ -59,7 +59,7 @@ const TopProductsChart = ({ data }) => {
       },
       y: {
         ticks: {
-          color: "white",
+          color: "black",
         },
         title: {
           color: "grey",

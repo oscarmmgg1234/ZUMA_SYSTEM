@@ -54,7 +54,7 @@ const ChartComponent = ({ data, options }) => {
           color: "grey",
         },
         title: {
-          color: "white",
+          color: "black",
           display: true,
           text: "This Week",
         },
@@ -67,7 +67,7 @@ const ChartComponent = ({ data, options }) => {
       },
       y: {
         title: {
-          color: "white",
+          color: "black",
           display: true,
           text: "Reductions / Hour",
         },
@@ -83,7 +83,7 @@ const ChartComponent = ({ data, options }) => {
     plugins: {
       legend: {
         labels: {
-          color: "white", // Set the legend font color to white
+          color: "black", // Set the legend font color to white
         },
       },
     },

@@ -1,0 +1,73 @@
+/*
+
+ Author: Oscar Maldonado
+ Email: oscarmmgg1234@gmail.com
+
+ Creation Date: 2025-07-24 08:33:04
+
+ temp
+
+*/
+.live-feed-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.no-activity {
+  font-style: italic;
+  color: #888;
+}
+
+.process-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  width: 300px;
+  animation: slideIn 0.4s ease-out;
+}
+
+.event-header {
+  font-size: 1rem;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+.event-body div {
+  margin: 0.2rem 0;
+  font-size: 0.95rem;
+}
+
+.chain-title {
+  font-size: 0.75rem;
+  margin-top: 0.6rem;
+  color: #555;
+}
+
+.chain-body {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.chain-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-50%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
