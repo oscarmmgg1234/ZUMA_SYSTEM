@@ -14,7 +14,7 @@ class ScannerState:
         self.prev_barcode = ""  # To store previous barcode
 
 async def fetch_scanners():
-    url = "http://192.168.1.176:3001/getScannerAddresses"
+    url = "http://192.168.1.247:3001/getScannerAddresses"
     try:
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(None, requests.get, url)
@@ -26,7 +26,7 @@ async def fetch_scanners():
         return []
 
 def fetch_employee_ids():
-    url = "http://192.168.1.176:3001/getIDs"
+    url = "http://192.168.1.247:3001/getIDs"
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -40,7 +40,7 @@ def is_employee_id(segment):
     return segment in employee_ids
 
 async def send_status(scanner_id, status, employeeID=None):
-    url = "http://192.168.1.176:3001/setScanner"
+    url = "http://192.168.1.247:3001/setScanner"
     data = {"id": scanner_id, "status": status, "assigned": employeeID}
     try:
         await asyncio.to_thread(requests.post, url, json=data)
@@ -129,7 +129,7 @@ async def maintain_connection(address):
         await asyncio.sleep(5)  # Wait before attempting to reconnect
 
 def send_request(data):
-    url = "http://192.168.1.176:3001/product_reduction"
+    url = "http://192.168.1.247:3001/product_reduction"
     try:
         response = requests.post(url, json=data)
         response.raise_for_status()  # Raise an exception for HTTP errors
