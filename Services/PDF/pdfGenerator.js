@@ -71,7 +71,7 @@ class pdf_generator {
 
     try {
       const process = await fetch(
-        "http://192.168.1.176:3003/PDF/PDFA4_Generate",
+        "http://192.168.4.82:3003/PDF/PDFA4_Generate",
         requestOptions
       );
       const response = await process.arrayBuffer();
