@@ -75,7 +75,7 @@ const tokenGenerator = (args) => {
   }
   return {
     activation_token: activation_token.trim(),
-    reduction_token: reduction_token ? "BC:9ied BC:549d BC:93je " + reduction_token.trim() : "",
+    reduction_token: reduction_token ? "PREOPS:9ied PREOPS:549d PREOPS:93je " + reduction_token.trim() : "",
     shipment_token: shipment_token.trim(),
   };
 };

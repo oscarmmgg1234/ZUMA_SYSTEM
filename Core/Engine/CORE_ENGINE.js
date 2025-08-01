@@ -80,9 +80,10 @@ const core_engine = async (args) => {
       }
 
       if (processValid) {
+        const multiplier = args?.MULTIPLIER ? parseFloat(args.MULTIPLIER) : null
         const event = {
           productChain: processValid.chain,
-          info: processValid.args,
+          info: multiplier ? {...processValid.args, QUANTITY: multiplier *  args.QUANTITY} : {...processValid.args, QUANTITY: args.QUANTITY} ,
         };
         publishProcessEvent(event);
       }

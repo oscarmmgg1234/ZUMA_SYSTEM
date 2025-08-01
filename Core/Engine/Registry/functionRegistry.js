@@ -111,20 +111,6 @@ class FunctionRegistry {
         await this.getFunction("1023").proto(db_handle, args, value, auxiliary);
         //update product stored stock subtract
         await this.getFunction("2j3w").proto(db_handle, args, value, auxiliary);
-
-        args.recordHandler.step({
-          normalize: false,
-          column: "ACTIVE_STOCK",
-          value: args.QUANTITY,
-          productID: value,
-          operation: "+",
-          args: args,
-        });
-        await normalizeStock(db_handle, {
-          product: value,
-          value: 1,
-          option: "default",
-        });
       },
     });
     this.registry_map.set("29ew", {
@@ -146,26 +132,14 @@ class FunctionRegistry {
         //update product stored stock subtract
         await this.getFunction("23hs").proto(db_handle, args, value, auxiliary);
 
-        args.recordHandler.step({
-          normalize: false,
-          column: "STORED_STOCK",
-          value: args.QUANTITY,
-          productID: value,
-          operation: "-",
-          args: args,
-        });
-
-        await normalizeStock(db_handle, {
-          product: value,
-          value: 1,
-          option: "default",
-        });
+    
       },
     });
     this.registry_map.set("29wp", {
       name: "Reduce Pill Product with Record",
       desc: "Reduce product -> option to completely reduce without aditional steps",
       meta_data: {
+        normalizationRequired: true,
         mainParams: 1,
         optionalParams: 1,
         optionalDesc: [
@@ -239,10 +213,11 @@ class FunctionRegistry {
         );
         //tracker
         //value = {normalize: false, column: "STORED_STOCK", value: -1, productID: "23423D"}
+
         args.recordHandler.step({
           normalize: false,
           column: "STORED_STOCK",
-          value: args.QUANTITY,
+          value: args.QUANTITY * multiplier,
           productID: value,
           operation: "-",
           args: args,
@@ -315,7 +290,7 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: false,
           column: "STORED_STOCK",
-          value: args.QUANTITY,
+          value: args.QUANTITY * multiplier,
           productID: value,
           operation: "-",
           args: args,
@@ -355,7 +330,7 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: false,
           column: "STORED_STOCK",
-          value: args.QUANTITY,
+          value: args.QUANTITY * multiplier,
           productID: value,
           operation: "+",
           args: args,
@@ -395,7 +370,7 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: false,
           column: "ACTIVE_STOCK",
-          value: args.QUANTITY,
+          value: args.QUANTITY * multiplier,
           productID: value,
           operation: "+",
           args: args,
@@ -511,7 +486,7 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: false,
           column: "STORED_STOCK",
-          value: args.QUANTITY,
+          value: args.QUANTITY * multiplier,
           productID: value,
           operation: "-",
           args: args,
@@ -554,7 +529,7 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: true,
           column: "STORED_STOCK",
-          value: parseFloat(auxiliary.auxiliaryParam) * args.QUANTITY,
+          value: parseFloat(auxiliary.auxiliaryParam) * (args.QUANTITY * multiplier),
           productID: value,
           operation: "-",
           ratio: auxiliary.auxiliaryParam,
@@ -593,7 +568,7 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: false,
           column: "STORED_STOCK",
-          value: args.QUANTITY,
+          value: args.QUANTITY * multiplier,
           productID: value,
           operation: "-",
           args: args,
@@ -784,7 +759,7 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: false,
           column: "STORED_STOCK",
-          value: args.QUANTITY,
+          value: barcodeData[0][0].Quantity,
           productID: value,
           operation: "-",
           args: args,
@@ -818,7 +793,7 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: false,
           column: "ACTIVE_STOCK",
-          value: args.QUANTITY,
+          value: barcodeData[0][0].Quantity,
           productID: value,
           operation: "-",
           args: args,

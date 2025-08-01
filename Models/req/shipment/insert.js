@@ -21,6 +21,7 @@ class insert_shipment {
     this.PRODUCT_ID = args.PRODUCT_ID;
     this.PRODUCT_NAME = args.PRODUCT_NAME;
     this.TRANSACTIONID = generateRandomID(8);
+    this.BarcodeGeneration = args.BarcodeGeneration;
     this.process_token = args.PROCESS_TOKEN;
     this.src = "shipment"
   }

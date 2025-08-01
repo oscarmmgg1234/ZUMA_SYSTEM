@@ -44,7 +44,7 @@ class Services {
         });
         //192.168.1.25:5000/print_labels
         http: try {
-          fetch("http://192.168.0.153:5001/print_labels", {
+          fetch("http://192.168.1.248:5001/print_labels", {
             method: "POST",
             body: JSON.stringify(return_buffer_arr),
             headers: {
