@@ -27,6 +27,12 @@ const knex = query_manager;
 
 //mess of functions but are grouped by their respective controllers
 
+const getProductByID = async (args) => {
+    const result = await knex.raw("SELECT * from product WHERE PRODUCT_ID = ?", [args.id])
+    return result;
+}
+
+
 const SubmitErrorLiquidInstance = async (args) => {
   // employee, gallons, product_id, bottleOutcome,
   //using the the product bottle size then figure out the therotical bottle outcome
@@ -846,6 +852,9 @@ class controller {
   };
 
   dashboard_controller = {
+    getProductByID: async (args) =>{
+      return await getProductByID(args)
+    },
     getProductHistoryByDate: async (dateRange, productID) => {
       return await getProductHistoryByDate(dateRange, productID);
     },

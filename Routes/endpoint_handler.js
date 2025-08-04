@@ -322,6 +322,11 @@ class http_handler {
   };
 
   dashboard = {
+
+    getProductByID: async (req, res) => {
+      const product = await controller.dashboard_controller.getProductByID(req.body)
+      res.send(product)
+    },
     getProductHistoryByDate: async (req, res) => {
       const historyPacket =
         await controller.dashboard_controller.getProductHistoryByDate(

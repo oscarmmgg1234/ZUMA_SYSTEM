@@ -74,4 +74,8 @@ dashboard_router.post("/getTopEmployee", (req, res) => {
   endpoint_handler.dashboard.getTopEmployee(req, res);
 });
 
+dashboard_router.post("/getProductByID", async (req, res) => {
+  await endpoint_handler.dashboard.getProductByID(req, res);
+});
+
 module.exports = dashboard_router;
