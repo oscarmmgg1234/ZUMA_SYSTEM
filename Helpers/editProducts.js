@@ -7,7 +7,7 @@ const commitProductChanges = async (args) => {
   const db_handle = await transactionUnit();
   try {
     if (args.section === "node") {
-      if (!args.newToken || !args.route) {
+      if (!args.route) {
         console.log("❌ Missing token or route.");
         return false;
       }
