@@ -77,5 +77,18 @@ dashboard_router.post("/getTopEmployee", (req, res) => {
 dashboard_router.post("/getProductByID", async (req, res) => {
   await endpoint_handler.dashboard.getProductByID(req, res);
 });
+dashboard_router.get("/getVirtualStockPools", async (req, res) => {
+  await endpoint_handler.dashboard.getVirtualStockPools(req, res);
+});
+
+dashboard_router.post("/createVirtualPool", async (req, res) => {
+  await endpoint_handler.dashboard.createVirtualPool(req, res);
+});
+dashboard_router.post("/virtualStockProductAdd", async (req, res) => {
+  await endpoint_handler.dashboard.virtualStockProductAdd(req, res);
+});
+dashboard_router.post("/virtualStockProductRemove", async (req, res) => {
+  await endpoint_handler.dashboard.virtualStockProductRemove(req, res);
+});
 
 module.exports = dashboard_router;

@@ -18,6 +18,8 @@ const {
   data_gather_handler,
 } = require("../Helpers/transaction_data_gather.js");
 
+const { v4: uuidv4 } = require("uuid");
+
 const constants = new Constants();
 const helper = Helper();
 const res = res_interface();
@@ -27,11 +29,148 @@ const knex = query_manager;
 
 //mess of functions but are grouped by their respective controllers
 
-const getProductByID = async (args) => {
-    const result = await knex.raw("SELECT * from product WHERE PRODUCT_ID = ?", [args.id])
-    return result;
-}
+const getVirtualStockPools = async () => {
+  const virtualStockEntries = await knex.raw("SELECT * from inv_virtual_stock");
+  if (virtualStockEntries[0].length < 1) {
+    return {
+      isEmpty: true,
+      arr: [],
+    };
+  } else {
+    return {
+      isEmpty: false,
+      arr: virtualStockEntries[0],
+    };
+  }
+};
 
+const createVirtualPool = async (args) => {
+  try {
+    const getTable = `SELECT * from inv_virtual_stock WHERE name = ?`;
+    const validation = await knex.raw(getTable, [args.name]);
+    const precheck = validation[0];
+    if (precheck.length !== 0) {
+      return { createdTable: false, status: "entry exist with that name" };
+    }
+    const entry = `
+  INSERT INTO inv_virtual_stock(poolID, PRODUCT_ID, VIRTUAL_STOCK, LINKED_PRODUCTS, name)
+  VALUES (?, ?, ?, ?, ?)
+`;
+
+    const linkedProducts = [
+      {
+        productID: args.productID,
+        normalizeRatio: args.normalizeRatio,
+        meta_data: [],
+      },
+    ];
+
+    const createdEntry = await knex.raw(entry, [
+      uuidv4(),
+      "",
+      args.virtualStock,
+      JSON.stringify(linkedProducts),
+      args.name,
+    ]);
+    return { createdTable: true, err: "none", status: createdEntry };
+  } catch (err) {
+    return {
+      createdTable: false,
+      err: err,
+    };
+  }
+};
+
+const virtualStockPoolProductAdd = async (args) => {
+  try {
+    // Step 1: Get the current linked products from the pool
+    const result = await knex.raw(
+      "SELECT LINKED_PRODUCTS FROM inv_virtual_stock WHERE poolID = ?",
+      [args.poolID]
+    );
+
+    const rows = result[0];
+
+    if (!rows || rows.length === 0) {
+      return {
+        linkedProduct: false,
+        status: "Pool does not exist",
+        statusCode: 3,
+      };
+    }
+
+    // Step 2: Parse existing linked products JSON
+    const currentLinked = JSON.parse(rows[0].LINKED_PRODUCTS || "[]");
+    if (currentLinked.find((product) => product.productID === args.productID)) {
+      // Step 3: Append the new product to the list
+      return {
+        linkedProduct: false,
+        status: "Product is already linked",
+        statusCode: 10,
+      };
+    }
+    currentLinked.push({
+      productID: args.productID,
+      normalizeRatio: args.normalizeRatio || 1,
+      meta_data: [],
+    });
+
+    // Step 4: Update the DB with new JSON
+    const updateResult = await knex.raw(
+      "UPDATE inv_virtual_stock SET LINKED_PRODUCTS = ? WHERE poolID = ?",
+      [JSON.stringify(currentLinked), args.poolID]
+    );
+
+    return {
+      linkedProduct: true,
+      status: updateResult,
+      statusCode: 1,
+    };
+  } catch (err) {
+    return {
+      linkedProduct: false,
+      status: err.message || err,
+      statusCode: 14,
+    };
+  }
+};
+
+const VirtualStockProductRemove = async (args) => {
+  try {
+    const result = await knex.raw(
+      "SELECT LINKED_PRODUCTS FROM inv_virtual_stock WHERE poolID = ?",
+      [args.poolID]
+    );
+
+    const rows = result[0]; // actual data rows
+
+    if (!rows || rows.length === 0) {
+      return { unlinkedProduct: false, status: "Product does not exist" };
+    }
+
+    let currentList = JSON.parse(rows[0].LINKED_PRODUCTS || "[]");
+
+    const newList = currentList.filter(
+      (item) => item.productID !== args.productID
+    );
+
+    const updatedList = await knex.raw(
+      "UPDATE inv_virtual_stock SET LINKED_PRODUCTS = ? WHERE poolID = ?",
+      [JSON.stringify(newList), args.poolID]
+    );
+
+    return { unlinkedProduct: true, status: updatedList };
+  } catch (err) {
+    return { unlinkedProduct: false, status: err.message || err };
+  }
+};
+
+const getProductByID = async (args) => {
+  const result = await knex.raw("SELECT * from product WHERE PRODUCT_ID = ?", [
+    args.id,
+  ]);
+  return result;
+};
 
 const SubmitErrorLiquidInstance = async (args) => {
   // employee, gallons, product_id, bottleOutcome,
@@ -852,8 +991,20 @@ class controller {
   };
 
   dashboard_controller = {
-    getProductByID: async (args) =>{
-      return await getProductByID(args)
+    virtualStockProductRemove: async (args) => {
+      return await VirtualStockProductRemove(args);
+    },
+    virtualStockPoolProductAdd: async (args) => {
+      return await virtualStockPoolProductAdd(args);
+    },
+    createVirtualPool: async (args) => {
+      return await createVirtualPool(args);
+    },
+    getVirtualStockPools: async () => {
+      return await getVirtualStockPools();
+    },
+    getProductByID: async (args) => {
+      return await getProductByID(args);
     },
     getProductHistoryByDate: async (dateRange, productID) => {
       return await getProductHistoryByDate(dateRange, productID);

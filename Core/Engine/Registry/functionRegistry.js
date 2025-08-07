@@ -41,6 +41,22 @@ class FunctionRegistry {
   init() {
     //get error correction function factor (k)
     //function have a 4 letter rando id
+    this.registry_map.set("4i57", {
+      name: "Linked Prouducts Normalize",
+      desc: "This will iterate through the product list then actualize stored-stock and sync the product-stock",
+      meta_data: {},
+      class: "VIRTUALOPS",
+      proto: async (db_handle, args, value, auxiliary) => {
+        
+      }
+    })
+    this.registry_map.set("20r4", {
+      name: "Update virtual stock",
+      desc: "This will allow you to update the virtual stock",
+      meta_data: {},
+      class: "VIRTUALOPS",
+      proto: async (db_handle, args, value, auxiliary) => {},
+    });
 
     this.registry_map.set("2047", {
       name: "Post Macro Stock Normalizer",
@@ -131,8 +147,6 @@ class FunctionRegistry {
         await this.getFunction("10fd").proto(db_handle, args, value, auxiliary);
         //update product stored stock subtract
         await this.getFunction("23hs").proto(db_handle, args, value, auxiliary);
-
-    
       },
     });
     this.registry_map.set("29wp", {
@@ -529,7 +543,8 @@ class FunctionRegistry {
         args.recordHandler.step({
           normalize: true,
           column: "STORED_STOCK",
-          value: parseFloat(auxiliary.auxiliaryParam) * (args.QUANTITY * multiplier),
+          value:
+            parseFloat(auxiliary.auxiliaryParam) * (args.QUANTITY * multiplier),
           productID: value,
           operation: "-",
           ratio: auxiliary.auxiliaryParam,
@@ -818,7 +833,14 @@ class FunctionRegistry {
         //insert into shipment log
         await db_handle.raw(
           "INSERT INTO shipment_log ( QUANTITY, COMPANY_ID, TYPE, EMPLOYEE_ID, PRODUCT_ID, TRANSACTIONID) VALUES ( ?, ?, ?, ?, ?, ?)",
-          [args.QUANTITY, args.COMPANY_ID, args.TYPE, args.EMPLOYEE_ID, args.PRODUCT_ID, args.TRANSACTIONID ]
+          [
+            args.QUANTITY,
+            args.COMPANY_ID,
+            args.TYPE,
+            args.EMPLOYEE_ID,
+            args.PRODUCT_ID,
+            args.TRANSACTIONID,
+          ]
         );
       },
     });

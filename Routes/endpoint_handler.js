@@ -155,7 +155,7 @@ class http_handler {
 
   services = {
     SubmitErrorEntry: async (req, res) => {
-      //gallons, product, actualBottleCount, employee are inputs 
+      //gallons, product, actualBottleCount, employee are inputs
       await controller.services.SubmitErrorEntry(req.body);
       res.send(new success_handling({}, "Error Submitted").getSuccess());
     },
@@ -219,7 +219,7 @@ class http_handler {
       const data = await controller.services.getRecentReductions();
       res.send(data);
     },
-    genPDFSpecific : async (req, res) => {
+    genPDFSpecific: async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       const pdf = await controller.dashboard_controller.genPDFSpecific(
         req.body
@@ -322,10 +322,36 @@ class http_handler {
   };
 
   dashboard = {
-
+    virtualStockProductRemove: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.virtualStockProductRemove(
+          req.body
+        );
+      res.send(response);
+    },
+    virtualStockProductAdd: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.virtualStockPoolProductAdd(
+          req.body
+        );
+      res.send(response);
+    },
+    createVirtualPool: async (req, res) => {
+      const response = await controller.dashboard_controller.createVirtualPool(
+        req.body
+      );
+      res.send(response);
+    },
+    getVirtualStockPools: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.getVirtualStockPools();
+      res.send(response);
+    },
     getProductByID: async (req, res) => {
-      const product = await controller.dashboard_controller.getProductByID(req.body)
-      res.send(product)
+      const product = await controller.dashboard_controller.getProductByID(
+        req.body
+      );
+      res.send(product);
     },
     getProductHistoryByDate: async (req, res) => {
       const historyPacket =
