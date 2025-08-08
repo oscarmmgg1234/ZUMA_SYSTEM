@@ -15,7 +15,6 @@ const setTotalStockQuery =
   "UPDATE product_inventory SET STOCK = ? WHERE PRODUCT_ID = ?";
 
 const normalizeStock = async (db_handle, args) => {
-
   console.log(args);
   const value = args.value;
   const product = args.product;
@@ -27,6 +26,7 @@ const normalizeStock = async (db_handle, args) => {
     const reciprocal = 1 / value;
 
     const [result] = await db_handle.raw(fetchStoredStockQuery, [product]);
+    console.log(result);
 
     const stored_stock = result?.[0]?.STORED_STOCK;
     const active_stock = result?.[0]?.ACTIVE_STOCK;
