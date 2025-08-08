@@ -1,28 +1,29 @@
 const { query_manager } = require("../DB/query_manager");
 const tokenGenerator = require("../Core/Engine/Token/tokenGenerator");
 
+
 const knex = query_manager;
 
+function generateShortUUID() {
+  return Math.random().toString(36).substring(2, 10).toUpperCase();
+}
+
 const insertNewProduct = async (db_handle, args, tokenData) => {
-  
+  //Insert new product, this will have product generated
   try {
     // Insert main product
     await db_handle.raw(
-      "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION, COMPANY, ACTIVATION_TOKEN, REDUCTION_TOKEN, SHIPMENT_TOKEN, UNIT_TYPE, MIN_LIMIT, ReferenceStockProduct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION, COMPANY, UNIT_TYPE, MIN_LIMIT) VALUES (?,?,?,?,?,?,?,?,?)",
       [
-        args.generatedIDs[0],
+        args.productID,
         args.name,
         args.description,
         parseFloat(args.price),
         args.type,
         args.location,
         args.company,
-        tokenData.activation_token,
-        tokenData.reduction_token,
-        tokenData.shipment_token,
         args.unitType,
         0, // MIN_LIMIT
-        args.RefProduct ? args.RefProduct : "",
       ]
     );
 
@@ -31,7 +32,7 @@ const insertNewProduct = async (db_handle, args, tokenData) => {
       await db_handle.raw(
         "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION, COMPANY, ACTIVATION_TOKEN, REDUCTION_TOKEN, SHIPMENT_TOKEN, UNIT_TYPE, MIN_LIMIT, ReferenceStockProduct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
         [
-          args.generatedIDs[1],
+          args.productLabelID,
           `${args.name} Label`,
           "",
           0,
@@ -40,7 +41,7 @@ const insertNewProduct = async (db_handle, args, tokenData) => {
           "443",
           "",
           "",
-          `SH:38dh:${args.generatedIDs[1]} UP:235s:${args.generatedIDs[1]}`,
+          `SH:38dh:${args.productLabelID} UP:235s:${args.productLabelID}`,
           "UNIT",
           0, // MIN_LIMIT
           args.RefProduct ? args.RefProduct : "",

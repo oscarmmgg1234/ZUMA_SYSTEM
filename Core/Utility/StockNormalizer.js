@@ -15,6 +15,8 @@ const setTotalStockQuery =
   "UPDATE product_inventory SET STOCK = ? WHERE PRODUCT_ID = ?";
 
 const normalizeStock = async (db_handle, args) => {
+
+  console.log(args);
   const value = args.value;
   const product = args.product;
 
