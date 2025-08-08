@@ -1,5 +1,5 @@
 const { testToken } = require("./tokenTest");
-const {addProdProcess} = require("../../../Helpers/addProduct");
+const { addProdProcess } = require("../../../Helpers/addProduct");
 
 class TestInterface {
   constructor() {

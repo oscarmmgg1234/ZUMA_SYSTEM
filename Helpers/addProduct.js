@@ -1,72 +1,82 @@
 const { query_manager } = require("../DB/query_manager");
 const tokenGenerator = require("../Core/Engine/Token/tokenGenerator");
-
-
+const { generateRandomID } = require("../Constants/stringRandoGeneration");
 const knex = query_manager;
 
-function generateShortUUID() {
-  return Math.random().toString(36).substring(2, 10).toUpperCase();
-}
-
-const insertNewProduct = async (db_handle, args, tokenData) => {
+const insertNewProduct = async (db_handle, args) => {
+  console.log(args);
   //Insert new product, this will have product generated
   try {
-    // Insert main product
+    let subtype = "";
+    if (args.type == "122" || args.type == "44") {
+      subtype = "SELLABLE";
+    } else if (args.type == "33") {
+      subtype = "SHIPPABLE";
+    } else if (args.type == "30" || args.type == "145") {
+      subtype = "COMPONENT";
+    }
+
     await db_handle.raw(
-      "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION, COMPANY, UNIT_TYPE, MIN_LIMIT) VALUES (?,?,?,?,?,?,?,?,?)",
+      "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION, COMPANY, UNIT_TYPE, MIN_LIMIT,SUBTYPE, BarcodeGeneration, poolRef) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
       [
-        args.productID,
+        args.PRODUCT_ID,
         args.name,
         args.description,
-        parseFloat(args.price),
+        args.price,
         args.type,
-        args.location,
+        "4322",
         args.company,
         args.unitType,
         0, // MIN_LIMIT
+        subtype,
+        args.needBarcode,
+        args.currentPoolRef,
       ]
     );
 
     // Insert label product if createLabel is true
     if (args.createLabel === true) {
+      const rando = generateRandomID(8);
       await db_handle.raw(
-        "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION, COMPANY, ACTIVATION_TOKEN, REDUCTION_TOKEN, SHIPMENT_TOKEN, UNIT_TYPE, MIN_LIMIT, ReferenceStockProduct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO product (PRODUCT_ID, NAME, DESCRIPTION, PRICE, TYPE, LOCATION, COMPANY, ACTIVATION_TOKEN, REDUCTION_TOKEN, SHIPMENT_TOKEN, UNIT_TYPE, MIN_LIMIT, SUBTYPE, BarcodeGeneration, poolRef) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         [
-          args.productLabelID,
+          rando,
           `${args.name} Label`,
           "",
           0,
           "145",
-          args.location,
+          "4322",
           "443",
           "",
           "",
-          `SH:38dh:${args.productLabelID} UP:235s:${args.productLabelID}`,
+          `SH:38dh:${rando} UP:235s:${rando}`,
           "UNIT",
           0, // MIN_LIMIT
-          args.RefProduct ? args.RefProduct : "",
+          "COMPONENT",
+          false,
+          null,
         ]
       );
     }
+    return { status: true, message: "Created product." };
   } catch (error) {
-    throw error;
+    return { status: false, message: "Error creating product." };
   }
 };
 
 const addProdProcess = async (args) => {
   const trans = await knex.transaction();
   try {
-    const tokenData = tokenGenerator({
-      activationTokens: args.activationTokens,
-      reductionTokens: args.reductionTokens,
-      shipmentTokens: args.shipmentTokens,
-    });
-
-    await insertNewProduct(trans, args, tokenData);
-
-    trans.commit();
+    const status = await insertNewProduct(trans, args);
+    if (!status.status) {
+      await trans.rollback();
+      return status;
+    }
+    await trans.commit(); // IMPORTANT
+    return status;
   } catch (error) {
-    trans.rollback();
+    await trans.rollback();
+    return { status: false, message: "Fatal error in creating product." };
   }
 };
 

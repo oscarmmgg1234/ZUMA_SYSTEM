@@ -46,10 +46,8 @@ class FunctionRegistry {
       desc: "This will iterate through the product list then actualize stored-stock and sync the product-stock",
       meta_data: {},
       class: "VIRTUALOPS",
-      proto: async (db_handle, args, value, auxiliary) => {
-        
-      }
-    })
+      proto: async (db_handle, args, value, auxiliary) => {},
+    });
     this.registry_map.set("20r4", {
       name: "Update virtual stock",
       desc: "This will allow you to update the virtual stock",
