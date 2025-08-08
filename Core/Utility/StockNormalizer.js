@@ -15,7 +15,6 @@ const setTotalStockQuery =
   "UPDATE product_inventory SET STOCK = ? WHERE PRODUCT_ID = ?";
 
 const normalizeStock = async (db_handle, args) => {
-  console.log(args);
   const value = args.value;
   const product = args.product;
 
@@ -56,9 +55,7 @@ const normalizeStock = async (db_handle, args) => {
       active_stock === undefined ||
       active_stock == null
     ) {
-      throw new Error(
-        "Stored stock not found or invalid for product: " + product
-      );
+      throw new Error("Not : " + product);
     }
 
     const total_stock = stored_stock + active_stock;
