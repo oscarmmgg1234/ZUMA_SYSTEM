@@ -42,11 +42,50 @@ class FunctionRegistry {
     //get error correction function factor (k)
     //function have a 4 letter rando id
     this.registry_map.set("4i57", {
-      name: "Linked Prouducts Normalize",
+      name: "UPDATE pill stock and normalize stock for all products",
       desc: "This will iterate through the product list then actualize stored-stock and sync the product-stock",
       meta_data: {},
       class: "VIRTUALOPS",
-      proto: async (db_handle, args, value, auxiliary) => {},
+      proto: async (db_handle, args, value, auxiliary) => {
+        //this will be use to perform that calcualtion same a pill reduction
+        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
+        const poolID = auxiliary.auxiliaryParam;
+        const ratio = parseFloat(auxiliary.nextAuxiliaryParam);
+
+        await db_handle.raw(
+          "UPDATE inv_virtual_stock SET STORED_STOCK = STORED_STOCK - ? WHERE poolID = ?",
+          [
+            auxiliary.auxiliaryParam
+              ? ratio * args.QUANTITY * multiplier
+              : args.QUANTITY * multiplier,
+            poolID,
+          ]
+        );
+        const pool = await db_handle.raw(
+          "SELECT * from inv_virtual_stock WHERE poolID = ?",
+          [poolID]
+        );
+        const poolData = JSON.parse(pool[0][0]);
+        const shared_stock = poolData.STOCK;
+        const linked_products = poolData.LINKED_PRODUCTS;
+
+        if (linked_products.length < 1) {
+          return;
+        }
+
+        for (const linkedProduct of linked_products) {
+          const product_id = linkedProduct.productID;
+          await db_handle.raw(
+            "UPDATE product_inventory SET STORED_STOCK = ? where PRODUCT_ID = ?",
+            [shared_stock, product_id]
+          );
+          await normalizeStock(db_handle, {
+            product: product_id,
+            value: ratio,
+            option: "ratio",
+          });
+        }
+      },
     });
     this.registry_map.set("20r4", {
       name: "Update virtual stock",
