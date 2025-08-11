@@ -12,6 +12,11 @@ const {
 } = require("../../../Helpers/transaction_data_gather.js");
 const { query_manager } = require("../../../DB/query_manager.js");
 const { normalizeStock } = require("../../Utility/StockNormalizer.js");
+const {
+  firstStageNormal,
+  firstStagePill,
+  secondStage,
+} = require("../../Utility/virtualStockHelper.js");
 const knex = query_manager;
 
 class FunctionRegistry {
@@ -58,78 +63,17 @@ class FunctionRegistry {
         //if user linked then those type get nullified for that ype of value
         //then work on runtime
         //class:funcid:productID:poolID
-        if (!poolID) {
-          return;
-        }
-        const multiplier = args.MULTIPLIER ? parseFloat(args.MULTIPLIER) : 1;
-        const poolID = auxiliary.auxiliaryParam;
-        const mainProductID = value;
-
-        const pool = await db_handle.raw(
-          "SELECT * from inv_virtual_stock WHERE poolID = ?",
-          [poolID]
+        const firstStageStatus = await firstStagePill(
+          db_handle,
+          args,
+          value,
+          auxiliary
         );
-
-        const poolData = JSON.parse(pool[0][0]);
-        const linked_products = poolData.LINKED_PRODUCTS;
-        const mainProductProcess = linked_products.filter(
-          (item) => item.productID == mainProductID
-        );
-
-        if (mainProductProcess.length < 1) {
-          return;
-        }
-
-        await db_handle.raw(
-          "UPDATE inv_virtual_stock SET STORED_STOCK = STORED_STOCK - ? WHERE poolID = ?",
-          [
-            auxiliary.nextAuxiliaryParam
-              ? mainProductProcess[0].normalizeRatio *
-                args.QUANTITY *
-                multiplier
-              : args.QUANTITY * multiplier,
-            poolID,
-          ]
-        );
-
-        const sharedStock = await db_handle.raw(
-          "SELECT * from inv_virtual_stock WHERE poolID = ?",
-          [poolID]
-        );
-
-        const shared_stock = sharedStock[0][0].STOCK;
-
-        if (linked_products.length < 1) {
-          return;
-        }
-
-        const checkProductExist = "SELECT * from product WHERE PRODUCT_ID = ?";
-        const sanitizedLinkedProducts = [];
-        for (const item of linked_products) {
-          const exist = await db_handle.raw(checkProductExist, [
-            item.productID,
-          ]);
-          if (exist[0].length > 0) {
-            sanitizedLinkedProducts.push(item);
-          }
-        }
-        //sanitize and then update the linked product to remove any products frontend in aciddently somehow pushed undefined products
-        await db_handle(
-          "UPDATE inv_virtual_stock SET LINKED_PRODUCTS = ? WHERE poolID = ?",
-          [JSON.stringify(sanitizedLinkedProducts), poolID]
-        );
-
-        for (const linkedProduct of sanitizedLinkedProducts) {
-          const product_id = linkedProduct.productID;
-          await db_handle.raw(
-            "UPDATE product_inventory SET STORED_STOCK = ? where PRODUCT_ID = ?",
-            [shared_stock, product_id]
-          );
-          await normalizeStock(db_handle, {
-            product: product_id,
-            value: linkedProduct.normalizeRatio,
-            option: "ratio",
-          });
+        if (firstStageStatus) {
+          //if error then it will return false then it will not run
+          return await secondStage(db_handle, firstStageStatus);
+        } else {
+          throw new Error("Cannot complete the operation");
         }
       },
     });
@@ -138,7 +82,21 @@ class FunctionRegistry {
       desc: "This will allow you to update the virtual stock",
       meta_data: {},
       class: "VIRTUALOPS",
-      proto: async (db_handle, args, value, auxiliary) => {},
+      proto: async (db_handle, args, value, auxiliary) => {
+        //normal update
+        //then perform second stage
+        const firstStageStatus = await firstStageNormal(
+          db_handle,
+          args,
+          value,
+          auxiliary
+        );
+        if (firstStageStatus) {
+          return await secondStage(db_handle, firstStageStatus);
+        } else {
+          throw new Error("Cannot complete the opertion");
+        }
+      },
     });
 
     this.registry_map.set("2047", {

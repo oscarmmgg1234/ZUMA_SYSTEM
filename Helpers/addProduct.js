@@ -4,7 +4,6 @@ const { generateRandomID } = require("../Constants/stringRandoGeneration");
 const knex = query_manager;
 
 const insertNewProduct = async (db_handle, args) => {
-  console.log(args);
   //Insert new product, this will have product generated
   try {
     let subtype = "";

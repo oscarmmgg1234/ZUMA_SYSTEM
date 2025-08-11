@@ -18,6 +18,7 @@ const {
   data_gather_handler,
 } = require("../Helpers/transaction_data_gather.js");
 
+const { updateProductToken } = require("../Helpers/virtualHelpers/utils.js");
 const { v4: uuidv4 } = require("uuid");
 
 const constants = new Constants();
@@ -48,6 +49,7 @@ const createVirtualPool = async (args) => {
   try {
     const getTable = `SELECT * from inv_virtual_stock WHERE name = ?`;
     const validation = await knex.raw(getTable, [args.name]);
+    const poolID = uuidv4();
     const precheck = validation[0];
     if (precheck.length !== 0) {
       return { createdTable: false, status: "entry exist with that name" };
@@ -66,12 +68,49 @@ const createVirtualPool = async (args) => {
     ];
 
     const createdEntry = await knex.raw(entry, [
-      uuidv4(),
+      poolID,
       "",
       args.virtualStock,
       JSON.stringify(linkedProducts),
       args.name,
     ]);
+
+    if (args?.process === "edit") {
+      // add to product tokens
+      const linkToken = `VIRTUALOPS:4i57:${args.productID}:${poolID}`;
+
+      const [productRows] = await knex.raw(
+        "SELECT ACTIVATION_TOKEN, SHIPMENT_TOKEN FROM product WHERE PRODUCT_ID = ?",
+        [args.productID]
+      );
+      if (!productRows?.length) {
+        throw new Error("Product not found for token update");
+      }
+
+      // Helper to remove existing VIRTUALOPS tokens
+      const cleanseTokens = (tokenStr) =>
+        (tokenStr || "")
+          .split(/\s+/)
+          .filter(Boolean)
+          .filter((t) => !/^VIRTUALOPS:/i.test(t));
+
+      // Clean old ones and append new link token
+      const activationTokens = cleanseTokens(productRows[0].ACTIVATION_TOKEN);
+      if (!activationTokens.includes(linkToken)) {
+        activationTokens.push(linkToken);
+      }
+
+      const shipmentTokens = cleanseTokens(productRows[0].SHIPMENT_TOKEN);
+      if (!shipmentTokens.includes(linkToken)) {
+        shipmentTokens.push(linkToken);
+      }
+
+      await knex.raw(
+        "UPDATE product SET ACTIVATION_TOKEN = ?, SHIPMENT_TOKEN = ? WHERE PRODUCT_ID = ?",
+        [activationTokens.join(" "), shipmentTokens.join(" "), args.productID]
+      );
+    }
+
     return { createdTable: true, err: "none", status: createdEntry };
   } catch (err) {
     return {
@@ -127,6 +166,42 @@ const virtualStockPoolProductAdd = async (args) => {
       [JSON.stringify(currentLinked), args.poolID]
     );
 
+    if (args?.process === "edit") {
+      // add to product tokens
+      const linkToken = `VIRTUALOPS:4i57:${args.productID}:${args.poolID}`;
+
+      const [productRows] = await knex.raw(
+        "SELECT ACTIVATION_TOKEN, SHIPMENT_TOKEN FROM product WHERE PRODUCT_ID = ?",
+        [args.productID]
+      );
+      if (!productRows?.length) {
+        throw new Error("Product not found for token update");
+      }
+
+      // Helper to remove existing VIRTUALOPS tokens
+      const cleanseTokens = (tokenStr) =>
+        (tokenStr || "")
+          .split(/\s+/)
+          .filter(Boolean)
+          .filter((t) => !/^VIRTUALOPS:/i.test(t));
+
+      // Clean old ones and append new link token
+      const activationTokens = cleanseTokens(productRows[0].ACTIVATION_TOKEN);
+      if (!activationTokens.includes(linkToken)) {
+        activationTokens.push(linkToken);
+      }
+
+      const shipmentTokens = cleanseTokens(productRows[0].SHIPMENT_TOKEN);
+      if (!shipmentTokens.includes(linkToken)) {
+        shipmentTokens.push(linkToken);
+      }
+
+      await knex.raw(
+        "UPDATE product SET ACTIVATION_TOKEN = ?, SHIPMENT_TOKEN = ? WHERE PRODUCT_ID = ?",
+        [activationTokens.join(" "), shipmentTokens.join(" "), args.productID]
+      );
+    }
+
     return {
       linkedProduct: true,
       status: updateResult,
@@ -169,6 +244,32 @@ const VirtualStockProductRemove = async (args) => {
       "UPDATE inv_virtual_stock SET LINKED_PRODUCTS = ? WHERE poolID = ?",
       [JSON.stringify(newList), args.poolID]
     );
+
+    if (args?.process === "edit") {
+      const [productRows] = await knex.raw(
+        "SELECT ACTIVATION_TOKEN, SHIPMENT_TOKEN FROM product WHERE PRODUCT_ID = ?",
+        [args.productID]
+      );
+      if (!productRows?.length) {
+        throw new Error("Product not found for token update");
+      }
+
+      // Remove any VIRTUALOPS tokens entirely
+      const cleanseTokens = (tokenStr) =>
+        (tokenStr || "")
+          .split(/\s+/)
+          .filter(Boolean)
+          .filter((t) => !/^VIRTUALOPS:/i.test(t));
+
+      const activationTokens = cleanseTokens(productRows[0].ACTIVATION_TOKEN);
+      const shipmentTokens = cleanseTokens(productRows[0].SHIPMENT_TOKEN);
+
+      await knex.raw(
+        "UPDATE product SET ACTIVATION_TOKEN = ?, SHIPMENT_TOKEN = ? WHERE PRODUCT_ID = ?",
+        [activationTokens.join(" "), shipmentTokens.join(" "), args.productID]
+      );
+    }
+
 
     return { unlinkedProduct: true, status: updatedList };
   } catch (err) {

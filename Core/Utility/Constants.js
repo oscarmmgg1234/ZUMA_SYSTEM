@@ -5,7 +5,6 @@ Engine Utility
 */
 //one approach to having more consistent and accurate stock of product given gallons uncertainty
 
-const { get } = require("http");
 
 // not all gallons of a product are exact so modify equation to take in a error correction constant to account for this, modify database to keep track of negative stock specially in gallons to find a more avarage out stock of a product
 const productConsumption = (
