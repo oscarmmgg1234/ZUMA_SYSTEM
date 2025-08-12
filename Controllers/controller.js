@@ -78,6 +78,7 @@ const createVirtualPool = async (args) => {
     if (args?.process === "edit") {
       // add to product tokens
       const linkToken = `VIRTUALOPS:4i57:${args.productID}:${poolID}`;
+      const shipmentLinkToken = `VIRTUALOPS:20r4:${args.productID}:${poolID}`;
 
       const [productRows] = await knex.raw(
         "SELECT ACTIVATION_TOKEN, SHIPMENT_TOKEN FROM product WHERE PRODUCT_ID = ?",
@@ -101,8 +102,8 @@ const createVirtualPool = async (args) => {
       }
 
       const shipmentTokens = cleanseTokens(productRows[0].SHIPMENT_TOKEN);
-      if (!shipmentTokens.includes(linkToken)) {
-        shipmentTokens.push(linkToken);
+      if (!shipmentTokens.includes(shipmentLinkToken)) {
+        shipmentTokens.push(shipmentLinkToken);
       }
 
       await knex.raw(
@@ -121,6 +122,7 @@ const createVirtualPool = async (args) => {
 };
 
 const virtualStockPoolProductAdd = async (args) => {
+  console.log(args);
   try {
     // Step 1: Get the current linked products from the pool
     const result = await knex.raw(
@@ -169,6 +171,7 @@ const virtualStockPoolProductAdd = async (args) => {
     if (args?.process === "edit") {
       // add to product tokens
       const linkToken = `VIRTUALOPS:4i57:${args.productID}:${args.poolID}`;
+      const shipmentLinkToken = `VIRTUALOPS:20r4:${args.productID}:${args.poolID}`;
 
       const [productRows] = await knex.raw(
         "SELECT ACTIVATION_TOKEN, SHIPMENT_TOKEN FROM product WHERE PRODUCT_ID = ?",
@@ -192,9 +195,11 @@ const virtualStockPoolProductAdd = async (args) => {
       }
 
       const shipmentTokens = cleanseTokens(productRows[0].SHIPMENT_TOKEN);
-      if (!shipmentTokens.includes(linkToken)) {
-        shipmentTokens.push(linkToken);
+      if (!shipmentTokens.includes(shipmentLinkToken)) {
+        shipmentTokens.push(shipmentLinkToken);
       }
+      console.log("Activation Tokens:", activationTokens.join(" "));
+      console.log("Shipment Tokens:", shipmentTokens.join(" "));
 
       await knex.raw(
         "UPDATE product SET ACTIVATION_TOKEN = ?, SHIPMENT_TOKEN = ? WHERE PRODUCT_ID = ?",
@@ -218,6 +223,7 @@ const virtualStockPoolProductAdd = async (args) => {
 
 const VirtualStockProductRemove = async (args) => {
   try {
+    console.log(args);
     //update product ref
     await knex.raw("UPDATE product SET poolRef = ? WHERE PRODUCT_ID = ?", [
       null,
@@ -269,7 +275,6 @@ const VirtualStockProductRemove = async (args) => {
         [activationTokens.join(" "), shipmentTokens.join(" "), args.productID]
       );
     }
-
 
     return { unlinkedProduct: true, status: updatedList };
   } catch (err) {

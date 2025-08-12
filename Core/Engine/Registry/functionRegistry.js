@@ -13,7 +13,7 @@ const {
 const { query_manager } = require("../../../DB/query_manager.js");
 const { normalizeStock } = require("../../Utility/StockNormalizer.js");
 const {
-  firstStageNormal,
+  firstStageShipment,
   firstStagePill,
   secondStage,
 } = require("../../Utility/virtualStockHelper.js");
@@ -73,6 +73,17 @@ class FunctionRegistry {
         );
         if (firstStageStatus) {
           //if error then it will return false then it will not run
+          args.recordHandler.step({
+            normalize: true,
+            column: "STORED_STOCK",
+            value:
+              parseFloat(auxiliary.auxiliaryParam) *
+              (args.QUANTITY * multiplier),
+            productID: value,
+            operation: "-",
+            ratio: auxiliary.auxiliaryParam,
+            args: args,
+          });
           return await secondStage(db_handle, firstStageStatus);
         } else {
           throw new Error("Cannot complete the operation");
@@ -87,13 +98,22 @@ class FunctionRegistry {
       proto: async (db_handle, args, value, auxiliary) => {
         //normal update
         //then perform second stage
-        const firstStageStatus = await firstStageNormal(
+        const firstStageStatus = await firstStageShipment(
           db_handle,
           args,
           value,
           auxiliary
         );
         if (firstStageStatus) {
+          args.recordHandler.step({
+            normalize: true,
+            column: "STORED_STOCK",
+            value: args.QUANTITY,
+            productID: value,
+            operation: "-",
+            ratio: auxiliary.auxiliaryParam,
+            args: args,
+          });
           return await secondStage(db_handle, firstStageStatus);
         } else {
           throw new Error("Cannot complete the opertion");
@@ -929,7 +949,7 @@ class FunctionRegistry {
   }
 
   getFunction(id) {
-    console.log(id)
+    console.log(id);
     return this.registry_map.get(id);
   }
 }

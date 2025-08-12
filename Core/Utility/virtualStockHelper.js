@@ -10,7 +10,7 @@
 */
 const { normalizeStock } = require("./StockNormalizer");
 
-exports.firstStageNormal = async (db_handle, args, value, auxiliary) => {
+exports.firstStageShipment = async (db_handle, args, value, auxiliary) => {
   const poolID = auxiliary.auxiliaryParam;
   const mainProductID = value;
   if (!poolID) {
@@ -32,17 +32,17 @@ exports.firstStageNormal = async (db_handle, args, value, auxiliary) => {
     "UPDATE inv_virtual_stock SET VIRTUAL_STOCK = VIRTUAL_STOCK + ? WHERE poolID = ?",
     [args.QUANTITY, poolID]
   );
-    const sharedStock = await db_handle.raw(
-      "SELECT * from inv_virtual_stock WHERE poolID = ?",
-      [poolID]
-    );
+  const sharedStock = await db_handle.raw(
+    "SELECT * from inv_virtual_stock WHERE poolID = ?",
+    [poolID]
+  );
 
-    return {
-      stock: sharedStock[0][0].VIRTUAL_STOCK,
-      linked_products,
-      poolID,
-      mainProductID,
-    };
+  return {
+    stock: sharedStock[0][0].VIRTUAL_STOCK,
+    linked_products,
+    poolID,
+    mainProductID,
+  };
 };
 
 exports.firstStagePill = async (db_handle, args, value, auxiliary) => {
