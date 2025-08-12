@@ -78,7 +78,8 @@ class FunctionRegistry {
             column: "STORED_STOCK",
             value:
               parseFloat(auxiliary.auxiliaryParam) *
-              (args.QUANTITY * multiplier),
+              (args.QUANTITY *
+                (args.MULTIPLER ? parseFloat(args.MULTIPLIER) : 1)),
             productID: value,
             operation: "-",
             ratio: auxiliary.auxiliaryParam,

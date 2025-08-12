@@ -46,6 +46,7 @@ exports.firstStageShipment = async (db_handle, args, value, auxiliary) => {
 };
 
 exports.firstStagePill = async (db_handle, args, value, auxiliary) => {
+console.log("firstStagePill", args, value, auxiliary);
   //update virtual stock
   const poolID = auxiliary.auxiliaryParam;
   if (!poolID) {

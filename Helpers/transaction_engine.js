@@ -8,7 +8,7 @@ const { publishProcessEvent } = require("../Services/Publisher/mqPublisher.js");
 const knex = query_manager;
 
 const postops = "POSTOPS";
-
+const virtualops = "VIRTUALOPS";
 const historyLog = async (db_handle, transaction_stack, table, column) => {
   var output = [];
   var outputDeterminent = false;
@@ -48,7 +48,7 @@ const updateProductStock = async (
 };
 
 const normalizeProducts = (token) => {
-  if(!token){
+  if (!token) {
     return;
   }
   const tokens = tokenParser(token);
@@ -132,9 +132,9 @@ const transaction_engine = async (args) => {
               "ACTIVE_STOCK"
             );
           }
-          for (const item of activation) {
-            await trx.raw(queries.development.deleteActivationEntry, [item]);
-          }
+          // for (const item of activation) {
+          //   await trx.raw(queries.development.deleteActivationEntry, [item]);
+          // }
           for (const item of activationRevertNormalizationList) {
             await normalizeStock(trx, item);
           }
@@ -156,9 +156,9 @@ const transaction_engine = async (args) => {
               item.origin
             );
           }
-          for (const item of release) {
-            await trx.raw(queries.development.deleteConsumptionEntry, [item]);
-          }
+          // for (const item of release) {
+          //   await trx.raw(queries.development.deleteConsumptionEntry, [item]);
+          // }
           for (const item of historyQuantities.outputDeterminent
             ? reductionRevertNormalizationList
             : activationRevertNormalizationList) {
@@ -182,9 +182,9 @@ const transaction_engine = async (args) => {
               "STORED_STOCK"
             );
           }
-          for (const item of shipment) {
-            await trx.raw(queries.development.deleteShipmentEntry, [item]);
-          }
+          // for (const item of shipment) {
+          //   await trx.raw(queries.development.deleteShipmentEntry, [item]);
+          // }
           for (const item of shipmentRevertNormalizationList) {
             await normalizeStock(trx, item);
           }
