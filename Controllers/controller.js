@@ -748,15 +748,12 @@ const product_reduction = async (args) => {
         [args.TRANSACTIONID]
       );
 
-      const transaction = await knex.raw(
-        "SELECT * FROM transaction_log WHERE TRANSACTIONID = ?",
-        [args.TRANSACTIONID]
-      );
+      
 
       const core_args = {
         ...args,
         process_token: retriveToken[0][0].REDUCTION_TOKEN,
-        QUANTITY: transaction[0][0].QUANTITY,
+        QUANTITY: validator[0][0].Quantity,
       };
       const result = await core_exec(core_args);
       if (result.status === "error") {
