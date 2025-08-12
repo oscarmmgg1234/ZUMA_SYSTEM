@@ -19,7 +19,6 @@ const {
   publishProcessEvent,
 } = require("../../Services/Publisher/mqPublisher.js");
 
-
 const core_engine = async (args) => {
   let db_handle = null;
   let processValid = null;
@@ -82,10 +81,14 @@ const core_engine = async (args) => {
       }
 
       if (processValid) {
-        const multiplier = args?.MULTIPLIER ? parseFloat(args.MULTIPLIER) : null
+        const multiplier = args?.MULTIPLIER
+          ? parseFloat(args.MULTIPLIER)
+          : null;
         const event = {
           productChain: processValid.chain,
-          info: multiplier ? {...processValid.args, QUANTITY: multiplier *  args.QUANTITY} : {...processValid.args, QUANTITY: args.QUANTITY} ,
+          info: multiplier
+            ? { ...processValid.args, QUANTITY: multiplier * args.QUANTITY }
+            : { ...processValid.args, QUANTITY: args.QUANTITY },
         };
         publishProcessEvent(event);
       }
