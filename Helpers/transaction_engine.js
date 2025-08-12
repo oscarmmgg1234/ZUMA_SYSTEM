@@ -8,7 +8,6 @@ const { publishProcessEvent } = require("../Services/Publisher/mqPublisher.js");
 const knex = query_manager;
 
 const postops = "POSTOPS";
-const virtualops = "VIRTUALOPS";
 const historyLog = async (db_handle, transaction_stack, table, column) => {
   var output = [];
   var outputDeterminent = false;
@@ -93,12 +92,13 @@ const transaction_engine = async (args) => {
   );
 
   //Modify database so that negative stocks are possible because after transaction reversal, because initially stock is 0 and when u reduce it stays zero and then when u reverse it, it goes positive but it should be zero
-
+  //transactionID stack in the transaction
   const activation = JSON.parse(response[0][0].ACTIVATION_STACK);
   const release = JSON.parse(response[0][0].RELEASE_STACK);
   const shipment = JSON.parse(response[0][0].SHIPMENT_STACK);
   const barcode = JSON.parse(response[0][0].BARCODE_STACK);
   const transStatus = JSON.parse(response[0][0].REVERSED);
+  // Get the tokens from the product
   const activation_token = transactionProduct[0][0].ACTIVATION_TOKEN;
   const reduction_token = transactionProduct[0][0].REDUCTION_TOKEN;
   const shipment_token = transactionProduct[0][0].SHIPMENT_TOKEN;
@@ -123,6 +123,7 @@ const transaction_engine = async (args) => {
             "inventory_activation",
             "ACTIVATION_ID"
           );
+          console.log("ActivationHistoryQuantities", historyQuantities);
           for (const item of historyQuantities.output) {
             await updateProductStock(
               trx,
@@ -146,6 +147,7 @@ const transaction_engine = async (args) => {
             "inventory_consumption",
             "CONSUMP_ID"
           );
+          console.log("ReductionHstoryQuantities", historyQuantities);
           for (const item of historyQuantities.output) {
             await updateProductStock(
               trx,
