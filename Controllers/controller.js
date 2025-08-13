@@ -70,7 +70,7 @@ const createVirtualPool = async (args) => {
     const createdEntry = await knex.raw(entry, [
       poolID,
       "",
-      args.virtualStock,
+      1000,
       JSON.stringify(linkedProducts),
       args.name,
     ]);
