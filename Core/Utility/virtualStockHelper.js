@@ -74,8 +74,8 @@ console.log("firstStagePill", args, value, auxiliary);
   await db_handle.raw(
     "UPDATE inv_virtual_stock SET VIRTUAL_STOCK = VIRTUAL_STOCK - ? WHERE poolID = ?",
     [
-      auxiliary.nextAuxiliaryParam
-        ? mainProductProcess[0].normalizeRatio * args.QUANTITY * multiplier
+      auxiliary.auxiliaryParam
+        ? (mainProductProcess[0].normalizeRatio * (args.QUANTITY * multiplier))
         : args.QUANTITY * multiplier,
       poolID,
     ]

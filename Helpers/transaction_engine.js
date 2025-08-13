@@ -8,6 +8,45 @@ const { publishProcessEvent } = require("../Services/Publisher/mqPublisher.js");
 const knex = query_manager;
 
 const postops = "POSTOPS";
+const virtualops = "VIRTUALOPS";
+
+const virtualOpsHandler = async (db_handle, args) => {
+  const poolID = args.poolID;
+  const productID = args.productID;
+  const setVirtual = `UPDATE inv_virtual_stock SET VIRTUAL_STOCK = VIRTUAL_STOCK ${
+    args.isShipment ? "-" : "+"
+  } ? WHERE poolID = ?`;
+  const getVirtual = `SELECT * FROM inv_virtual_stock WHERE poolID = ?`;
+  const pool = await db_handle.raw(getVirtual, [poolID]);
+  const poolData = pool[0][0];
+  const linkedProducts = JSON.parse(poolData.LINKED_PRODUCTS);
+  const linked_product = linkedProducts.filter(
+    (item) => item.productID == productID
+  );
+  if (linked_product.length < 1) {
+    throw new Error("Product not found in linked products.");
+  }
+  const ratio = linked_product[0].normalizeRatio;
+  const quantity = args.quantity;
+  await db_handle.raw(setVirtual, [args.isShipment ? quantity : (ratio * quantity), poolID]);
+  const finalStock = await db_handle.raw(getVirtual, [poolID]);
+
+  const updateProductStock = `UPDATE product_inventory SET STORED_STOCK = ? WHERE PRODUCT_ID = ?`;
+
+  for (const item of linkedProducts) {
+    await db_handle.raw(updateProductStock, [
+      finalStock[0][0].VIRTUAL_STOCK,
+      item.productID,
+    ]);
+    await normalizeStock(db_handle, {
+      product: item.productID,
+      value: item.normalizeRatio,
+      option: "ratio",
+    });
+  }
+};
+//Handler that will handle virtual operations
+
 const historyLog = async (db_handle, transaction_stack, table, column) => {
   var output = [];
   var outputDeterminent = false;
@@ -46,7 +85,7 @@ const updateProductStock = async (
   );
 };
 
-const normalizeProducts = (token) => {
+const normalizeProducts = (token, transQuantity) => {
   if (!token) {
     return;
   }
@@ -55,10 +94,35 @@ const normalizeProducts = (token) => {
 
   for (var i = 0; i < tokens.size; i++) {
     let current = tokens.getData();
+    if (current.key === virtualops) {
+      if (current.id === "4i57") {
+        //pill
+        output.push({
+          isVirtualOps: true,
+          payload: {
+            isShipment: false,
+            productID: current.value,
+            quantity: transQuantity,
+            poolID: current.auxiliaryParam,
+          },
+        });
+      } else {
+        //shipment
+        output.push({
+          isVirtualOps: true,
+          payload: {
+            isShipment: true,
+            productID: current.value,
+            quantity: transQuantity,
+            poolID: current.auxiliaryParam,
+          },
+        });
+      }
+    }
     if (current.key === postops) {
       output.push({
         product: current.value,
-        value: parseFloat(auxiliaryParam),
+        value: parseFloat(current.auxiliaryParam),
         option: "ratio",
       });
     } else if (current.key === "UP") {
@@ -85,6 +149,9 @@ const transaction_engine = async (args) => {
     queries.development.getTransactionByID,
     args.to_arr()
   );
+  //this holds the item quantity for the transaction
+  const transactionQuantity = response[0][0].QUANTITY || 1;
+  const mainProduct = response[0][0].PRODUCT_ID;
 
   const transactionProduct = await knex.raw(
     "SELECT * FROM product WHERE PRODUCT_ID = ?",
@@ -103,11 +170,38 @@ const transaction_engine = async (args) => {
   const reduction_token = transactionProduct[0][0].REDUCTION_TOKEN;
   const shipment_token = transactionProduct[0][0].SHIPMENT_TOKEN;
 
-  const activationRevertNormalizationList = normalizeProducts(activation_token);
+  let ContainsVirtualFunction = false;
 
-  const reductionRevertNormalizationList = normalizeProducts(reduction_token);
+  const activationRevertNormalizationList = normalizeProducts(
+    activation_token,
+    transactionQuantity
+  );
 
-  const shipmentRevertNormalizationList = normalizeProducts(shipment_token);
+  const reductionRevertNormalizationList = normalizeProducts(
+    reduction_token,
+    transactionQuantity
+  );
+
+  const shipmentRevertNormalizationList = normalizeProducts(
+    shipment_token,
+    transactionQuantity
+  );
+  for (const item of activationRevertNormalizationList) {
+    if (item?.isVirtualOps) {
+      ContainsVirtualFunction = true;
+    }
+  }
+  for (const item of reductionRevertNormalizationList) {
+    if (item?.isVirtualOps) {
+      ContainsVirtualFunction = true;
+    }
+  }
+  for (const item of shipmentRevertNormalizationList) {
+    if (item?.isVirtualOps) {
+      ContainsVirtualFunction = true;
+    }
+  }
+
 
   if (transStatus === 1) {
     return;
@@ -123,7 +217,7 @@ const transaction_engine = async (args) => {
             "inventory_activation",
             "ACTIVATION_ID"
           );
-          console.log("ActivationHistoryQuantities", historyQuantities);
+      
           for (const item of historyQuantities.output) {
             await updateProductStock(
               trx,
@@ -147,7 +241,7 @@ const transaction_engine = async (args) => {
             "inventory_consumption",
             "CONSUMP_ID"
           );
-          console.log("ReductionHstoryQuantities", historyQuantities);
+   
           for (const item of historyQuantities.output) {
             await updateProductStock(
               trx,
@@ -164,6 +258,14 @@ const transaction_engine = async (args) => {
           for (const item of historyQuantities.outputDeterminent
             ? reductionRevertNormalizationList
             : activationRevertNormalizationList) {
+            if (
+              ContainsVirtualFunction &&
+              item?.payload?.productID === mainProduct
+            ) {
+              await virtualOpsHandler(trx, item.payload);
+              continue;
+            }
+     
             await normalizeStock(trx, item);
           }
         }
@@ -187,7 +289,16 @@ const transaction_engine = async (args) => {
           // for (const item of shipment) {
           //   await trx.raw(queries.development.deleteShipmentEntry, [item]);
           // }
+
           for (const item of shipmentRevertNormalizationList) {
+            if (
+              ContainsVirtualFunction &&
+              item?.payload?.productID === mainProduct
+            ) {
+         
+              await virtualOpsHandler(trx, item.payload);
+              continue;
+            }
             await normalizeStock(trx, item);
           }
         }
