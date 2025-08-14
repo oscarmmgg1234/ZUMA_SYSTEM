@@ -96,7 +96,7 @@ const updateProductRef = async (db, productID, poolRef) => {
  * Create a new virtual stock pool.
  * args = { poolID, poolName, initStock }
  */
-exports.createVirtualStockPool = async (db, args) => {
+exports._createVirtualStockPool = async (db, args) => {
   try {
     const { poolID, poolName, initStock = 0 } = args;
     const sql = `
@@ -122,7 +122,7 @@ exports.createVirtualStockPool = async (db, args) => {
 /**
  * Rename a pool.
  */
-exports.updatePoolName = async (db, poolID, newName) => {
+exports._updatePoolName = async (db, poolID, newName) => {
   try {
     const sql = "UPDATE inv_virtual_stock SET name = ? WHERE poolID = ?";
     const res = await db.raw(sql, [newName, poolID]);
@@ -135,7 +135,7 @@ exports.updatePoolName = async (db, poolID, newName) => {
 /**
  * Set a pool's virtual stock to an absolute value.
  */
-exports.updateVirtualStock = async (db, poolID, newStock) => {
+exports._updateVirtualStock = async (db, poolID, newStock) => {
   try {
     const sql =
       "UPDATE inv_virtual_stock SET VIRTUAL_STOCK = ? WHERE poolID = ?";
@@ -153,7 +153,7 @@ exports.updateVirtualStock = async (db, poolID, newStock) => {
  * Add a product link to a pool with a ratio.
  * args = { poolID, productID, normalizeRatio }
  */
-exports.addLinkedProductToPool = async (db, args) => {
+exports._addLinkedProductToPool = async (db, args) => {
   try {
     const { poolID, productID, normalizeRatio = 1 } = args;
 
@@ -193,7 +193,7 @@ exports.addLinkedProductToPool = async (db, args) => {
  * Remove a product link from a pool.
  * args = { poolID, productID }
  */
-exports.removeLinkedProductFromPool = async (db, args) => {
+exports._removeLinkedProductFromPool = async (db, args) => {
   try {
     const { poolID, productID } = args;
 
@@ -227,7 +227,7 @@ exports.removeLinkedProductFromPool = async (db, args) => {
  * Extract linked products from a pool.
  * args = { poolID }
  */
-exports.extractLinkedProducts = async (db, args) => {
+exports._extractLinkedProducts = async (db, args) => {
   try {
     const { poolID } = args;
     const poolRes = await getPool(db, poolID);
@@ -246,7 +246,7 @@ exports.extractLinkedProducts = async (db, args) => {
  * args = { poolID }
  */
 
-exports.removeVirtualPool = async (db, poolID) => {
+exports._removeVirtualPool = async (db, poolID) => {
   try {
     await db.raw("DELETE FROM inv_virtual_stock WHERE poolID = ?", [poolID]);
     const removeRefs = await removeProductPoolRefs(db, { poolID });
