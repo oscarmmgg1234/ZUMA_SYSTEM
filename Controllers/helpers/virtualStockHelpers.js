@@ -34,6 +34,24 @@ const safeJson = (value, fallback = []) => {
   }
 };
 
+const removeProductPoolRefs = async (db, args) => {
+  try {
+    const { poolID } = args;
+    const poolRes = await getPool(db, poolID);
+    if (!poolRes.success) return poolRes;
+
+    const links = poolRes.data.LINKED_PRODUCTS || [];
+    const sql = "UPDATE product SET poolRef = ? WHERE PRODUCT_ID = ?";
+
+    for (const p of links) {
+      await db.raw(sql, [null, p.productID]);
+    }
+    return ok("Pool references removed successfully.");
+  } catch (error) {
+    return fail("No linked products found or error occurred.", error.message);
+  }
+};
+
 /** Get a pool row with parsed LINKED_PRODUCTS */
 const getPool = async (db, poolID) => {
   try {
@@ -227,20 +245,16 @@ exports.extractLinkedProducts = async (db, args) => {
  * Remove poolRef from all products currently linked to a pool.
  * args = { poolID }
  */
-exports.removeProductPoolRefs = async (db, args) => {
+
+exports.removeVirtualPool = async (db, poolID) => {
   try {
-    const { poolID } = args;
-    const poolRes = await getPool(db, poolID);
-    if (!poolRes.success) return poolRes;
-
-    const links = poolRes.data.LINKED_PRODUCTS || [];
-    const sql = "UPDATE product SET poolRef = ? WHERE PRODUCT_ID = ?";
-
-    for (const p of links) {
-      await db.raw(sql, [null, p.productID]);
+    await db.raw("DELETE FROM inv_virtual_stock WHERE poolID = ?", [poolID]);
+    const removeRefs = await removeProductPoolRefs(db, { poolID });
+    if (!removeRefs.success) {
+      return fail(removeRefs.message, removeRefs.err);
     }
-    return ok("Pool references removed successfully.");
+    return ok("Virtual pool removed successfully.");
   } catch (error) {
-    return fail("No linked products found or error occurred.", error.message);
+    return fail("Error removing virtual pool: " + error.message, error.message);
   }
 };

@@ -7,8 +7,12 @@ const { core_exec } = require("../Core/Engine/CORE.js");
 const { query_manager } = require("../DB/query_manager.js");
 const pdf_generator = require("../Services/PDF/pdfGenerator.js");
 const {
-  removeProductPoolRefs,
+  removeLinkedProductFromPool,
   createVirtualStockPool,
+  addLinkedProductToPool,
+  updatePoolName,
+  updateVirtualStock,
+  removeVirtualPool,
 } = require("../Controllers/helpers/virtualStockHelpers.js");
 
 const commitProductChanges = require("../Helpers/editProducts.js");
@@ -35,31 +39,85 @@ const knex = query_manager;
 
 //mess of functions but are grouped by their respective controllers
 
-const updateVirtualStock = async (args) => {
-  let poolID = args?.poolID;
-  let productID = args?.productID;
-  let newStock = args?.newStock;
-  let newPoolID = uuidv4();
-
+const updateVirtualPoolRefs = async (args) => {
+  const { poolID, productID, normalizeRatio } = args;
   try {
-    if (args.option === "delete") {
-      //Remove product from virtual stock
-      const removedProduct = await removeProductPoolRefs(knex, { poolID });
-      return removedProduct;
-    } else if (args.option === "create") {
-      //Create a new virtual stock pool
-      const createdPool = await createVirtualStockPool({
-        newPoolID,
-        initStock: newStock,
-        poolName,
+    if (args.process == "addLinkedProduct") {
+      const result = await addLinkedProductToPool(knex, {
+        productID,
+        poolID,
+        normalizeRatio,
       });
-      return createdPool;
-    } else if (args.option === "update") {
-      //update existing virtual stock pool
-      if (args.suboption === "editproductlinkedlist") {
-      }
+      return result;
+    } else {
+      const result = await removeLinkedProductFromPool(knex, {
+        productID,
+        poolID,
+      });
     }
-  } catch (err) {}
+  } catch (err) {
+    return {
+      success: false,
+      message: "Error updating virtual stock pool references: " + err.message,
+    };
+  }
+};
+
+const updateVirtualStockPool = async (args) => {
+  try {
+    const { poolID, newStock } = args;
+    const response = await updateVirtualStock(knex, poolID, newStock);
+    return response;
+  } catch (err) {
+    return {
+      success: false,
+      message: "Error updating virtual stock pool: " + err.message,
+    };
+  }
+};
+
+const updateVirtualPoolName = async (args) => {
+  const { poolID, newName } = args;
+  try {
+    const result = await updatePoolName(knex, poolID, newName);
+    return result;
+  } catch (err) {
+    return {
+      success: false,
+      message: "Error updating virtual stock pool name: " + err.message,
+    };
+  }
+};
+
+const removeVirtualPool = async (args) => {
+  try {
+    const { poolID } = args;
+    const result = await removeVirtualPool(knex, poolID);
+    return result;
+  } catch (err) {
+    return {
+      success: false,
+      message: "Error removing virtual stock pool: " + err.message,
+    };
+  }
+};
+
+const createVirtualStockPool = async (args) => {
+  try {
+    const response = await createVirtualStockPool(knex, args);
+    if (!response.success) {
+      return {
+        success: false,
+        message: "Error creating virtual stock pool: " + response.message,
+      };
+    }
+    return response;
+  } catch (err) {
+    return {
+      success: false,
+      message: "Error creating virtual stock pool: " + err.message,
+    };
+  }
 };
 
 const getVirtualStockPools = async () => {
