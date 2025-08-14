@@ -28,7 +28,10 @@ const virtualOpsHandler = async (db_handle, args) => {
   }
   const ratio = linked_product[0].normalizeRatio;
   const quantity = args.quantity;
-  await db_handle.raw(setVirtual, [args.isShipment ? quantity : (ratio * quantity), poolID]);
+  await db_handle.raw(setVirtual, [
+    args.isShipment ? quantity : ratio * quantity,
+    poolID,
+  ]);
   const finalStock = await db_handle.raw(getVirtual, [poolID]);
 
   const updateProductStock = `UPDATE product_inventory SET STORED_STOCK = ? WHERE PRODUCT_ID = ?`;
@@ -202,7 +205,6 @@ const transaction_engine = async (args) => {
     }
   }
 
-
   if (transStatus === 1) {
     return;
   }
@@ -217,7 +219,7 @@ const transaction_engine = async (args) => {
             "inventory_activation",
             "ACTIVATION_ID"
           );
-      
+
           for (const item of historyQuantities.output) {
             await updateProductStock(
               trx,
@@ -241,7 +243,7 @@ const transaction_engine = async (args) => {
             "inventory_consumption",
             "CONSUMP_ID"
           );
-   
+
           for (const item of historyQuantities.output) {
             await updateProductStock(
               trx,
@@ -265,7 +267,7 @@ const transaction_engine = async (args) => {
               await virtualOpsHandler(trx, item.payload);
               continue;
             }
-     
+
             await normalizeStock(trx, item);
           }
         }
@@ -295,7 +297,6 @@ const transaction_engine = async (args) => {
               ContainsVirtualFunction &&
               item?.payload?.productID === mainProduct
             ) {
-         
               await virtualOpsHandler(trx, item.payload);
               continue;
             }

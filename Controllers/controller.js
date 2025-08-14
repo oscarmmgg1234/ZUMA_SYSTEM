@@ -6,6 +6,11 @@ const { Constants } = require("../Constants/Tools_Interface.js");
 const { core_exec } = require("../Core/Engine/CORE.js");
 const { query_manager } = require("../DB/query_manager.js");
 const pdf_generator = require("../Services/PDF/pdfGenerator.js");
+const {
+  removeProductPoolRefs,
+  createVirtualStockPool,
+} = require("../Controllers/helpers/virtualStockHelpers.js");
+
 const commitProductChanges = require("../Helpers/editProducts.js");
 const {
   theoreticalBottleCount,
@@ -29,6 +34,33 @@ const services = init_services();
 const knex = query_manager;
 
 //mess of functions but are grouped by their respective controllers
+
+const updateVirtualStock = async (args) => {
+  let poolID = args?.poolID;
+  let productID = args?.productID;
+  let newStock = args?.newStock;
+  let newPoolID = uuidv4();
+
+  try {
+    if (args.option === "delete") {
+      //Remove product from virtual stock
+      const removedProduct = await removeProductPoolRefs(knex, { poolID });
+      return removedProduct;
+    } else if (args.option === "create") {
+      //Create a new virtual stock pool
+      const createdPool = await createVirtualStockPool({
+        newPoolID,
+        initStock: newStock,
+        poolName,
+      });
+      return createdPool;
+    } else if (args.option === "update") {
+      //update existing virtual stock pool
+      if (args.suboption === "editproductlinkedlist") {
+      }
+    }
+  } catch (err) {}
+};
 
 const getVirtualStockPools = async () => {
   const virtualStockEntries = await knex.raw("SELECT * from inv_virtual_stock");
@@ -747,8 +779,6 @@ const product_reduction = async (args) => {
         "SELECT product.REDUCTION_TOKEN FROM product INNER JOIN barcode_log ON product.PRODUCT_ID = barcode_log.PRODUCT_ID WHERE barcode_log.TRANSACTIONID = ?",
         [args.TRANSACTIONID]
       );
-
-      
 
       const core_args = {
         ...args,
