@@ -18,6 +18,8 @@
 
 "use strict";
 
+const { normalizeStock } = require("../../Core/Utility/StockNormalizer");
+
 /* ===========================
    Internal helpers (not exported)
    =========================== */
@@ -88,6 +90,32 @@ const updateProductRef = async (db, productID, poolRef) => {
   }
 };
 
+const updateProductRefsStocks = async (db, poolID, newStock) => {
+  try {
+    const pool = await getPool(db, poolID);
+
+    if (pool.data.LINKED_PRODUCTS.length < 1) {
+      return;
+    }
+    const query =
+      "UPDATE product_inventory SET STORED_STOCK = ? WHERE PRODUCT_ID = ?";
+    //update stock
+    for (const item of pool.data.LINKED_PRODUCTS) {
+      await db.raw(query, [newStock, item.productID]);
+    }
+    //normalize stock
+    for (const item of pool.data.LINKED_PRODUCTS) {
+      await normalizeStock(db, {
+        product: item.productID,
+        value: item.normalizeRatio,
+        option: "ratio",
+      });
+    }
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 /* ===========================
    Public API (exported)
    =========================== */
@@ -139,7 +167,8 @@ exports._updateVirtualStock = async (db, poolID, newStock) => {
   try {
     const sql =
       "UPDATE inv_virtual_stock SET VIRTUAL_STOCK = ? WHERE poolID = ?";
-    const res = await db.raw(sql, [Number(newStock) || 0, poolID]);
+    const res = await db.raw(sql, [newStock, poolID]);
+    await updateProductRefsStocks(db, poolID, newStock);
     return ok("Virtual stock updated successfully.", res?.[0] ?? null);
   } catch (error) {
     return fail(
@@ -248,8 +277,8 @@ exports._extractLinkedProducts = async (db, args) => {
 
 exports._removeVirtualPool = async (db, poolID) => {
   try {
-    await db.raw("DELETE FROM inv_virtual_stock WHERE poolID = ?", [poolID]);
     const removeRefs = await removeProductPoolRefs(db, { poolID });
+    await db.raw("DELETE FROM inv_virtual_stock WHERE poolID = ?", [poolID]);
     if (!removeRefs.success) {
       return fail(removeRefs.message, removeRefs.err);
     }

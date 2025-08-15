@@ -322,6 +322,35 @@ class http_handler {
   };
 
   dashboard = {
+    API_createVirtualStockPool: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiCreateVirtualPool(req.body);
+      res.send(response);
+    },
+    API_removeVirtualPool: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiRemoveVirtualPool(req.body);
+      res.send(response);
+    },
+    API_updateVirtualPoolName: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiUpdateVirtualPoolName(
+          req.body
+        );
+      res.send(response);
+    },
+    API_updateVirtualStock: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiUpdateVirtualStock(req.body);
+      res.send(response);
+    },
+    API_updateVirtualPoolRefs: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiUpdateVirtualPoolRefs(
+          req.body
+        );
+      res.send(response);
+    },
     virtualStockProductRemove: async (req, res) => {
       const response =
         await controller.dashboard_controller.virtualStockProductRemove(

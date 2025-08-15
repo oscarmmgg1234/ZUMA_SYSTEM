@@ -14,6 +14,9 @@ const {
   _updateVirtualStock,
   _removeVirtualPool,
 } = require("../Controllers/helpers/virtualStockHelpers.js");
+const {
+  transactionUnit,
+} = require("../Core/DBLayer/Transaction/transactionUnit.js");
 
 const commitProductChanges = require("../Helpers/editProducts.js");
 const {
@@ -47,6 +50,7 @@ const updateVirtualPoolRefs = async (args) => {
   const { poolID, productID, normalizeRatio } = args;
   try {
     if (args.process == "addLinkedProduct") {
+      console.log(args);
       const result = await _addLinkedProductToPool(knex, {
         productID,
         poolID,
@@ -58,6 +62,7 @@ const updateVirtualPoolRefs = async (args) => {
         productID,
         poolID,
       });
+      return result;
     }
   } catch (err) {
     return {
@@ -69,7 +74,8 @@ const updateVirtualPoolRefs = async (args) => {
 
 const updateVirtualStock = async (args) => {
   try {
-    const { poolID, newStock } = args;
+    const poolID = args.poolID;
+    const newStock = args.newStock;
     const response = await _updateVirtualStock(knex, poolID, newStock);
     return response;
   } catch (err) {
@@ -81,7 +87,8 @@ const updateVirtualStock = async (args) => {
 };
 
 const updateVirtualPoolName = async (args) => {
-  const { poolID, newName } = args;
+  const poolID = args.poolID;
+  const newName = args.newName;
   try {
     const result = await _updatePoolName(knex, poolID, newName);
     return result;
@@ -95,10 +102,13 @@ const updateVirtualPoolName = async (args) => {
 
 const removeVirtualPool = async (args) => {
   try {
+    const db_handle = await transactionUnit();
     const { poolID } = args;
-    const result = await _removeVirtualPool(knex, poolID);
+    const result = await _removeVirtualPool(db_handle, poolID);
+    await db_handle.commit()
     return result;
   } catch (err) {
+    await db_handle.rollback()
     return {
       success: false,
       message: "Error removing virtual stock pool: " + err.message,
@@ -125,7 +135,6 @@ const createVirtualStockPool = async (args) => {
 };
 
 //==================================================================================================
-
 
 const getVirtualStockPools = async () => {
   const virtualStockEntries = await knex.raw("SELECT * from inv_virtual_stock");
@@ -1206,6 +1215,21 @@ class controller {
   };
 
   dashboard_controller = {
+    apiUpdateVirtualPoolRefs: async (args) => {
+      return updateVirtualPoolRefs(args);
+    },
+    apiUpdateVirtualStock: async (args) => {
+      return updateVirtualStock(args);
+    },
+    apiUpdateVirtualPoolName: async (args) => {
+      return updateVirtualPoolName(args);
+    },
+    apiRemoveVirtualPool: async (args) => {
+      return await removeVirtualPool(args);
+    },
+    apiCreateVirtualPool: async (args) => {
+      return await createVirtualStockPool(args);
+    },
     virtualStockProductRemove: async (args) => {
       return await VirtualStockProductRemove(args);
     },

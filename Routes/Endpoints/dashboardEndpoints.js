@@ -89,5 +89,24 @@ dashboard_router.post("/virtualStockProductAdd", async (req, res) => {
 dashboard_router.post("/virtualStockProductRemove", async (req, res) => {
   await endpoint_handler.dashboard.virtualStockProductRemove(req, res);
 });
+dashboard_router.post("/apiUpdateVirtualPoolRefs", async (req, res) => {
+  await endpoint_handler.dashboard.API_updateVirtualPoolRefs(req, res);
+});
 
+dashboard_router.post("/apiUpdateVirtualStock", async (req, res) => {
+  await endpoint_handler.dashboard.API_updateVirtualStock(req, res);
+});
+
+dashboard_router.post("/apiUpdateVirtualPoolName", async (req, res) => {
+  console.log(req.body);
+  await endpoint_handler.dashboard.API_updateVirtualPoolName(req, res);
+});
+
+dashboard_router.post("/apiRemoveVirtualPool", async (req, res) => {
+  await endpoint_handler.dashboard.API_removeVirtualPool(req, res);
+});
+
+dashboard_router.post("/apiCreateVirtualStockPool", async (req, res) => {
+  await endpoint_handler.dashboard.API_createVirtualStockPool(req, res);
+});
 module.exports = dashboard_router;
