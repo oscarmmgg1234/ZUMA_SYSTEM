@@ -151,6 +151,7 @@ exports._createVirtualStockPool = async (db, args) => {
  * Rename a pool.
  */
 exports._updatePoolName = async (db, poolID, newName) => {
+    //example 
   try {
     const sql = "UPDATE inv_virtual_stock SET name = ? WHERE poolID = ?";
     const res = await db.raw(sql, [newName, poolID]);
