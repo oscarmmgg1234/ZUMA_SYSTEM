@@ -1,0 +1,802 @@
+const { db } = require("./db_init.js");
+const { queries } = require("./queries.js");
+const { query_manager } = require("./query_manager.js");
+const knex = query_manager;
+
+// const insertShipmentLog = (args) => {
+//   var data = db.execute(queries.shipment_log.insert, args);
+// };
+
+// class insert_shipment {
+//   constructor(args) {
+//     this.QUANTITY = args.QUANTITY;
+//     this.COMPANY_ID = args.COMPANY_ID;
+//     this.TYPE = args.TYPE;
+//     this.EMPLOYEE_ID = args.EMPLOYEE_ID;
+//     this.PRODUCT_ID = args.PRODUCT_ID;
+//     this.PRODUCT_NAME = args.PRODUCT_NAME;
+//     this.TRANSACTIONID = generateRandomID(8);
+//     this.process_token = args.PROCESS_TOKEN;
+//   }
+//   to_arr() {
+//     return [
+//       this.QUANTITY,
+//       this.COMPANY_ID,
+//       this.TYPE,
+//       this.EMPLOYEE_ID,
+//       this.PRODUCT_ID,
+//       this.TRANSACTIONID,
+//     ];
+//   }
+// }
+
+// const insert_shipment_model = (args, callback) => {
+//   const shipmentObject = args.map((arg) => {
+//     return new insert_shipment(arg);
+//   });
+//   return callback(shipmentObject);
+// };
+
+const submitShipmentTracker = async (args) => {
+  let db_handle = args.transactionHandle ? args.transactionHandle : knex
+  const currentInventory = await db_handle.raw(
+    "SELECT STORED_STOCK FROM product_inventory WHERE PRODUCT_ID = ?",
+    [args.PRODUCT_ID]
+  );
+  const stockBefore = currentInventory[0][0].STORED_STOCK;
+  await db_handle.raw(
+    "INSERT INTO shipmentTracker (productID, quantity, employeeID,StockAfter, StockBefore, shipmentID ) VALUES (?,?,?,?,?,?)",
+    [
+      args.PRODUCT_ID,
+      args.QUANTITY,
+      args.EMPLOYEE_ID,
+      stockBefore + args.QUANTITY,
+      stockBefore,
+      args.TRANSACTIONID,
+    ]
+  );
+};
+
+const getProductNameFromTrans = async (args) => {
+  const result = await knex.raw(queries.product_release.getProductName, [args]);
+  return result[0][0];
+};
+const getGlycerinGlobal = async () => {
+  const result = await knex.raw(queries.dashboard.getGlycerinGlobal);
+  return { glycerinGlobalUnit: result[0][0].GlycerinGallonUnitConstant };
+};
+
+const setGlycerinGlobal = async (args) => {
+  await knex.raw(queries.dashboard.setGlycerinGLobal, args);
+};
+
+function getTransactionLog(callback) {
+  db(queries.development.getTransactionLog, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+}
+
+const addTransaction = async (args) => {
+  await knex.raw(queries.development.addProductTransaction, [
+    args.args.TRANSACTIONID,
+    JSON.stringify([]),
+    JSON.stringify([]),
+    JSON.stringify([]),
+    JSON.stringify([]),
+    0,
+    args.src,
+    args.args.EMPLOYEE_ID,
+    args.args.PRODUCT_ID,
+    args.args.MULTIPLIER
+      ? parseInt(args.args.MULTIPLIER) * args.args.QUANTITY
+      : args.args.QUANTITY,
+  ]);
+};
+
+const setBarcodeEmployee = (args) => {
+  db(queries.product_release.set_barcode_employee, args, (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+};
+
+const checkBarcodeStatus = (args, callback) => {
+  db(
+    queries.product_release.checkBarcodeStatus,
+    [args.BARCODE_ID],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
+    }
+  );
+};
+
+const getTopConsumpEmployee = (callback) => {
+  db(queries.dashboard.getCompany, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const addCompany = (args, callback) => {
+  db(queries.dashboard.addCompany, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+      return callback({ status: false, status_mes: "Error adding company" });
+    }
+    return callback({ status: true, status_mes: "Successfully added company" });
+  });
+};
+
+const deleteCompany = (args, callback) => {
+  db(queries.dashboard.deleteCompany, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+      return callback({ status: false, status_mes: "Error deleting company" });
+    }
+    return callback({
+      status: true,
+      status_mes: "Successfully deleted company",
+    });
+  });
+};
+
+const updateTracking = (args) => {
+  db(queries.dashboard.updateProductMinLimit, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+};
+
+const getZumaPartneredCompanies = (callback) => {
+  db(queries.dashboard.getCompanies, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getProductInventory = (callback) => {
+  db(queries.dashboard.getInventory, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    db("SELECT * FROM product", (err, result2) => {
+      if (err) {
+        console.log(err);
+      }
+
+      const product_map = new Map(result2.map((x) => [x.PRODUCT_ID, x]));
+      //console.log(product_map.entries());
+      const inventory_map = new Map(result.map((x) => [x.PRODUCT_ID, x]));
+      result.forEach((x) => {
+        if (product_map.get(x.PRODUCT_ID).ReferenceStockProduct) {
+          // console.log(product_map.has(x.PRODUCT_ID).ReferenceStockProduct);
+          const active = inventory_map.get(x.PRODUCT_ID).ACTIVE_STOCK;
+          const newStored = inventory_map.get(
+            product_map.get(x.PRODUCT_ID).ReferenceStockProduct
+          ).STORED_STOCK;
+          x.STORED_STOCK = newStored;
+          x.STOCK = active + newStored;
+        }
+      });
+      //sort by ASC order for PRODUCT_NAME
+      return callback(result);
+    });
+  });
+};
+
+const addProduct = (args, callback) => {
+  db(queries.development.add_product, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+      return callback({ status: false, status_mes: "Error adding product" });
+    }
+    return callback({ status: true, status_mes: "Successfully added product" });
+  });
+};
+
+const deleteProduct = (args, callback) => {
+  db(queries.development.delete_product, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+      return callback({ status: false, status_mes: "Error deleting product" });
+    }
+    db(queries.development.delete_product_inventory, args.to_arr(), (err) => {
+      if (err) {
+        console.log(err);
+        return callback({
+          status: false,
+          status_mes: "Error deleting product",
+        });
+      }
+      return callback({
+        status: true,
+        status_mes: "Successfully deleted product",
+      });
+    });
+  });
+};
+
+//summary for new feature
+//need to add record for modification of stock for potential ai set up (error correction)
+//log neccessary data for future use!!!!figure it out
+//also track product revertions for error reasons
+//track shipments
+//datalabeling for all this correct or not correct etc...
+
+const flags = {
+  active: { activeStockFlag: true, storedStockFlag: false },
+  stored: { activeStockFlag: false, storedStockFlag: true },
+  employee: { employeeMistakeFlag: true, operationErrorFlag: false },
+  operation: { employeeMistakeFlag: false, operationErrorFlag: true },
+};
+
+const submitTracker = (args, action) => {
+  try {
+    // Extract flags dynamically
+    const { activeStockFlag, storedStockFlag } = flags[action];
+    const { employeeMistakeFlag, operationErrorFlag } =
+      flags[args.errorCauseType];
+
+    // Capture the current timestamp
+    const current = new Date();
+
+    // Query to get the latest shipment
+    const latestShipmentQuery = `
+      SELECT 
+          s.latestShipmentDate,
+          TIMESTAMPDIFF(HOUR, s.latestShipmentDate, ?) AS hoursToDetectError
+      FROM 
+          manualStockUpdateTracker m
+      JOIN (
+          SELECT 
+              PRODUCT_ID,
+              MAX(SHIPMENT_DATE) AS latestShipmentDate
+          FROM 
+              shipment_log
+          WHERE 
+              PRODUCT_ID = ?
+          GROUP BY 
+              PRODUCT_ID
+      ) s 
+      ON 
+          m.productID = s.PRODUCT_ID
+      WHERE 
+          m.productID = ?;
+    `;
+
+    // First database query to calculate hoursToDetectError
+    db(
+      latestShipmentQuery,
+      [current, args.productID, args.productID],
+      (err, result) => {
+        if (err) {
+          console.error("Error fetching latest shipment:", err);
+          return;
+        }
+
+        // Handle empty results
+        const hoursToDetectError =
+          result.length > 0 && result[0].hoursToDetectError !== null
+            ? `${result[0].hoursToDetectError} hours`
+            : "N/A";
+        const afterStockUpdate = args.beforeUpdateStock + args.quantity;
+        // Insert new tracker entry
+        db(
+          "INSERT INTO manualStockUpdateTracker  (errorCorrectionQuantity, employeeMistakeFlag, operationErrorFlag, activeStockFlag, storedStockFlag, explanation, errorRangeDates, beforeUpdateStock, afterUpdateStock, category, timeToDetectError, productID, subStockCategory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [
+            args.quantity,
+            employeeMistakeFlag,
+            operationErrorFlag,
+            activeStockFlag,
+            storedStockFlag,
+            args.explanation,
+            JSON.stringify(args.errorRangeDates),
+            args.beforeUpdateStock,
+            afterStockUpdate,
+            args.category,
+            hoursToDetectError,
+            args.productID,
+            action,
+          ],
+          (err, insertResult) => {
+            if (err) {
+              console.error("Error inserting tracker entry:", err);
+              return;
+            }
+            console.log("Tracker entry successfully inserted:", insertResult);
+          }
+        );
+      }
+    );
+  } catch (e) {
+    console.error("Unexpected error in submitTracker:", e);
+  }
+};
+
+const modifyStockGivenID = (args, action, callback) => {
+  //capture datetime, productID, errorCorrectionQuantity, employeeMistakeFlag, operationMisaccuracyFlag, activeStockFlag, storedStockFlag, explanaition, dateofpotentialerrorrange, beforemanualcorrectionStock, aftermanualcorrectionStock, category, timeTodetectError
+  //timeto detect error would be the time it took to detect the error so from last shipment from that product to the time of detection
+  //category would be the category of the product, liquid, pill, etc...
+  //if its deemed a employee mistake, flag it as such
+  //if its deemed a operation misaccuracy, flag it as such
+  //if its deemed a active stock error, flag it as such
+  //if its deemed a stored stock error, flag it as such
+  //explanaition would be a quick note on what happened
+  //dateofpotentialerrorrange would be the date of the error or date range to look for products in that range for potential error
+
+  //new expected input for new flow
+  // args = {args..., quantity, errorCauseType, explanation, errorRangeDates, beforeUpdateStock, afterUpdateStock, category, timeToDetectError}
+  //errorRangeDates = [start, end] datetime format obejects
+  //explanation = string
+  // beforeUpdateStock = float
+  // afterUpdateStock = float
+  //category = string
+  //timeToDetectError = float
+  //errorCauseType = "employee" or "operation"
+  submitTracker(args, action);
+
+  if (action == "active") {
+    //start tracker for this change
+    db(queries.dashboard.get_active_stock, args.to_arr(), (err, result) => {
+      if (err) {
+        console.log(err);
+        return callback({
+          status: false,
+          status_mes: "Error modifying database",
+        });
+      }
+      if (result.length == 0) {
+        return callback({
+          status: false,
+          status_mes: "Error modifying database",
+        });
+      }
+      db(queries.dashboard.transform_active_product, [
+        parseInt(args.quantity + result[0].ACTIVE_STOCK),
+        args.productID,
+      ]);
+      return callback({
+        status: true,
+        status_mes: "Successfully modified database",
+      });
+    });
+  }
+  if (action == "stored") {
+    //start tracker for this change
+    db(queries.dashboard.get_stored_stock, args.to_arr(), (err, result) => {
+      if (err) {
+        console.log(err);
+        return callback({
+          status: false,
+          status_mes: "Error modifying database",
+        });
+      }
+      if (result.length == 0) {
+        return callback({
+          status: false,
+          status_mes: "Error modifying database",
+        });
+      }
+      db(queries.dashboard.transform_stored_product, [
+        parseInt(args.quantity + result[0].STORED_STOCK),
+        args.productID,
+      ]);
+      return callback({
+        status: true,
+        status_mes: "Successfully modified database",
+      });
+    });
+  }
+};
+
+const getActivationByDate = (args, callback) => {
+  db(queries.dashboard.activationByDate, args.to_arr(), (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getReductionByDate = (args, callback) => {
+  db(queries.dashboard.reductionByDate, args.to_arr(), (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getShipmentLog = (args, callback) => {
+  db(queries.shipment.get_shipment_log_byDate, args.to_arr(), (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getBarcodeData = (args, callback) => {
+  db(queries.tools.get_barcode_data, [args.BARCODE_ID], (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getProductStock = (args, callback) => {
+  db(queries.dashboard.get_product_stock, [args.PRODUCT_ID], (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getProductReductionRecent = (args, callback) => {
+  db(
+    queries.dashboard.get_product_reduction_recent,
+    [args.PRODUCT_ID],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
+    }
+  );
+};
+
+const getProductActivationRecent = (args, callback) => {
+  db(
+    queries.dashboard.get_product_activation_recent,
+    [args.PRODUCT_ID],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
+    }
+  );
+};
+
+const getProductShipmentRecent = (args, callback) => {
+  db(
+    queries.dashboard.get_product_shipment_recent,
+    [args.PRODUCT_ID],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
+    }
+  );
+};
+
+const getProductById = (args, callback) => {
+  db(queries.tools.get_product_by_id, [args], (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const insertShipmentLog = (args) => {
+  db(queries.shipment_log.insert, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+};
+
+const selectAllShipmentLog = (callback) => {
+  db(queries.shipment_log.select_all, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const updateShipmentLog = (args) => {
+  db(queries.shipment_log.update, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+};
+
+const deleteShipmentLog = (args) => {
+  db(queries.shipment_log.delete, args.to_arr(), (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+};
+
+const getActivationProduct = (args, callback) => {
+  db(
+    queries.activation_product.get_product_by_type,
+    args.to_arr(),
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
+    }
+  );
+};
+
+const getEmployeeInfo = (callback) => {
+  db(queries.activation_product.get_employee_info, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getEmployeeInfoByID = (args, callback) => {
+  db(queries.tools.get_employee_info, [args], (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getProductsInfo = (callback) => {
+  db(queries.label_print.get_products_info, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const getProductsByCompany = (args, callback) => {
+  db(
+    queries.shipment.get_product_by_company,
+    [args.COMPANY_ID],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
+    }
+  );
+};
+
+const get_company_info = (callback) => {
+  db(queries.shipment.get_company_info, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const get_shipment_log = (callback) => {
+  db(queries.tools.shipment_log, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const get_activation_log = (callback) => {
+  db(queries.tools.activation_log, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+const get_consumption_log = (callback) => {
+  db(queries.tools.consumption_log, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return callback(result);
+  });
+};
+
+class db_interface {
+  getProductNameFromTrans = async (args) => {
+    return await getProductNameFromTrans(args);
+  };
+  getGlycerinGlobal = async () => {
+    return await getGlycerinGlobal();
+  };
+  setGlycerinGlobal = async (args) => {
+    await setGlycerinGlobal(args);
+  };
+  getTransactionLog = (callback) => {
+    getTransactionLog((data) => {
+      return callback(data);
+    });
+  };
+  addTransaction = async (args) => {
+    await addTransaction(args);
+  };
+  setBarcodeEmployee = (args) => {
+    setBarcodeEmployee(args);
+  };
+
+  checkBarcodeStatus = (args, callback) => {
+    checkBarcodeStatus(args, (data) => {
+      return callback(data);
+    });
+  };
+  getTopEmployee = (callback) => {
+    getTopConsumpEmployee((data) => {
+      return callback(data);
+    });
+  };
+  addCompany = (args, callback) => {
+    addCompany(args, (status) => {
+      return callback(status);
+    });
+  };
+  deleteCompany = (args, callback) => {
+    deleteCompany(args, (status) => {
+      return callback(status);
+    });
+  };
+  updateTracking = (args) => {
+    updateTracking(args);
+  };
+  getShipmentByDate = (args, callback) => {
+    getShipmentLog(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_shipment_log = (callback) => {
+    get_shipment_log((data) => {
+      return callback(data);
+    });
+  };
+  get_activation_log = (callback) => {
+    get_activation_log((data) => {
+      return callback(data);
+    });
+  };
+  get_consumption_log = (callback) => {
+    get_consumption_log((data) => {
+      return callback(data);
+    });
+  };
+  insert_shipment_log = (args, callback) => {
+    return insertShipmentLog(args, (data) => {
+      return callback(data);
+    });
+  };
+  select_all_shipment_log = (callback) => {
+    return selectAllShipmentLog((data) => {
+      return callback(data);
+    });
+  };
+  update_shipment_log = (args) => {
+    updateShipmentLog(args);
+  };
+  delete_shipment_log = (args) => {
+    deleteShipmentLog(args);
+  };
+  get_activation_product = (args, callback) => {
+    getActivationProduct(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_employee_info = (callback) => {
+    getEmployeeInfo((data) => {
+      return callback(data);
+    });
+  };
+  get_products_info = (callback) => {
+    getProductsInfo((data) => {
+      return callback(data);
+    });
+  };
+  get_products_by_company = (args, callback) => {
+    getProductsByCompany(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_company_info = (callback) => {
+    get_company_info((data) => {
+      return callback(data);
+    });
+  };
+  get_product_by_id = (args, callback) => {
+    getProductById(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_product_stock = (args, callback) => {
+    getProductStock(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_product_reduction_recent = (args, callback) => {
+    getProductReductionRecent(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_product_activation_recent = (args, callback) => {
+    getProductActivationRecent(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_product_shipment_recent = (args, callback) => {
+    getProductShipmentRecent(args, (data) => {
+      return callback(data);
+    });
+  };
+  get_barcode_data = (args, callback) => {
+    getBarcodeData(args, (data) => {
+      return callback(data);
+    });
+  };
+  modifyStockGivenID = (args, action, callback) => {
+    modifyStockGivenID(args, action, (status) => {
+      return callback(status);
+    });
+  };
+  getActivationByDate = (args, callback) => {
+    getActivationByDate(args, (data) => {
+      return callback(data);
+    });
+  };
+  getReductionByDate = (args, callback) => {
+    getReductionByDate(args, (data) => {
+      return callback(data);
+    });
+  };
+  addProduct = (args, callback) => {
+    addProduct(args, (status) => {
+      return callback(status);
+    });
+  };
+  deleteProduct = (args, callback) => {
+    deleteProduct(args, (status) => {
+      return callback(status);
+    });
+  };
+  getInventory = (callback) => {
+    getProductInventory((data) => {
+      return callback(data);
+    });
+  };
+  getZumaPartneredCompanies = (callback) => {
+    getZumaPartneredCompanies((data) => {
+      return callback(data);
+    });
+  };
+  getEmployeeInfoByID = (args, callback) => {
+    getEmployeeInfoByID(args, (data) => {
+      return callback(data);
+    });
+  };
+  submitShipmentTracker = async (args) => {
+    await submitShipmentTracker(args);
+  };
+}
+
+exports.db_interface = () => {
+  return new db_interface();
+};
