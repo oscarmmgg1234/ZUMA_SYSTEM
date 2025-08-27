@@ -179,6 +179,7 @@ const data_gather_handler = (
   action,
   dbHandle = knex
 ) => {
+  console.log(args.PRODUCT_ID);
   const query = productQuery(productParse(token));
   if (!query) return { start: async () => 1, done: async () => 1 };
   let processStack = [];

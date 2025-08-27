@@ -178,7 +178,7 @@ const data_gather_handler = (
   transactionID,
   action,
   dbHandle = knex
-) => {
+) => {;
   const query = productQuery(productParse(token));
   if (!query) return { start: async () => 1, done: async () => 1 };
   let processStack = [];

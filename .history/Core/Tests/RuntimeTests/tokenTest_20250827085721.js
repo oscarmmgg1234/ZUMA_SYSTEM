@@ -493,7 +493,7 @@ const main = async (_params) => {
       db_handle,
       _initProcess
     );
-    console.log(processesWithNames.act)
+    console.log()
     const report = htmlReport(processesWithNames, mainProduct);
     await db_handle.rollback();
     return report;
