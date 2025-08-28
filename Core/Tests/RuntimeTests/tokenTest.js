@@ -219,6 +219,8 @@ const initProcessFlows = async (db_handle, _default) => {
     }
 
     if ((_default.get("ship").process_token !== "" || _default.get("ship").process_token !== null || _default.get("ship").process_token !== undefined)) {
+      console.log(ship)
+      
       const shipmentResult =
         await controller.shipment_controller.insert_shipment([
           {
@@ -233,6 +235,8 @@ const initProcessFlows = async (db_handle, _default) => {
       );
     }
     if ((_default.get("shipRed").process_token !== "" || _default.get("shipRed").process_token !== null || _default.get("shipRed").process_token !== undefined) && _shipmentProcessValidation) {
+      console.log(shipRed)
+      
       const reductionResult = await controller.reduction.product_reduction({
         ..._default.get("shipRed"),
         transactionHandle: db_handle,
