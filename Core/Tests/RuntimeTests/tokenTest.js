@@ -53,6 +53,7 @@ const generateDefaultEngineInfo = (product, args) => {
   let outputMap = new Map();
   let actRoute = product.get("act");
   let shipRoute = product.get("ship");
+  let redRoute = product.get("red")
   // class product_inventory {
   //   constructor(args) {
   //     this.EMPLOYEE_ID = args.EMPLOYEE_ID;
@@ -88,6 +89,7 @@ const generateDefaultEngineInfo = (product, args) => {
     BARCODE_ID: _barcodeID,
     TRANSACTIONID: _actTransID,
     newTransactionID: _redNewTransID,
+    process_token: redRoute.token
   });
 
   //   constructor(args) {
@@ -121,6 +123,7 @@ const generateDefaultEngineInfo = (product, args) => {
     BARCODE_ID: _shipBarcodeID,
     TRANSACTIONID: _shipTransID,
     newTransactionID: _redNewShipID,
+    process_token: redRoute.token
   });
   return outputMap;
 };
@@ -190,7 +193,7 @@ const initProcessFlows = async (db_handle, _default) => {
     let _shipmentProcessValidation = null;
     let _shipReductionProcessValidation = null;
 
-    if (_default.get("act").process_token) {
+    if (!(_default.get("act").process_token === "" || _default.get("act").process_token === null || _default.get("act").process_token === undefined)) {
       const activationResult =
         await controller.product_activation_controller.activate_product({
           ..._default.get("act"),
@@ -203,7 +206,7 @@ const initProcessFlows = async (db_handle, _default) => {
       );
     }
     //only gets called if activation happened
-    if (_default.get("red") && _activationProcessValidation) {
+    if (!(_default.get("red").process_token !== "" || _default.get("red").process_token !== null || _default.get("red").process_token !== undefined) && _activationProcessValidation) {
       const reductionResult = await controller.reduction.product_reduction({
         ..._default.get("red"),
         transactionHandle: db_handle,
@@ -215,7 +218,7 @@ const initProcessFlows = async (db_handle, _default) => {
       );
     }
 
-    if (_default.get("ship").process_token) {
+    if (!(_default.get("ship").process_token !== "" || _default.get("ship").process_token !== null || _default.get("ship").process_token !== undefined)) {
       const shipmentResult =
         await controller.shipment_controller.insert_shipment([
           {
@@ -229,7 +232,7 @@ const initProcessFlows = async (db_handle, _default) => {
         )
       );
     }
-    if (_default.get("red") && _shipmentProcessValidation) {
+    if (!(_default.get("red").process_token !== "" || _default.get("red").process_token !== null || _default.get("red").process_token !== undefined) && _shipmentProcessValidation) {
       const reductionResult = await controller.reduction.product_reduction({
         ..._default.get("shipRed"),
         transactionHandle: db_handle,
