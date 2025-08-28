@@ -206,7 +206,7 @@ const initProcessFlows = async (db_handle, _default) => {
       );
     }
     //only gets called if activation happened
-    if (!(_default.get("red").process_token !== "" || _default.get("red").process_token !== null || _default.get("red").process_token !== undefined) && _activationProcessValidation) {
+    if ((_default.get("red").process_token !== "" || _default.get("red").process_token !== null || _default.get("red").process_token !== undefined) && _activationProcessValidation) {
       const reductionResult = await controller.reduction.product_reduction({
         ..._default.get("red"),
         transactionHandle: db_handle,
@@ -218,7 +218,7 @@ const initProcessFlows = async (db_handle, _default) => {
       );
     }
 
-    if (!(_default.get("ship").process_token !== "" || _default.get("ship").process_token !== null || _default.get("ship").process_token !== undefined)) {
+    if ((_default.get("ship").process_token !== "" || _default.get("ship").process_token !== null || _default.get("ship").process_token !== undefined)) {
       const shipmentResult =
         await controller.shipment_controller.insert_shipment([
           {
@@ -232,7 +232,7 @@ const initProcessFlows = async (db_handle, _default) => {
         )
       );
     }
-    if (!(_default.get("red").process_token !== "" || _default.get("red").process_token !== null || _default.get("red").process_token !== undefined) && _shipmentProcessValidation) {
+    if ((_default.get("shipRed").process_token !== "" || _default.get("shipRed").process_token !== null || _default.get("shipRed").process_token !== undefined) && _shipmentProcessValidation) {
       const reductionResult = await controller.reduction.product_reduction({
         ..._default.get("shipRed"),
         transactionHandle: db_handle,
