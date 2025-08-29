@@ -90,7 +90,7 @@ const core_engine = async (args) => {
         processValid = await recordHandler.done();
       }
 
-      if (processValid && !args?.transactionHandle) {
+      if (processValid && !args?.transactionHandle === null) {
         const multiplier = args?.MULTIPLIER
           ? parseFloat(args.MULTIPLIER)
           : null;

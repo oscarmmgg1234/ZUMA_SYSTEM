@@ -100,6 +100,7 @@ const core_engine = async (args) => {
             ? { ...processValid.args, QUANTITY: multiplier * args.QUANTITY }
             : { ...processValid.args, QUANTITY: args.QUANTITY },
         };
+        console.log("publis")
         publishProcessEvent(event);
       }
       if (!args.transactionHandle) {
