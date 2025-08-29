@@ -1,0 +1,639 @@
+// const { ErrorHandling } = require("../Error/error_handling");
+// const { success_handling } = require("../Error/success_handling");
+const express = require("express");
+const { controller_interface } = require("../Controllers/controller.js");
+const controller = controller_interface();
+const { ErrorHandling } = require("../Error/error_handling");
+const { success_handling } = require("../Error/success_handling");
+const {
+  TestInterface,
+} = require("../Core/Tests/RuntimeTests/TestInterface.js");
+const runtimeTest = TestInterface;
+const {
+  getEmployee,
+} = require("../Models/res/product_activation/getEmployee.js");
+
+class http_handler {
+  constructor() {
+    this.init = true;
+  }
+  shipment = {
+    getPastYearShipments: async (req, res) => {
+      const reponse = await controller.shipment.getPastYearShipments();
+      res.send(reponse);
+    },
+
+    get_shipment_by_date: (req, res) => {
+      controller.shipment_controller.getShipmentByDate(req.req_data, (data) => {
+        const err = new ErrorHandling(data, "Error getting shipment by date");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(
+              data,
+              "Retrieved Shipment By Date"
+            ).getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    shimpent_insert: async (req, res) => {
+      const response = await controller.shipment_controller.insert_shipment(
+        req.req_data
+      );
+      res.send(
+        new success_handling(response, "Shipment Inserted").getSuccess()
+      );
+    },
+    get_company_info: (req, res) => {
+      controller.shipment.getCompanyInfo((data) => {
+        const err = new ErrorHandling(data, "Error getting company info");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Company Info").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    get_products_by_company: (req, res) => {
+      controller.shipment.getProductsByCompany(req.req_data, (data) => {
+        const err = new ErrorHandling(
+          data,
+          "Error getting products by company"
+        );
+        if (err.isValid()) {
+          res.send(
+            new success_handling(
+              data,
+              "Retrieved Products By Company"
+            ).getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+  };
+
+  activation = {
+    activate_release_product: async (req, res) => {
+      const response =
+        await controller.product_activation_controller.product_act_release(
+          req.req_data
+        );
+      res.send(
+        new success_handling(response, "Product Activated").getSuccess()
+      );
+    },
+    activate_prod: async (req, res) => {
+      const response =
+        await controller.product_activation_controller.activate_product(
+          req.req_data
+        );
+      res.send(
+        new success_handling(response, "Product Activated").getSuccess()
+      );
+    },
+    get_employee_info: (req, res) => {
+      controller.product_activation_controller.get_employee_info((data) => {
+        const err = new ErrorHandling(data, "Error getting employee info");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Employee Info").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    getProductByType: (req, res) => {
+      controller.product_activation_controller.get_activation_product(
+        req.req_data,
+        (data) => {
+          const err = new ErrorHandling(
+            data,
+            "Error getting activation product",
+            "activation_products"
+          );
+          if (err.isValid()) {
+            res.send(
+              new success_handling(
+                data,
+                "Retrieved Activation Product"
+              ).getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
+        }
+      );
+    },
+  };
+
+  reduction = {
+    getProductNameFromTrans: async (req, res) => {
+      const data = await controller.reduction.getProductNameFromTrans(
+        req.req_data.BARCODE_ID
+      );
+      const err = new ErrorHandling(data, "Error getting product name");
+      if (err.isValid()) {
+        res.send(
+          new success_handling(data, "Retrieved Product Name").getSuccess()
+        );
+      } else {
+        res.send(err.getError());
+      }
+    },
+    release_product: async (req, res) => {
+      const result = await controller.reduction.product_reduction(req.req_data);
+      res.send(new success_handling(result, "Product Released").getSuccess());
+    },
+  };
+
+  services = {
+    updateCompanyInfo: async (args) => {
+      return await changeCompanyInfo(args);
+    },
+    manageCompanies: async (args) => {
+      return await manageCompanies(args);
+    },
+    updateProductCompany: async (args) => {
+      return await updateProductCompany(args);
+    },
+    manageCompanies: async (req,res)=>{
+      return await controller.dashboard_controller.manageCompanies
+    },
+    updateCompanyInfo: async (req, res) => {
+      return await controller.dashboard_controller.updateCompanyInfo(req.body);
+    },
+    getCompanyWithProducts: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.getCompanyWithProducts();
+      res.send(response);
+    },
+    SubmitErrorEntry: async (req, res) => {
+      //gallons, product, actualBottleCount, employee are inputs
+      await controller.services.SubmitErrorEntry(req.body);
+      res.send(new success_handling({}, "Error Submitted").getSuccess());
+    },
+    deleteProd: async (req, res) => {
+      const response = await controller.services.delProduct(req.body);
+      res.send(response);
+    },
+    addProductProcess: async (req, res) => {
+      const response = await runtimeTest.runAddProduct(req.body);
+      res.send(response);
+    },
+    runtimeTest: async (req, res) => {
+      const response = await runtimeTest.runTest(req.body);
+      res.setHeader("Content-Type", "text/html").send(response);
+    },
+    getFunctionRegistry: (req, res) => {
+      const data = controller.services.getFuncRegistry();
+      res.send(data);
+    },
+    commitChanges: async (req, res) => {
+      const response = await controller.services.commitProdChanges(req.body);
+      res.send(response);
+    },
+    getProductTypes: async (req, res) => {
+      const data = await controller.services.getProductTypes();
+      res.send(data);
+    },
+    getEmployeeIDS: async (req, res) => {
+      const data = await controller.services.getEmployeeIDS();
+      res.send(data);
+    },
+    addScanner: async (req, res) => {
+      const response = await controller.services.addScanner(req.body);
+      res.send(response);
+    },
+    deleteScanner: async (req, res) => {
+      const response = await controller.services.deleteScanner(req.params.id);
+      res.send(response);
+    },
+    getScanners: async (req, res) => {
+      const scanners = await controller.services.getScannerStatus();
+      res.send(scanners);
+    },
+    setScannerStatus: async (req, res) => {
+      const response = await controller.services.setScannerStatus(req.body);
+      res.send(response);
+    },
+    getScannerAddress: async (req, res) => {
+      const data = await controller.services.getScannerAddresses();
+      res.send(data);
+    },
+    getScannerData: async (req, res) => {
+      const data = await controller.services.getScannerData();
+      res.send(data);
+    },
+    getRecentActivations: async (req, res) => {
+      const data = await controller.services.getRecentActivations();
+      res.send(data);
+    },
+    getRecentReductions: async (req, res) => {
+      const data = await controller.services.getRecentReductions();
+      res.send(data);
+    },
+    genPDFSpecific: async (req, res) => {
+      res.setHeader("Content-Type", "application/pdf");
+      const pdf = await controller.dashboard_controller.genPDFSpecific(
+        req.body
+      );
+      res.send(Buffer.from(pdf, "base64"));
+    },
+    get_inventory_by_company_pdf: async (req, res) => {
+      res.setHeader("Content-Type", "application/pdf");
+      const pdf =
+        await controller.dashboard_controller.generate_inv_by_company_pdf(
+          req.body.company
+        );
+      res.send(Buffer.from(pdf, "base64"));
+    },
+
+    gen_inventory_pdf: async (req, res) => {
+      res.setHeader("Content-Type", "application/pdf");
+      const pdf = await controller.dashboard_controller.generate_inv_pdf();
+      res.send(Buffer.from(pdf, "base64"));
+    },
+    get_barcode_data: (req, res) => {
+      controller.tools.getBarcodeData(req.req_data, (data) => {
+        const err = new ErrorHandling(data, "Error getting barcode data");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Barcode Data").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    print_label: (req, res) => {
+      controller.label_print_controller.labelPrint(req);
+      res.send(
+        new success_handling(
+          { request_data: req.req_data },
+          "Label Printed"
+        ).getSuccess()
+      );
+    },
+    barcode_gen: (req, res) => {
+      controller.services.barcode_gen(req.req_data, (buffer_arr) => {
+        res.send(
+          new success_handling(buffer_arr, "Barcode Generated").getSuccess()
+        );
+      });
+    },
+    api_status: (req, res) => {
+      res.send({ status: true });
+    },
+    getProducts: (req, res) => {
+      controller.label_print_controller.get_products_info((data) => {
+        const err = new ErrorHandling(data, "Error getting products");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Products").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    getHistoryLog: (req, res) => {
+      controller.services.getHistoryLog((data) => {
+        const err = new ErrorHandling(data, "Error getting history log");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved History Log").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    getActivationLog: (req, res) => {
+      controller.services.getActivationLog((data) => {
+        const err = new ErrorHandling(data, "Error getting activation log");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Activation Log").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    getReductionLog: (req, res) => {
+      controller.services.getConsumptionLog((data) => {
+        const err = new ErrorHandling(data, "Error getting consumption log");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Consumption Log").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+  };
+
+  dashboard = {
+    tokenPreCheck: async (req, res) => {
+      const response = await controller.dashboard_controller.tokenPrecheck(
+        req.body.token,
+        req.body.productID
+      );
+      res.send(response);
+    },
+    API_createVirtualStockPool: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiCreateVirtualPool(req.body);
+      res.send(response);
+    },
+    API_removeVirtualPool: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiRemoveVirtualPool(req.body);
+      res.send(response);
+    },
+    API_updateVirtualPoolName: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiUpdateVirtualPoolName(
+          req.body
+        );
+      res.send(response);
+    },
+    API_updateVirtualStock: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiUpdateVirtualStock(req.body);
+      res.send(response);
+    },
+    API_updateVirtualPoolRefs: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.apiUpdateVirtualPoolRefs(
+          req.body
+        );
+      res.send(response);
+    },
+    virtualStockProductRemove: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.virtualStockProductRemove(
+          req.body
+        );
+      res.send(response);
+    },
+    virtualStockProductAdd: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.virtualStockPoolProductAdd(
+          req.body
+        );
+      res.send(response);
+    },
+    createVirtualPool: async (req, res) => {
+      const response = await controller.dashboard_controller.createVirtualPool(
+        req.body
+      );
+      res.send(response);
+    },
+    getVirtualStockPools: async (req, res) => {
+      const response =
+        await controller.dashboard_controller.getVirtualStockPools();
+      res.send(response);
+    },
+    getProductByID: async (req, res) => {
+      const product = await controller.dashboard_controller.getProductByID(
+        req.body
+      );
+      res.send(product);
+    },
+    getProductHistoryByDate: async (req, res) => {
+      const historyPacket =
+        await controller.dashboard_controller.getProductHistoryByDate(
+          req.body.dateRange,
+          req.body.productID
+        );
+      res.send(historyPacket);
+    },
+    getGlycerinGlobal: (req, res) => {
+      controller.dashboard_controller.getGlycerinGlobal((data) => {
+        const err = new ErrorHandling(data, "Error getting glycerin global");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Glycerin Global").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    setGlycerinGlobal: (req, res) => {
+      controller.dashboard_controller.setGlycerinGlobal([req.body.set_value]);
+      res.send(
+        new success_handling(
+          { request_data: req.req_data },
+          "Glycerin Global Set"
+        ).getSuccess()
+      );
+    },
+    getTransactionLog: (req, res) => {
+      controller.services.getTransactionLog((data) => {
+        const err = new ErrorHandling(data, "Error getting transaction log");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Transaction Log").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+
+    revertTransaction: (req, res) => {
+      controller.dashboard_controller.revert_transaction(req.req_data);
+
+      res.send(
+        new success_handling(req.req_data, "Transaction Reverted").getSuccess()
+      );
+    },
+    getTopEmployee: (req, res) => {
+      controller.dashboard_controller.getTopEmployee((data) => {
+        const err = new ErrorHandling(data, "Error getting top employee");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Top Employee").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    addCompany: (req, res) => {
+      controller.dashboard_controller.addCompany(req.req_data, (status) => {
+        res.send(new success_handling(status, "Company Added").getSuccess());
+      });
+    },
+    deleteCompany: (req, res) => {
+      controller.dashboard_controller.deleteCompany(req.req_data, (status) => {
+        res.send(new success_handling(status, "Company Deleted").getSuccess());
+      });
+    },
+    updateTracking: (req, res) => {
+      controller.dashboard_controller.updateTracking(req.req_data);
+      res.send(
+        new success_handling(
+          { request_data: req.req_data },
+          "Tracking Updated"
+        ).getSuccess()
+      );
+    },
+
+    getCompanies: (req, res) => {
+      controller.dashboard_controller.getCompaniesZuma((data) => {
+        const err = new ErrorHandling(data, "Error getting companies");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Companies").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    getInventory: (req, res) => {
+      controller.dashboard_controller.getInventory((data) => {
+        const err = new ErrorHandling(data, "Error getting inventory");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Inventory").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    addProduct: (req, res) => {
+      controller.dashboard_controller.addProduct(req.req_data, (data) => {
+        const err = new ErrorHandling(data, "Error adding product");
+        if (err.isValid()) {
+          res.send(new success_handling(data, "Added Product").getSuccess());
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    deleteProduct: async (req, res) => {
+      const response = await controller.dashboard_controller.deleteProduct(
+        req.req_data
+      );
+      res.send(response);
+    },
+    getReductionByDate: (req, res) => {
+      controller.dashboard_controller.getReductionByDate(
+        req.req_data,
+        (data) => {
+          const err = new ErrorHandling(
+            data,
+            "Error getting reduction by date"
+          );
+          if (err.isValid()) {
+            res.send(
+              new success_handling(
+                data,
+                "Retrieved Reduction By Date"
+              ).getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
+        }
+      );
+    },
+    getActivationByDate: (req, res) => {
+      controller.dashboard_controller.getActivationByDate(
+        req.req_data,
+        (data) => {
+          const err = new ErrorHandling(
+            data,
+            "Error getting activation by date"
+          );
+          if (err.isValid()) {
+            res.send(
+              new success_handling(
+                data,
+                "Retrieved Activation By Date"
+              ).getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
+        }
+      );
+    },
+    modifyActiveStock: (req, res) => {
+      controller.dashboard_controller.modifyActiveStock(
+        req.req_data,
+        (status) => {
+          res.send(
+            new success_handling(
+              { status: status },
+              "Active Stock manual override attempt"
+            ).getSuccess()
+          );
+        }
+      );
+    },
+    modifyStoredStock: (req, res) => {
+      controller.dashboard_controller.modifyStoredStock(
+        req.req_data,
+        (status) => {
+          res.send(
+            new success_handling(
+              { status: status },
+              "Stored Stock manual override attempt"
+            ).getSuccess()
+          );
+        }
+      );
+    },
+    get_products: (req, res) => {
+      controller.label_print_controller.get_products_info((data) => {
+        const err = new ErrorHandling(data, "Error getting products");
+        if (err.isValid()) {
+          res.send(
+            new success_handling(data, "Retrieved Products").getSuccess()
+          );
+        } else {
+          res.send(err.getError());
+        }
+      });
+    },
+    get_product_analytics: (req, res) => {
+      controller.dashboard_controller.getProductAnalytics(
+        req.req_data,
+        (data) => {
+          const err = new ErrorHandling(
+            data,
+            "Error getting product analytics"
+          );
+          if (err.isValid()) {
+            res.send(
+              new success_handling(
+                data,
+                "Retrieved Product Analytics"
+              ).getSuccess()
+            );
+          } else {
+            res.send(err.getError());
+          }
+        }
+      );
+    },
+  };
+}
+
+exports.endpointHandler = () => {
+  return new http_handler();
+};
