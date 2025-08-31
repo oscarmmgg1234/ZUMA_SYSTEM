@@ -1288,7 +1288,7 @@ class FunctionRegistry {
       },
     });
 
-    this.applyFriendlyLabels();
+    this.
   }
 
   _getRegistry() {

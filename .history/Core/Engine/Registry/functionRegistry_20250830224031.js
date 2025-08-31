@@ -1287,8 +1287,6 @@ class FunctionRegistry {
         await this.getFunction("235s").proto(db_handle, args, value, auxiliary);
       },
     });
-
-    this.applyFriendlyLabels();
   }
 
   _getRegistry() {

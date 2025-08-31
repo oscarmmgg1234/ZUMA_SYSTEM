@@ -1,4 +1,3 @@
-// transaction_revert_engine.js
 const { db } = require("../DB/db_init.js");
 const { queries } = require("../DB/queries.js");
 const { query_manager } = require("../DB/query_manager.js");
@@ -11,46 +10,35 @@ const knex = query_manager;
 const postops = "POSTOPS";
 const virtualops = "VIRTUALOPS";
 
-/** Normalize empty-string tokens to null for safer parsing */
-const nz = (t) => (typeof t === "string" && t.trim() === "" ? null : t);
-
-/** Handler that will handle virtual operations */
 const virtualOpsHandler = async (db_handle, args) => {
   const poolID = args.poolID;
   const productID = args.productID;
-
   const setVirtual = `UPDATE inv_virtual_stock SET VIRTUAL_STOCK = VIRTUAL_STOCK ${
     args.isShipment ? "-" : "+"
   } ? WHERE poolID = ?`;
   const getVirtual = `SELECT * FROM inv_virtual_stock WHERE poolID = ?`;
-
   const pool = await db_handle.raw(getVirtual, [poolID]);
-  const poolData = pool?.[0]?.[0];
-  if (!poolData) throw new Error("Virtual pool not found.");
-
-  const linkedProducts = JSON.parse(poolData.LINKED_PRODUCTS || "[]");
+  const poolData = pool[0][0];
+  const linkedProducts = JSON.parse(poolData.LINKED_PRODUCTS);
   const linked_product = linkedProducts.filter(
     (item) => item.productID == productID
   );
   if (linked_product.length < 1) {
     throw new Error("Product not found in linked products.");
   }
-
   const ratio = linked_product[0].normalizeRatio;
   const quantity = args.quantity;
-
   await db_handle.raw(setVirtual, [
     args.isShipment ? quantity : ratio * quantity,
     poolID,
   ]);
-
   const finalStock = await db_handle.raw(getVirtual, [poolID]);
 
   const updateProductStock = `UPDATE product_inventory SET STORED_STOCK = ? WHERE PRODUCT_ID = ?`;
 
   for (const item of linkedProducts) {
     await db_handle.raw(updateProductStock, [
-      finalStock?.[0]?.[0]?.VIRTUAL_STOCK ?? 0,
+      finalStock[0][0].VIRTUAL_STOCK,
       item.productID,
     ]);
     await normalizeStock(db_handle, {
@@ -60,26 +48,23 @@ const virtualOpsHandler = async (db_handle, args) => {
     });
   }
 };
+//Handler that will handle virtual operations
 
 const historyLog = async (db_handle, transaction_stack, table, column) => {
-  const output = [];
-  let outputDeterminent = false;
-
-  for (const item of transaction_stack ?? []) {
+  var output = [];
+  var outputDeterminent = false;
+  for (const item of transaction_stack) {
     const response = await db_handle.raw(
       `SELECT * FROM ${table} WHERE ${column} = ?`,
       [item]
     );
-    const row = response?.[0]?.[0];
-    if (!row) continue;
-
-    if (row?.ORIGIN === "activation") {
+    if (response[0][0]?.ORIGIN == "activation") {
       outputDeterminent = true;
     }
     output.push({
-      product: row.PRODUCT_ID,
-      value: row.QUANTITY,
-      origin: row?.ORIGIN,
+      product: response[0][0].PRODUCT_ID,
+      value: response[0][0].QUANTITY,
+      origin: response[0][0]?.ORIGIN,
     });
   }
   return { output, outputDeterminent };
@@ -93,52 +78,63 @@ const updateProductStock = async (
   column,
   origin = null
 ) => {
-  // When origin === "release", adjust STORED_STOCK; else ACTIVE_STOCK
-  const resolvedColumn = !origin
-    ? column
-    : origin === "release"
-    ? "STORED_STOCK"
-    : "ACTIVE_STOCK";
-
   await db_handle.raw(
-    `UPDATE product_inventory SET ${resolvedColumn} = ${resolvedColumn} ${operation} ${value} WHERE PRODUCT_ID = ?`,
+    `UPDATE product_inventory SET ${
+      !origin ? column : origin === "release" ? "STORED_STOCK" : "ACTIVE_STOCK"
+    } = ${
+      !origin ? column : origin === "release" ? "STORED_STOCK" : "ACTIVE_STOCK"
+    } ${operation} ${value} WHERE PRODUCT_ID = ?`,
     [product]
   );
 };
 
-/**
- * Parse tokens into normalization/virtual-ops descriptors.
- * Always returns an array (possibly empty) so callers can safely iterate.
- */
 const normalizeProducts = (token, transQuantity) => {
-  if (!token) return [];
+  if (!token) {
+    return;
+  }
   const tokens = tokenParser(token);
-  const output = [];
+  var output = [];
 
-  for (let i = 0; i < tokens.size; i++) {
-    const current = tokens.getData();
-
+  for (var i = 0; i < tokens.size; i++) {
+    let current = tokens.getData();
     if (current.key === virtualops) {
-      const isPill = current.id === "4i57";
-      // pill => add to virtual; shipment => subtract
-      output.push({
-        isVirtualOps: true,
-        payload: {
-          isShipment: !isPill,
-          productID: current.value,
-          quantity: transQuantity,
-          poolID: current.auxiliaryParam,
-        },
-      });
+      if (current.id === "4i57") {
+        //pill
+        output.push({
+          isVirtualOps: true,
+          payload: {
+            isShipment: false,
+            productID: current.value,
+            quantity: transQuantity,
+            poolID: current.auxiliaryParam,
+          },
+        });
+      } else {
+        //shipment
+        output.push({
+          isVirtualOps: true,
+          payload: {
+            isShipment: true,
+            productID: current.value,
+            quantity: transQuantity,
+            poolID: current.auxiliaryParam,
+          },
+        });
+      }
     }
-
     if (current.key === postops) {
       output.push({
         product: current.value,
         value: parseFloat(current.auxiliaryParam),
         option: "ratio",
       });
-    } else if (current.key === "UP" || current.key === "CMUP") {
+    } else if (current.key === "UP") {
+      output.push({
+        product: current.value,
+        value: 1,
+        option: "default",
+      });
+    } else if (current.key === "CMUP") {
       output.push({
         product: current.value,
         value: 1,
@@ -156,27 +152,26 @@ const transaction_engine = async (args) => {
     queries.development.getTransactionByID,
     args.to_arr()
   );
-
-  // this holds the item quantity for the transaction
-  const transactionQuantity = response?.[0]?.[0]?.QUANTITY || 1;
-  const mainProduct = response?.[0]?.[0]?.PRODUCT_ID;
+  //this holds the item quantity for the transaction
+  const transactionQuantity = response[0][0].QUANTITY || 1;
+  const mainProduct = response[0][0].PRODUCT_ID;
 
   const transactionProduct = await knex.raw(
     "SELECT * FROM product WHERE PRODUCT_ID = ?",
-    response?.[0]?.[0]?.PRODUCT_ID
+    response[0][0].PRODUCT_ID
   );
 
-  // transactionID stacks in the transaction
-  const activation = JSON.parse(response?.[0]?.[0]?.ACTIVATION_STACK || "[]");
-  const release = JSON.parse(response?.[0]?.[0]?.RELEASE_STACK || "[]");
-  const shipment = JSON.parse(response?.[0]?.[0]?.SHIPMENT_STACK || "[]");
-  const barcode = JSON.parse(response?.[0]?.[0]?.BARCODE_STACK || "[]");
-  const transStatus = JSON.parse(response?.[0]?.[0]?.REVERSED || "0");
-
-  // Get the tokens from the product (may be empty strings/null)
-  const activation_token = nz(transactionProduct?.[0]?.[0]?.ACTIVATION_TOKEN);
-  const reduction_token = nz(transactionProduct?.[0]?.[0]?.REDUCTION_TOKEN);
-  const shipment_token = nz(transactionProduct?.[0]?.[0]?.SHIPMENT_TOKEN);
+  //Modify database so that negative stocks are possible because after transaction reversal, because initially stock is 0 and when u reduce it stays zero and then when u reverse it, it goes positive but it should be zero
+  //transactionID stack in the transaction
+  const activation = JSON.parse(response[0][0].ACTIVATION_STACK);
+  const release = JSON.parse(response[0][0].RELEASE_STACK);
+  const shipment = JSON.parse(response[0][0].SHIPMENT_STACK);
+  const barcode = JSON.parse(response[0][0].BARCODE_STACK);
+  const transStatus = JSON.parse(response[0][0].REVERSED);
+  // Get the tokens from the product
+  const activation_token = transactionProduct[0][0].ACTIVATION_TOKEN;
+  const reduction_token = transactionProduct[0][0].REDUCTION_TOKEN;
+  const shipment_token = transactionProduct[0][0].SHIPMENT_TOKEN;
 
   let ContainsVirtualFunction = false;
 
@@ -184,33 +179,40 @@ const transaction_engine = async (args) => {
     activation_token,
     transactionQuantity
   );
+
   const reductionRevertNormalizationList = normalizeProducts(
     reduction_token,
     transactionQuantity
   );
+
   const shipmentRevertNormalizationList = normalizeProducts(
     shipment_token,
     transactionQuantity
   );
+  for (const item of activationRevertNormalizationList) {
+    if (item?.isVirtualOps) {
+      ContainsVirtualFunction = true;
+    }
+  }
+  for (const item of reductionRevertNormalizationList) {
+    if (item?.isVirtualOps) {
+      ContainsVirtualFunction = true;
+    }
+  }
+  for (const item of shipmentRevertNormalizationList) {
+    if (item?.isVirtualOps) {
+      ContainsVirtualFunction = true;
+    }
+  }
 
-  for (const item of activationRevertNormalizationList ?? []) {
-    if (item?.isVirtualOps) ContainsVirtualFunction = true;
+  if (transStatus === 1) {
+    return;
   }
-  for (const item of reductionRevertNormalizationList ?? []) {
-    if (item?.isVirtualOps) ContainsVirtualFunction = true;
-  }
-  for (const item of shipmentRevertNormalizationList ?? []) {
-    if (item?.isVirtualOps) ContainsVirtualFunction = true;
-  }
-
-  // already reversed?
-  if (transStatus === 1) return;
 
   try {
     await knex.transaction(async (trx) => {
       try {
-        // === ACTIVATION REVERSAL ===
-        if ((activation ?? []).length > 0) {
+        if (activation.length > 0) {
           const historyQuantities = await historyLog(
             trx,
             activation,
@@ -218,7 +220,7 @@ const transaction_engine = async (args) => {
             "ACTIVATION_ID"
           );
 
-          for (const item of historyQuantities.output ?? []) {
+          for (const item of historyQuantities.output) {
             await updateProductStock(
               trx,
               item.product,
@@ -227,14 +229,14 @@ const transaction_engine = async (args) => {
               "ACTIVE_STOCK"
             );
           }
-
-          for (const item of activationRevertNormalizationList ?? []) {
+          // for (const item of activation) {
+          //   await trx.raw(queries.development.deleteActivationEntry, [item]);
+          // }
+          for (const item of activationRevertNormalizationList) {
             await normalizeStock(trx, item);
           }
         }
-
-        // === RELEASE (CONSUMPTION) REVERSAL ===
-        if ((release ?? []).length > 0) {
+        if (release.length > 0) {
           const historyQuantities = await historyLog(
             trx,
             release,
@@ -242,7 +244,7 @@ const transaction_engine = async (args) => {
             "CONSUMP_ID"
           );
 
-          for (const item of historyQuantities.output ?? []) {
+          for (const item of historyQuantities.output) {
             await updateProductStock(
               trx,
               item.product,
@@ -252,12 +254,12 @@ const transaction_engine = async (args) => {
               item.origin
             );
           }
-
-          const listForRelease = historyQuantities.outputDeterminent
+          // for (const item of release) {
+          //   await trx.raw(queries.development.deleteConsumptionEntry, [item]);
+          // }
+          for (const item of historyQuantities.outputDeterminent
             ? reductionRevertNormalizationList
-            : activationRevertNormalizationList;
-
-          for (const item of listForRelease ?? []) {
+            : activationRevertNormalizationList) {
             if (
               ContainsVirtualFunction &&
               item?.payload?.productID === mainProduct
@@ -265,20 +267,19 @@ const transaction_engine = async (args) => {
               await virtualOpsHandler(trx, item.payload);
               continue;
             }
+
             await normalizeStock(trx, item);
           }
         }
 
-        // === SHIPMENT REVERSAL ===
-        if ((shipment ?? []).length > 0) {
+        if (shipment.length > 0) {
           const historyQuantities = await historyLog(
             trx,
             shipment,
             "shipment_log",
             "SHIPMENT_ID"
           );
-
-          for (const item of historyQuantities.output ?? []) {
+          for (const item of historyQuantities.output) {
             await updateProductStock(
               trx,
               item.product,
@@ -287,8 +288,11 @@ const transaction_engine = async (args) => {
               "STORED_STOCK"
             );
           }
+          // for (const item of shipment) {
+          //   await trx.raw(queries.development.deleteShipmentEntry, [item]);
+          // }
 
-          for (const item of shipmentRevertNormalizationList ?? []) {
+          for (const item of shipmentRevertNormalizationList) {
             if (
               ContainsVirtualFunction &&
               item?.payload?.productID === mainProduct
@@ -300,21 +304,19 @@ const transaction_engine = async (args) => {
           }
         }
 
-        // Notify
         await publishProcessEvent({
           type: "revert",
           transactionID: args.transactionID,
         });
 
-        // transform barcodes back to active/passive
-        for (const item of barcode ?? []) {
-          await trx.raw(queries.dashboard.transform_barcode_product, [
-            "Active/Passive",
-            item,
-          ]);
+        if (barcode.length > 0) {
+          for (const item of barcode) {
+            await trx.raw(queries.dashboard.transform_barcode_product, [
+              "Active/Passive",
+              item,
+            ]);
+          }
         }
-
-        // mark transaction reversed
         await trx.raw(
           queries.development.setTransactionReversed,
           args.to_arr()
@@ -329,3 +331,5 @@ const transaction_engine = async (args) => {
 };
 
 exports.transaction_engine = transaction_engine;
+
+// works need to be done for this to work

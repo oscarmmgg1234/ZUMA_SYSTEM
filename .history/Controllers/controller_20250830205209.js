@@ -261,19 +261,28 @@ const manageCompanies = async ({
 //==================================================================================================
 // Virtual Pool Functions API
 //==================================================================================================
+// controller.js
 let counter = 0;
-const tokenPreCheck = async (token, productID) => {
-  const db_handle = await transactionUnit();
+
+const tokenPreCheck = async ({ token, productID, route, mode = "commit" }) => {
+  let db_handle;
   try {
     console.log(counter++, "precheck");
-    const mutableToken = await _tokenPreCheck(db_handle, token, productID);
+    db_handle = await transactionUnit();
+
+    const cleaned = await _tokenPreCheck(db_handle, token, productID, {
+      columnHint: route,  // "activation" | "reduction" | "shipment"
+      mode,               // "commit" to mutate; "dry-run" to just validate
+    });
+
     await db_handle.commit();
-    return { token: mutableToken };
+    return { token: cleaned };
   } catch (err) {
-    await db_handle.rollback();
-    throw new Error(err);
+    try { if (db_handle) await db_handle.rollback(); } catch (_) {}
+    throw err;
   }
 };
+
 
 const updateVirtualPoolRefs = async (args) => {
   const { poolID, productID, normalizeRatio } = args;

@@ -22,40 +22,32 @@ const getStockDiffs = (beforeStock, afterStock) => {
   return output;
 };
 
-// ---- de-dup identical steps per product/column/op/value ----
 const processPStack = (processStack) => {
   const productMap = new Map();
-  const seen = new Set(); // key: productID|column|operation|value
 
   for (const item of processStack) {
-    const { productID, column, operation, value, ...rest } = item;
+    const { productID, column, ...rest } = item;
 
-    // Skip malformed
-    if (!productID || !column || operation == null || value == null) continue;
-
-    // Dedup identical entries
-    const k = `${productID}|${column}|${operation}|${Number(value)}`;
-    if (seen.has(k)) continue;
-    seen.add(k);
-
+    // Initialize productID entry if not present
     if (!productMap.has(productID)) {
-      productMap.set(productID, { STORED_STOCK: [], ACTIVE_STOCK: [] });
+      productMap.set(productID, {
+        STORED_STOCK: [],
+        ACTIVE_STOCK: [],
+      });
     }
+
+    // Push the operation into the appropriate column array
     const columnMap = productMap.get(productID);
 
-    // Ensure array exists
-    if (!Array.isArray(columnMap[column])) columnMap[column] = [];
-
-    columnMap[column].push({
-      column,
-      operation,
-      value: Number(value),
-      ...rest,
-    });
+    if (columnMap[column]) {
+      columnMap[column].push({ column, ...rest });
+    } else {
+      // Optional: if you want to support other column names dynamically
+      columnMap[column] = [{ column, ...rest }];
+    }
   }
   return productMap;
 };
-
 
 const computeNetChanges = (productMap) => {
   const result = new Map();
@@ -201,6 +193,7 @@ const data_gather_handler = (
   return {
     //value = {normalize: false, column: "STORED_STOCK", value: -1, productID: "23423D", operation: "-"}
     step: (value) => {
+
       processStack.push(value);
     },
     start: async () => {

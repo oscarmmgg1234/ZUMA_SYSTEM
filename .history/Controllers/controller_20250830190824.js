@@ -261,11 +261,11 @@ const manageCompanies = async ({
 //==================================================================================================
 // Virtual Pool Functions API
 //==================================================================================================
-let counter = 0;
+let counter = 0
 const tokenPreCheck = async (token, productID) => {
-  const db_handle = await transactionUnit();
   try {
-    console.log(counter++, "precheck");
+    console.log()
+    const db_handle = await transactionUnit();
     const mutableToken = await _tokenPreCheck(db_handle, token, productID);
     await db_handle.commit();
     return { token: mutableToken };

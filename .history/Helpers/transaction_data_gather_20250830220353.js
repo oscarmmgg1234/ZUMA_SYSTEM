@@ -22,40 +22,32 @@ const getStockDiffs = (beforeStock, afterStock) => {
   return output;
 };
 
-// ---- de-dup identical steps per product/column/op/value ----
 const processPStack = (processStack) => {
   const productMap = new Map();
-  const seen = new Set(); // key: productID|column|operation|value
 
   for (const item of processStack) {
-    const { productID, column, operation, value, ...rest } = item;
+    const { productID, column, ...rest } = item;
 
-    // Skip malformed
-    if (!productID || !column || operation == null || value == null) continue;
-
-    // Dedup identical entries
-    const k = `${productID}|${column}|${operation}|${Number(value)}`;
-    if (seen.has(k)) continue;
-    seen.add(k);
-
+    // Initialize productID entry if not present
     if (!productMap.has(productID)) {
-      productMap.set(productID, { STORED_STOCK: [], ACTIVE_STOCK: [] });
+      productMap.set(productID, {
+        STORED_STOCK: [],
+        ACTIVE_STOCK: [],
+      });
     }
+
+    // Push the operation into the appropriate column array
     const columnMap = productMap.get(productID);
 
-    // Ensure array exists
-    if (!Array.isArray(columnMap[column])) columnMap[column] = [];
-
-    columnMap[column].push({
-      column,
-      operation,
-      value: Number(value),
-      ...rest,
-    });
+    if (columnMap[column]) {
+      columnMap[column].push({ column, ...rest });
+    } else {
+      // Optional: if you want to support other column names dynamically
+      columnMap[column] = [{ column, ...rest }];
+    }
   }
   return productMap;
 };
-
 
 const computeNetChanges = (productMap) => {
   const result = new Map();
@@ -80,7 +72,6 @@ const computeNetChanges = (productMap) => {
 
   return result;
 };
-
 const buildValidationArray = (netChanges, diffMap) => {
   const validArray = [];
 
@@ -117,10 +108,9 @@ const buildValidationArray = (netChanges, diffMap) => {
   return validArray;
 };
 
-// ---- FIX: Always return a consistent object shape ----
 const changeValidator = (args) => {
-  if (!args || !args.processStack || args.processStack.length < 1) {
-    return { valid: [], diffMap: new Map() };
+  if (args.processStack.length < 1) {
+    return [];
   }
   const diffMap = getStockDiffs(args.startMap, args.endMap);
   const processStackMap = processPStack(args.processStack);
@@ -167,9 +157,6 @@ const snapshot = async (dbHandle, query) => {
 
 const formatProductChain = async (map, db_handle, product) => {
   const productChain = [];
-  // (Optional extra safety) If map isn't iterable, just return empty chain
-  if (!map || typeof map[Symbol.iterator] !== "function") return productChain;
-
   for (const [key, value] of map) {
     if (product !== key) {
       const prod = await db_handle.raw(
@@ -177,7 +164,7 @@ const formatProductChain = async (map, db_handle, product) => {
         [key]
       );
       productChain.push({
-        product: (prod?.[0]?.[0]?.NAME || "").slice(0, 12),
+        product: prod[0][0].NAME.slice(0, 12),
         stockDiff: value.stockDiff,
       });
     }
@@ -230,12 +217,8 @@ const data_gather_handler = (
           "UPDATE transaction_log SET after_stock = ? WHERE TRANSACTIONID = ?",
           [JSON.stringify(afterState), transactionID]
         );
-
         let packet = null;
-        if (
-          args.display_type == "reduction type" ||
-          args.display_type == "shipment type"
-        ) {
+        if (args.display_type == "reduction type" || args.display_type == "shipment type") {
           const getTrans = await dbHandle.raw(
             "SELECT * FROM transaction_log WHERE TRANSACTIONID = ?",
             [transactionID]
@@ -247,13 +230,8 @@ const data_gather_handler = (
             QUANTITY: getTrans[0][0]?.QUANTITY,
           };
         }
-
-        // ---- FIX: Ensure we always pass an iterable Map ----
-        const diffMapForChain =
-          validArr && validArr.diffMap ? validArr.diffMap : new Map();
-
         const formatChain = await formatProductChain(
-          diffMapForChain,
+          validArr.diffMap,
           dbHandle,
           packet ? packet.PRODUCT_ID : args.PRODUCT_ID
         );
@@ -261,15 +239,14 @@ const data_gather_handler = (
         const displayType =
           args.display_type == "reduction type"
             ? { ...args, ...packet }
-            : args.display_type == "shipment type"
-            ? { ...args, ...packet }
-            : args;
+            : args.display_type == "shipment type" ? { ...args, ...packet } : args
 
         return {
           validArr: validArr.valid,
           chain: formatChain,
           product: args.PRODUCT_ID,
-          args: displayType,
+          args:
+           displayType,
         };
       } catch (err) {
         console.log(err);

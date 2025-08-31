@@ -22,40 +22,32 @@ const getStockDiffs = (beforeStock, afterStock) => {
   return output;
 };
 
-// ---- de-dup identical steps per product/column/op/value ----
 const processPStack = (processStack) => {
   const productMap = new Map();
-  const seen = new Set(); // key: productID|column|operation|value
 
   for (const item of processStack) {
-    const { productID, column, operation, value, ...rest } = item;
+    const { productID, column, ...rest } = item;
 
-    // Skip malformed
-    if (!productID || !column || operation == null || value == null) continue;
-
-    // Dedup identical entries
-    const k = `${productID}|${column}|${operation}|${Number(value)}`;
-    if (seen.has(k)) continue;
-    seen.add(k);
-
+    // Initialize productID entry if not present
     if (!productMap.has(productID)) {
-      productMap.set(productID, { STORED_STOCK: [], ACTIVE_STOCK: [] });
+      productMap.set(productID, {
+        STORED_STOCK: [],
+        ACTIVE_STOCK: [],
+      });
     }
+
+    // Push the operation into the appropriate column array
     const columnMap = productMap.get(productID);
 
-    // Ensure array exists
-    if (!Array.isArray(columnMap[column])) columnMap[column] = [];
-
-    columnMap[column].push({
-      column,
-      operation,
-      value: Number(value),
-      ...rest,
-    });
+    if (columnMap[column]) {
+      columnMap[column].push({ column, ...rest });
+    } else {
+      // Optional: if you want to support other column names dynamically
+      columnMap[column] = [{ column, ...rest }];
+    }
   }
   return productMap;
 };
-
 
 const computeNetChanges = (productMap) => {
   const result = new Map();
@@ -232,10 +224,7 @@ const data_gather_handler = (
         );
 
         let packet = null;
-        if (
-          args.display_type == "reduction type" ||
-          args.display_type == "shipment type"
-        ) {
+        if (args.display_type == "reduction type" || args.display_type == "shipment type") {
           const getTrans = await dbHandle.raw(
             "SELECT * FROM transaction_log WHERE TRANSACTIONID = ?",
             [transactionID]
@@ -249,8 +238,7 @@ const data_gather_handler = (
         }
 
         // ---- FIX: Ensure we always pass an iterable Map ----
-        const diffMapForChain =
-          validArr && validArr.diffMap ? validArr.diffMap : new Map();
+        const diffMapForChain = (validArr && validArr.diffMap) ? validArr.diffMap : new Map();
 
         const formatChain = await formatProductChain(
           diffMapForChain,
@@ -261,9 +249,7 @@ const data_gather_handler = (
         const displayType =
           args.display_type == "reduction type"
             ? { ...args, ...packet }
-            : args.display_type == "shipment type"
-            ? { ...args, ...packet }
-            : args;
+            : args.display_type == "shipment type" ? { ...args, ...packet } : args
 
         return {
           validArr: validArr.valid,
