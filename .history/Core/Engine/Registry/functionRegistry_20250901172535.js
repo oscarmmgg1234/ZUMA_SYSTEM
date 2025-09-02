@@ -305,7 +305,7 @@ class FunctionRegistry {
         },
       },
       "34fk": {
-        name: "New v2 • Reduce Active with Receipt",
+        name: "New v2 • Reduce Active with Receipt (barcode)",
         desc: "Creates a consumption receipt and subtracts from Active. Use when items are consumed from Active stock.",
         meta_data: {
           version: "v2",
@@ -317,7 +317,7 @@ class FunctionRegistry {
       },
       "2j2k": {
         // NOTE: Implementation subtracts ACTIVE via 13g4, even though legacy name says "stored".
-        name: "New v2 • Reduce Stored with Receipt",
+        name: "New v2 • Reduce Stored with Receipt (barcode)",
         desc:
           "Creates a consumption receipt and subtracts from Active stock. (Legacy label refers to ‘stored’, " +
           "but this flow subtracts Active in practice.)",
