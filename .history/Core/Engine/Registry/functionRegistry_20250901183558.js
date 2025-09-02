@@ -28,7 +28,6 @@ class FunctionRegistry {
     this.registry_map = new Map();
     this.init();
     this.applyEffectTags();
-    this.applyParamSpecs();
   }
 
   async getKErrorCorrectingFactor() {
