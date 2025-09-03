@@ -347,6 +347,7 @@ const modifyStockGivenID = (args, action, callback) => {
   //errorCauseType = "employee" or "operation"
   //submitTracker(args, action);
 
+  console.log(args.quantity + )
 
   if (action == "active") {
     //start tracker for this change
@@ -368,6 +369,7 @@ const modifyStockGivenID = (args, action, callback) => {
         args.quantity + result[0].ACTIVE_STOCK,
         args.productID,
       ]);
+      console.log(result[0].ACTIVE_STOCK)
       return callback({
         status: true,
         status_mes: "Successfully modified database",

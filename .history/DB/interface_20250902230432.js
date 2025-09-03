@@ -347,6 +347,7 @@ const modifyStockGivenID = (args, action, callback) => {
   //errorCauseType = "employee" or "operation"
   //submitTracker(args, action);
 
+  console.log()
 
   if (action == "active") {
     //start tracker for this change

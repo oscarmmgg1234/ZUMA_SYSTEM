@@ -345,8 +345,7 @@ const modifyStockGivenID = (args, action, callback) => {
   //category = string
   //timeToDetectError = float
   //errorCauseType = "employee" or "operation"
-  //submitTracker(args, action);
-
+  submitTracker(args, action);
 
   if (action == "active") {
     //start tracker for this change
@@ -365,7 +364,7 @@ const modifyStockGivenID = (args, action, callback) => {
         });
       }
       db(queries.dashboard.transform_active_product, [
-        args.quantity + result[0].ACTIVE_STOCK,
+        parseInt(args.quantity + result[0].ACTIVE_STOCK),
         args.productID,
       ]);
       return callback({
@@ -391,7 +390,7 @@ const modifyStockGivenID = (args, action, callback) => {
         });
       }
       db(queries.dashboard.transform_stored_product, [
-        args.quantity + result[0].STORED_STOCK,
+        parseInt(args.quantity + result[0].STORED_STOCK),
         args.productID,
       ]);
       return callback({
@@ -421,34 +420,20 @@ const getActivationByDate = (args, callback) => {
 };
 
 const getReductionByDate = (args, callback) => {
-  const sql = `
-    SELECT ic.*, tl.REVERSED
-    FROM inventory_consumption AS ic
-    LEFT JOIN transaction_log AS tl
-      ON ic.TRANSACTIONID = tl.TRANSACTIONID
-    WHERE DATE(ic.DATETIME) = ?
-    ORDER BY ic.DATETIME DESC
-  `;
-
-  db(sql, args.to_arr(), (err, result) => {
-    if (err) {
-      console.log(err);
+  db(
+    "SELECT * FROM inventory_consumption WHERE DATE(DATETIME) = ? ORDER BY DATETIME DESC",
+    args.to_arr(),
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
     }
-    return callback(result);
-  });
+  );
 };
 
 const getShipmentLog = (args, callback) => {
-  const sql = `
-    SELECT sl.*, tl.REVERSED
-    FROM shipment_log AS sl
-    LEFT JOIN transaction_log AS tl
-      ON sl.TRANSACTIONID = tl.TRANSACTIONID
-    WHERE DATE(sl.SHIPMENT_DATE) = ?
-    ORDER BY sl.SHIPMENT_DATE DESC
-  `;
-
-  db(sql, args.to_arr(), (err, result) => {
+  db(queries.shipment.get_shipment_log_byDate, args.to_arr(), (err, result) => {
     if (err) {
       console.log(err);
     }

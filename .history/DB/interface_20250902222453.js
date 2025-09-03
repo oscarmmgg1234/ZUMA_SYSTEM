@@ -345,8 +345,7 @@ const modifyStockGivenID = (args, action, callback) => {
   //category = string
   //timeToDetectError = float
   //errorCauseType = "employee" or "operation"
-  //submitTracker(args, action);
-
+  submitTracker(args, action);
 
   if (action == "active") {
     //start tracker for this change
@@ -365,7 +364,7 @@ const modifyStockGivenID = (args, action, callback) => {
         });
       }
       db(queries.dashboard.transform_active_product, [
-        args.quantity + result[0].ACTIVE_STOCK,
+        parseInt(args.quantity + result[0].ACTIVE_STOCK),
         args.productID,
       ]);
       return callback({
@@ -391,7 +390,7 @@ const modifyStockGivenID = (args, action, callback) => {
         });
       }
       db(queries.dashboard.transform_stored_product, [
-        args.quantity + result[0].STORED_STOCK,
+        parseInt(args.quantity + result[0].STORED_STOCK),
         args.productID,
       ]);
       return callback({
@@ -438,22 +437,18 @@ const getReductionByDate = (args, callback) => {
   });
 };
 
-const getShipmentLog = (args, callback) => {
-  const sql = `
-    SELECT sl.*, tl.REVERSED
-    FROM shipment_log AS sl
-    LEFT JOIN transaction_log AS tl
-      ON sl.TRANSACTIONID = tl.TRANSACTIONID
-    WHERE DATE(sl.SHIPMENT_DATE) = ?
-    ORDER BY sl.SHIPMENT_DATE DESC
-  `;
 
-  db(sql, args.to_arr(), (err, result) => {
-    if (err) {
-      console.log(err);
+const getShipmentLog = (args, callback) => {
+  db(
+    "SELECT * FROM shipment_log WHERE DATE(SHIPMENT_DATE) = ? ORDER BY SHIPMENT_DATE DESC",
+    args.to_arr(),
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      return callback(result);
     }
-    return callback(result);
-  });
+  );
 };
 
 const getBarcodeData = (args, callback) => {

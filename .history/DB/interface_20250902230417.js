@@ -347,7 +347,6 @@ const modifyStockGivenID = (args, action, callback) => {
   //errorCauseType = "employee" or "operation"
   //submitTracker(args, action);
 
-
   if (action == "active") {
     //start tracker for this change
     db(queries.dashboard.get_active_stock, args.to_arr(), (err, result) => {
@@ -438,6 +437,7 @@ const getReductionByDate = (args, callback) => {
   });
 };
 
+
 const getShipmentLog = (args, callback) => {
   const sql = `
     SELECT sl.*, tl.REVERSED
@@ -455,6 +455,7 @@ const getShipmentLog = (args, callback) => {
     return callback(result);
   });
 };
+
 
 const getBarcodeData = (args, callback) => {
   db(queries.tools.get_barcode_data, [args.BARCODE_ID], (err, result) => {

@@ -345,8 +345,7 @@ const modifyStockGivenID = (args, action, callback) => {
   //category = string
   //timeToDetectError = float
   //errorCauseType = "employee" or "operation"
-  //submitTracker(args, action);
-
+  submitTracker(args, action);
 
   if (action == "active") {
     //start tracker for this change
@@ -365,7 +364,7 @@ const modifyStockGivenID = (args, action, callback) => {
         });
       }
       db(queries.dashboard.transform_active_product, [
-        args.quantity + result[0].ACTIVE_STOCK,
+        parseInt(args.quantity + result[0].ACTIVE_STOCK),
         args.productID,
       ]);
       return callback({
@@ -391,7 +390,7 @@ const modifyStockGivenID = (args, action, callback) => {
         });
       }
       db(queries.dashboard.transform_stored_product, [
-        args.quantity + result[0].STORED_STOCK,
+        parseInt(args.quantity + result[0].STORED_STOCK),
         args.productID,
       ]);
       return callback({
@@ -438,6 +437,7 @@ const getReductionByDate = (args, callback) => {
   });
 };
 
+
 const getShipmentLog = (args, callback) => {
   const sql = `
     SELECT sl.*, tl.REVERSED
@@ -455,6 +455,7 @@ const getShipmentLog = (args, callback) => {
     return callback(result);
   });
 };
+
 
 const getBarcodeData = (args, callback) => {
   db(queries.tools.get_barcode_data, [args.BARCODE_ID], (err, result) => {

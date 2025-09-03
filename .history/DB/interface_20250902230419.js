@@ -347,7 +347,6 @@ const modifyStockGivenID = (args, action, callback) => {
   //errorCauseType = "employee" or "operation"
   //submitTracker(args, action);
 
-
   if (action == "active") {
     //start tracker for this change
     db(queries.dashboard.get_active_stock, args.to_arr(), (err, result) => {
